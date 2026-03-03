@@ -35,6 +35,70 @@ type MeResponse = {
   role: "SUPERADMIN" | "ADMIN" | "PASTOR" | "USER";
 };
 
+type MembroDetalhado = {
+  id: string;
+  igrejaId?: string | null;
+  igrejaNome?: string | null;
+  numeroSequencial?: number | null;
+  nome?: string | null;
+  rg?: string | null;
+  cpf?: string | null;
+  estadoCivil?: string | null;
+  nomeMae?: string | null;
+  nomePai?: string | null;
+  cargo?: string | null;
+  ativo?: boolean | null;
+  telefone?: string | null;
+  numeroCarteirinha?: string | number | null;
+  dataNascimento?: string | null;
+  dataBatismo?: string | null;
+  dataCriacaoCarteirinha?: string | null;
+  dataVencCarteirinha?: string | null;
+  observacoes?: string | null;
+  endereco?: string | null;
+  numeroEndereco?: string | null;
+  bairro?: string | null;
+  cidade?: string | null;
+  estado?: string | null;
+};
+
+function formatCPF(value?: string | null) {
+  const digits = String(value ?? "")
+    .replace(/\D/g, "")
+    .slice(0, 11);
+
+  if (!digits) return "-";
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 6) return `${digits.slice(0, 3)}.${digits.slice(3)}`;
+  if (digits.length <= 9) {
+    return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
+  }
+
+  return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9, 11)}`;
+}
+
+function formatCarteirinha(
+  numeroCarteirinha?: string | number | null,
+  numeroSequencial?: number | null,
+) {
+  if (typeof numeroCarteirinha === "number") {
+    return `IPR-${String(numeroCarteirinha).padStart(4, "0")}`;
+  }
+
+  const raw = String(numeroCarteirinha ?? "").trim();
+
+  if (raw) {
+    if (/^\d+$/.test(raw)) return `IPR-${raw.padStart(4, "0")}`;
+    return raw;
+  }
+
+  if (numeroSequencial) {
+    return `IPR-${String(numeroSequencial).padStart(4, "0")}`;
+  }
+
+  return "-";
+}
+
 const PERM_DEFAULT_MEMBROS: Permissao = {
   recurso: "membros",
   ler: false,
@@ -56,6 +120,10 @@ export default function SecretariaPageClient() {
   const [permissaoMembros, setPermissaoMembros] = useState<Permissao | null>(
     null,
   );
+
+  const [gerandoPdfCompleto, setGerandoPdfCompleto] = useState(false);
+  const [pdfCompletoAtual, setPdfCompletoAtual] = useState(0);
+  const [pdfCompletoTotal, setPdfCompletoTotal] = useState(0);
 
   const [numeroSequencial, setNumeroSequencial] = useState<number | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -215,9 +283,9 @@ export default function SecretariaPageClient() {
   }, [items, statusFiltro]);
 
   // =========================
-  // PDF
+  // PDF LISTA
   // =========================
-  const gerarPdf = async () => {
+  const gerarPdfLista = async () => {
     if (!canShare) return;
 
     if (itensFiltrados.length === 0) {
@@ -383,6 +451,600 @@ export default function SecretariaPageClient() {
   };
 
   // =========================
+  // PDF COMPLETO
+  // =========================
+  const gerarPdfCompleto = async () => {
+    if (!canShare || gerandoPdfCompleto) return;
+
+    if (itensFiltrados.length === 0) {
+      showAlert("Atenção", "Nenhum membro para gerar PDF.");
+      return;
+    }
+
+    setGerandoPdfCompleto(true);
+    setPdfCompletoAtual(0);
+    setPdfCompletoTotal(itensFiltrados.length);
+
+    try {
+      const membros: MembroDetalhado[] = [];
+      let falhas = 0;
+
+      for (let i = 0; i < itensFiltrados.length; i++) {
+        const item = itensFiltrados[i];
+        setPdfCompletoAtual(i + 1);
+
+        try {
+          const res = await fetch(`/api/membros/${item.id}`, {
+            cache: "no-store",
+          });
+
+          if (!res.ok) {
+            console.error("Erro ao buscar membro:", item.id, res.status);
+            falhas++;
+            continue;
+          }
+
+          const data = (await res.json()) as MembroDetalhado;
+
+          if (data?.id) {
+            membros.push(data);
+          } else {
+            falhas++;
+          }
+        } catch (err) {
+          console.error("Erro ao buscar detalhe do membro:", item.id, err);
+          falhas++;
+        }
+      }
+
+      if (membros.length === 0) {
+        showAlert("Erro", "Não foi possível carregar os detalhes dos membros.");
+        return;
+      }
+
+      const filtroLabel =
+        statusFiltro === "all"
+          ? "Todos"
+          : statusFiltro === "danger"
+            ? "Somente Vencidas"
+            : statusFiltro === "warn"
+              ? "Somente A vencer (<= 30 dias)"
+              : "Somente OK";
+
+      const nomeCliente =
+        membros.find((m) => m.igrejaNome?.trim())?.igrejaNome?.trim() ||
+        "Sistema Igreja";
+
+      const doc = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      const pageWidth = doc.internal.pageSize.width;
+      const pageHeight = doc.internal.pageSize.height;
+
+      const margin = 8;
+      const labelX = margin;
+      const valueX = 52;
+      const valueMaxWidth = pageWidth - margin - valueX;
+      const labelSize = 9;
+      const valueSize = 9;
+      const lineH = 4;
+      const gap = 3;
+
+      let y = 48;
+
+      const getLogoBase64 = async () => {
+        try {
+          const origin =
+            typeof window !== "undefined" ? window.location.origin : "";
+          const resp = await fetch(`${origin}/images/logo.png`, {
+            cache: "no-store",
+          });
+
+          if (!resp.ok) return "";
+
+          const blob = await resp.blob();
+
+          return await new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () =>
+              resolve(typeof reader.result === "string" ? reader.result : "");
+            reader.onerror = () => resolve("");
+            reader.readAsDataURL(blob);
+          });
+        } catch (err) {
+          console.error("Erro ao carregar logo:", err);
+          return "";
+        }
+      };
+
+      const logoDataUri = await getLogoBase64();
+
+      const printHeader = () => {
+        doc.setFillColor(25, 35, 55);
+        doc.rect(0, 0, pageWidth, 40, "F");
+
+        doc.setFillColor(218, 165, 32);
+        doc.rect(0, 35, pageWidth, 5, "F");
+
+        if (logoDataUri) {
+          try {
+            doc.addImage(logoDataUri, "PNG", 10, 7, 18, 18);
+          } catch (err) {
+            console.error("Erro ao inserir logo no PDF:", err);
+          }
+        }
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(18);
+        doc.setTextColor(255, 255, 255);
+        doc.text("FICHA DE MEMBROS", pageWidth / 2, 18, {
+          align: "center",
+        });
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(9);
+        doc.setTextColor(255, 255, 255);
+        doc.text(nomeCliente, 10, 30);
+
+        const dt = new Date();
+        const dataBR = dt.toLocaleDateString("pt-BR", {
+          timeZone: "America/Sao_Paulo",
+        });
+        const horaBR = dt.toLocaleTimeString("pt-BR", {
+          timeZone: "America/Sao_Paulo",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.text(`Gerado em: ${dataBR} ${horaBR}`, pageWidth / 2, 28, {
+          align: "center",
+        });
+
+        doc.setFontSize(9);
+        doc.setTextColor(255, 255, 255);
+        doc.text(`Filtro: ${filtroLabel}`, pageWidth - 10, 30, {
+          align: "right",
+        });
+      };
+
+      const printFooter = () => {
+        const totalPages = doc.getNumberOfPages();
+        const footerY = pageHeight - 10;
+
+        for (let i = 1; i <= totalPages; i++) {
+          doc.setPage(i);
+
+          doc.setDrawColor(200, 200, 200);
+          doc.setLineWidth(0.5);
+          doc.line(margin, footerY - 5, pageWidth - margin, footerY - 5);
+
+          doc.setFontSize(8);
+          doc.setTextColor(100, 100, 100);
+
+          doc.text(nomeCliente, margin, footerY);
+
+          doc.text(
+            `Página ${i} de ${totalPages}`,
+            pageWidth - margin,
+            footerY,
+            {
+              align: "right",
+            },
+          );
+        }
+      };
+
+      const checkPageBreak = (heightNeeded: number) => {
+        if (y + heightNeeded > pageHeight - 20) {
+          doc.addPage();
+          y = 48;
+          printHeader();
+        }
+      };
+
+      const addField = (label: string, value?: string | null) => {
+        const safeValue = String(value ?? "").trim() || "-";
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(valueSize);
+
+        const lines = doc.splitTextToSize(safeValue, valueMaxWidth);
+        const height = Math.max(lines.length * lineH, lineH);
+
+        checkPageBreak(height + gap);
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(labelSize);
+        doc.setTextColor(70, 70, 70);
+        doc.text(label, labelX, y);
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(valueSize);
+        doc.setTextColor(0, 0, 0);
+        doc.text(lines, valueX, y);
+
+        y += height + gap;
+      };
+
+      membros.forEach((membro, index) => {
+        if (index > 0) {
+          doc.addPage();
+        }
+
+        y = 48;
+        printHeader();
+
+        const codigo = membro.numeroSequencial
+          ? `IPR-${String(membro.numeroSequencial).padStart(4, "0")}`
+          : "IPR-0000";
+
+        const enderecoCompleto = [
+          membro.endereco ?? "",
+          membro.numeroEndereco ?? "",
+        ]
+          .join(" ")
+          .trim();
+
+        addField("CADASTRO", codigo);
+        addField("NOME", membro.nome ?? "-");
+        addField("TELEFONE", membro.telefone ?? "-");
+        addField("ENDEREÇO", enderecoCompleto || "-");
+        addField("BAIRRO", membro.bairro ?? "-");
+        addField("CIDADE", membro.cidade ?? "-");
+        addField("ESTADO (UF)", membro.estado ?? "-");
+        addField("ESTADO CIVIL", membro.estadoCivil ?? "-");
+        addField("NOME DA MÃE", membro.nomeMae ?? "-");
+        addField("NOME DO PAI", membro.nomePai ?? "-");
+        addField("RG", membro.rg ?? "-");
+        addField("CPF", formatCPF(membro.cpf));
+        addField("CARGO", membro.cargo ?? "-");
+        addField("STATUS", membro.ativo === false ? "Inativo" : "Ativo");
+        addField("DATA NASC.", formatDateBR(membro.dataNascimento));
+        addField("DATA BATISMO", formatDateBR(membro.dataBatismo));
+        addField(
+          "Nº CARTEIRINHA",
+          formatCarteirinha(membro.numeroCarteirinha, membro.numeroSequencial),
+        );
+        addField(
+          "CRIAÇÃO CARTEIR.",
+          formatDateBR(membro.dataCriacaoCarteirinha),
+        );
+        addField("VENC. CARTEIR.", formatDateBR(membro.dataVencCarteirinha));
+        addField("OBSERVAÇÕES", membro.observacoes ?? "-");
+      });
+
+      printFooter();
+      doc.save("membros-ficha-completa.pdf");
+
+      if (falhas > 0) {
+        showAlert(
+          "Atenção",
+          `PDF gerado com ${membros.length} membro(s). ${falhas} não puderam ser carregados.`,
+        );
+      }
+    } catch (error) {
+      console.error("Erro ao gerar PDF completo:", error);
+      showAlert("Erro", "Falha ao gerar o PDF completo dos membros.");
+    } finally {
+      setGerandoPdfCompleto(false);
+      setPdfCompletoAtual(0);
+      setPdfCompletoTotal(0);
+    }
+  };
+
+  // =========================
+  // PDF EM BRANCO
+  // =========================
+  const gerarPdfFichaEmBranco = async () => {
+    if (!canShare) return;
+
+    try {
+      const doc = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      const pageWidth = doc.internal.pageSize.width;
+      const pageHeight = doc.internal.pageSize.height;
+
+      const margin = 8;
+      const gap = 5;
+      const usableWidth = pageWidth - margin * 2;
+      const innerPad = 6;
+      const colGap = 6;
+      const contentWidth = usableWidth - innerPad * 2;
+      const colW = (contentWidth - colGap) / 2;
+
+      const leftX = margin + innerPad;
+      const rightX = leftX + colW + colGap;
+
+      let y = margin;
+
+      const nomeCliente = "Sistema Igreja";
+
+      const getLogoBase64 = async () => {
+        try {
+          const origin =
+            typeof window !== "undefined" ? window.location.origin : "";
+          const resp = await fetch(`${origin}/images/logo.png`, {
+            cache: "no-store",
+          });
+
+          if (!resp.ok) return "";
+
+          const blob = await resp.blob();
+
+          return await new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () =>
+              resolve(typeof reader.result === "string" ? reader.result : "");
+            reader.onerror = () => resolve("");
+            reader.readAsDataURL(blob);
+          });
+        } catch {
+          return "";
+        }
+      };
+
+      const logoDataUri = await getLogoBase64();
+
+      const printHeader = () => {
+        doc.setFillColor(11, 77, 112);
+        doc.roundedRect(margin, y, usableWidth, 18, 3, 3, "F");
+
+        if (logoDataUri) {
+          try {
+            doc.addImage(logoDataUri, "PNG", margin + 4, y + 3, 10, 10);
+          } catch {}
+        }
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(13);
+        doc.setTextColor(255, 255, 255);
+        doc.text("Novo Membro", margin + 18, y + 7);
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        doc.text("Ficha para preenchimento manual", margin + 18, y + 12);
+
+        y += 22;
+      };
+
+      const printFooter = () => {
+        const totalPages = doc.getNumberOfPages();
+        const footerY = pageHeight - 8;
+
+        for (let i = 1; i <= totalPages; i++) {
+          doc.setPage(i);
+
+          doc.setDrawColor(210, 210, 210);
+          doc.setLineWidth(0.4);
+          doc.line(margin, footerY - 4, pageWidth - margin, footerY - 4);
+
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(8);
+          doc.setTextColor(100, 100, 100);
+          doc.text(nomeCliente, margin, footerY);
+          doc.text(
+            `Página ${i} de ${totalPages}`,
+            pageWidth - margin,
+            footerY,
+            {
+              align: "right",
+            },
+          );
+        }
+      };
+
+      const drawSection = (
+        title: string,
+        height: number,
+        render: (startY: number) => void,
+      ) => {
+        doc.setFillColor(236, 241, 244);
+        doc.setDrawColor(220, 226, 231);
+        doc.roundedRect(margin, y, usableWidth, height, 3, 3, "FD");
+
+        doc.setFillColor(34, 163, 255);
+        doc.circle(margin + 5, y + 5, 1, "F");
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8);
+        doc.setTextColor(45, 65, 85);
+        doc.text(title, margin + 8, y + 6);
+
+        render(y + 11);
+
+        y += height + gap;
+      };
+
+      const drawField = (
+        x: number,
+        topY: number,
+        w: number,
+        label: string,
+        placeholder = "",
+        opts?: { select?: boolean; date?: boolean },
+      ) => {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(7);
+        doc.setTextColor(70, 85, 95);
+        doc.text(label, x, topY);
+
+        doc.setFillColor(255, 255, 255);
+        doc.setDrawColor(220, 225, 230);
+        doc.roundedRect(x, topY + 2, w, 8, 2, 2, "FD");
+
+        if (placeholder) {
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(6.5);
+          doc.setTextColor(165, 165, 165);
+          doc.text(placeholder, x + 3, topY + 7);
+        }
+
+        if (opts?.select) {
+          const cx = x + w - 4;
+          const cy = topY + 6.3;
+          doc.setDrawColor(70, 70, 70);
+          doc.setLineWidth(0.5);
+          doc.line(cx - 1.8, cy - 0.8, cx, cy + 0.8);
+          doc.line(cx, cy + 0.8, cx + 1.8, cy - 0.8);
+        }
+
+        if (opts?.date) {
+          doc.setDrawColor(120, 120, 120);
+          doc.setLineWidth(0.4);
+          doc.rect(x + w - 5.2, topY + 4, 3.2, 3.2);
+          doc.line(x + w - 5.2, topY + 4.9, x + w - 2, topY + 4.9);
+        }
+      };
+
+      const drawTextarea = (
+        x: number,
+        topY: number,
+        w: number,
+        h: number,
+        label: string,
+        placeholder = "",
+      ) => {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(7);
+        doc.setTextColor(70, 85, 95);
+        doc.text(label, x, topY);
+
+        doc.setFillColor(255, 255, 255);
+        doc.setDrawColor(220, 225, 230);
+        doc.roundedRect(x, topY + 2, w, h, 2, 2, "FD");
+
+        if (placeholder) {
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(6.5);
+          doc.setTextColor(165, 165, 165);
+          doc.text(placeholder, x + 3, topY + 8);
+        }
+      };
+
+      const drawStatusField = (x: number, topY: number, w: number) => {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(7);
+        doc.setTextColor(70, 85, 95);
+        doc.text("Status do Membro", x, topY);
+
+        doc.setFillColor(255, 255, 255);
+        doc.setDrawColor(220, 225, 230);
+        doc.roundedRect(x, topY + 2, w, 8, 2, 2, "FD");
+
+        doc.setDrawColor(120, 120, 120);
+        doc.rect(x + 3, topY + 4.2, 3, 3);
+        doc.rect(x + 28, topY + 4.2, 3, 3);
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(7);
+        doc.setTextColor(90, 90, 90);
+        doc.text("Ativo", x + 8, topY + 6.8);
+        doc.text("Inativo", x + 33, topY + 6.8);
+      };
+
+      printHeader();
+
+      drawSection("Dados principais", 112, (startY) => {
+        const row = 15;
+
+        drawField(leftX, startY, colW, "Nome *", "Nome completo");
+        drawField(rightX, startY, colW, "Telefone", "(11) 99999-9999");
+
+        drawField(leftX, startY + row, colW, "Endereço", "Rua / Avenida");
+        drawField(rightX, startY + row, colW, "Número", "Número");
+
+        drawField(leftX, startY + row * 2, colW, "Bairro", "Bairro");
+        drawField(
+          rightX,
+          startY + row * 2,
+          colW,
+          "Cidade / Distrito",
+          "Cidade",
+        );
+
+        drawField(leftX, startY + row * 3, colW, "Estado (UF)", "Selecione", {
+          select: true,
+        });
+        drawField(rightX, startY + row * 3, colW, "Estado Civil", "Selecione", {
+          select: true,
+        });
+
+        drawField(leftX, startY + row * 4, colW, "Nome da Mãe", "Nome da mãe");
+        drawField(rightX, startY + row * 4, colW, "Nome do Pai", "Nome do pai");
+
+        drawField(leftX, startY + row * 5, colW, "RG", "RG");
+        drawField(rightX, startY + row * 5, colW, "CPF", "000.000.000-00");
+
+        drawField(leftX, startY + row * 6, contentWidth, "Cargo *", "Membro", {
+          select: true,
+        });
+      });
+
+      drawSection("Datas importantes", 26, (startY) => {
+        drawField(leftX, startY, colW, "Data de Nascimento", "dd/mm/aaaa", {
+          date: true,
+        });
+        drawField(rightX, startY, colW, "Data de Batismo", "dd/mm/aaaa", {
+          date: true,
+        });
+      });
+
+      drawSection("Carteirinha", 41, (startY) => {
+        const row = 15;
+
+        drawField(leftX, startY, colW, "Nº Carteirinha", "Número");
+        drawField(
+          rightX,
+          startY,
+          colW,
+          "Criação da Carteirinha",
+          "dd/mm/aaaa",
+          {
+            date: true,
+          },
+        );
+
+        drawField(
+          leftX,
+          startY + row,
+          colW,
+          "Vencimento da Carteirinha",
+          "dd/mm/aaaa",
+          { date: true },
+        );
+        drawStatusField(rightX, startY + row, colW);
+      });
+
+      drawSection("Observações", 38, (startY) => {
+        drawTextarea(
+          leftX,
+          startY,
+          contentWidth,
+          22,
+          "Observações",
+          "Ex.: informações adicionais, notas...",
+        );
+      });
+
+      printFooter();
+
+      doc.save("ficha-membro-em-branco.pdf");
+    } catch (error) {
+      console.error(error);
+      showAlert("Erro", "Não foi possível gerar a ficha em branco.");
+    }
+  };
+
+  // =========================
   // WhatsApp
   // =========================
   const enviarWhats = () => {
@@ -493,11 +1155,29 @@ export default function SecretariaPageClient() {
           {canShare && (
             <>
               <button
-                onClick={gerarPdf}
+                onClick={gerarPdfLista}
                 className={styles.btnPDF}
                 type="button"
               >
-                <FileText size={16} /> PDF
+                <FileText size={16} /> PDF Lista
+              </button>
+
+              <button
+                onClick={gerarPdfCompleto}
+                className={styles.btnPDF}
+                type="button"
+                disabled={gerandoPdfCompleto}
+              >
+                <FileText size={16} />
+                {gerandoPdfCompleto ? " Gerando..." : " PDF Completo"}
+              </button>
+
+              <button
+                onClick={gerarPdfFichaEmBranco}
+                className={styles.btnPDF}
+                type="button"
+              >
+                <FileText size={16} /> Ficha em Branco
               </button>
 
               <button
@@ -597,6 +1277,44 @@ export default function SecretariaPageClient() {
           {itensFiltrados.length === 0 && (
             <div className={styles.emptyCard}>Nenhum membro encontrado.</div>
           )}
+        </div>
+      )}
+
+      {gerandoPdfCompleto && (
+        <div className={styles.progressOverlay}>
+          <div className={styles.progressModal}>
+            <div className={styles.progressSpinner} />
+
+            <div className={styles.progressTitle}>Gerando PDF completo</div>
+
+            <div className={styles.progressText}>
+              Processando membro {pdfCompletoAtual} de {pdfCompletoTotal}
+            </div>
+
+            <div className={styles.progressSubtext}>
+              Não feche esta tela até a geração terminar.
+            </div>
+
+            <div className={styles.progressBar}>
+              <div
+                className={styles.progressFill}
+                style={{
+                  width: `${
+                    pdfCompletoTotal
+                      ? Math.round((pdfCompletoAtual / pdfCompletoTotal) * 100)
+                      : 0
+                  }%`,
+                }}
+              />
+            </div>
+
+            <div className={styles.progressPercent}>
+              {pdfCompletoTotal
+                ? Math.round((pdfCompletoAtual / pdfCompletoTotal) * 100)
+                : 0}
+              %
+            </div>
+          </div>
         </div>
       )}
 
