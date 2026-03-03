@@ -956,83 +956,44 @@ export default function SecretariaPageClient() {
       drawSection("Dados principais", 112, (startY) => {
         const row = 15;
 
-        drawField(leftX, startY, colW, "Nome *", "Nome completo");
-        drawField(rightX, startY, colW, "Telefone", "(11) 99999-9999");
+        drawField(leftX, startY, colW, "Nome");
+        drawField(rightX, startY, colW, "Telefone");
 
-        drawField(leftX, startY + row, colW, "Endereço", "Rua / Avenida");
-        drawField(rightX, startY + row, colW, "Número", "Número");
+        drawField(leftX, startY + row, colW, "Endereço");
+        drawField(rightX, startY + row, colW, "Número");
 
-        drawField(leftX, startY + row * 2, colW, "Bairro", "Bairro");
-        drawField(
-          rightX,
-          startY + row * 2,
-          colW,
-          "Cidade / Distrito",
-          "Cidade",
-        );
+        drawField(leftX, startY + row * 2, colW, "Bairro");
+        drawField(rightX, startY + row * 2, colW, "Cidade / Distrito");
 
-        drawField(leftX, startY + row * 3, colW, "Estado (UF)", "Selecione", {
-          select: true,
-        });
-        drawField(rightX, startY + row * 3, colW, "Estado Civil", "Selecione", {
-          select: true,
-        });
+        drawField(leftX, startY + row * 3, colW, "Estado (UF)");
+        drawField(rightX, startY + row * 3, colW, "Estado Civil");
 
-        drawField(leftX, startY + row * 4, colW, "Nome da Mãe", "Nome da mãe");
-        drawField(rightX, startY + row * 4, colW, "Nome do Pai", "Nome do pai");
+        drawField(leftX, startY + row * 4, colW, "Nome da Mãe");
+        drawField(rightX, startY + row * 4, colW, "Nome do Pai");
 
-        drawField(leftX, startY + row * 5, colW, "RG", "RG");
-        drawField(rightX, startY + row * 5, colW, "CPF", "000.000.000-00");
+        drawField(leftX, startY + row * 5, colW, "RG");
+        drawField(rightX, startY + row * 5, colW, "CPF");
 
-        drawField(leftX, startY + row * 6, contentWidth, "Cargo *", "Membro", {
-          select: true,
-        });
+        drawField(leftX, startY + row * 6, contentWidth, "Cargo");
       });
 
       drawSection("Datas importantes", 26, (startY) => {
-        drawField(leftX, startY, colW, "Data de Nascimento", "dd/mm/aaaa", {
-          date: true,
-        });
-        drawField(rightX, startY, colW, "Data de Batismo", "dd/mm/aaaa", {
-          date: true,
-        });
+        drawField(leftX, startY, colW, "Data de Nascimento");
+        drawField(rightX, startY, colW, "Data de Batismo");
       });
 
       drawSection("Carteirinha", 41, (startY) => {
         const row = 15;
 
-        drawField(leftX, startY, colW, "Nº Carteirinha", "Número");
-        drawField(
-          rightX,
-          startY,
-          colW,
-          "Criação da Carteirinha",
-          "dd/mm/aaaa",
-          {
-            date: true,
-          },
-        );
+        drawField(leftX, startY, colW, "Nº Carteirinha");
+        drawField(rightX, startY, colW, "Criação da Carteirinha");
 
-        drawField(
-          leftX,
-          startY + row,
-          colW,
-          "Vencimento da Carteirinha",
-          "dd/mm/aaaa",
-          { date: true },
-        );
+        drawField(leftX, startY + row, colW, "Vencimento da Carteirinha");
         drawStatusField(rightX, startY + row, colW);
       });
 
       drawSection("Observações", 38, (startY) => {
-        drawTextarea(
-          leftX,
-          startY,
-          contentWidth,
-          22,
-          "Observações",
-          "Ex.: informações adicionais, notas...",
-        );
+        drawTextarea(leftX, startY, contentWidth, 22, "Observações");
       });
 
       printFooter();
