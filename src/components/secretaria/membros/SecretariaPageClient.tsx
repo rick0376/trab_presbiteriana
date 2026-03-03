@@ -1,14 +1,20 @@
 //src/components/secretaria/membros/SecretariaPageClient.tsx
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import ConfirmModal from "@/components/ui/ConfirmModal/ConfirmModal";
 import AlertModal from "@/components/ui/AlertModal/AlertModal";
 import styles from "./styles.module.scss";
 import { Share2 } from "lucide-react";
 import { jsPDF } from "jspdf";
-import { FileText, MessageCircle, PencilLine, Trash2 } from "lucide-react";
+import {
+  ChevronDown,
+  FileText,
+  MessageCircle,
+  PencilLine,
+  Trash2,
+} from "lucide-react";
 
 type Membro = {
   id: string;
@@ -124,6 +130,8 @@ export default function SecretariaPageClient() {
   const [gerandoPdfCompleto, setGerandoPdfCompleto] = useState(false);
   const [pdfCompletoAtual, setPdfCompletoAtual] = useState(0);
   const [pdfCompletoTotal, setPdfCompletoTotal] = useState(0);
+  const [pdfMenuOpen, setPdfMenuOpen] = useState(false);
+  const pdfMenuRef = useRef<HTMLDivElement | null>(null);
 
   const [numeroSequencial, setNumeroSequencial] = useState<number | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -271,6 +279,31 @@ export default function SecretariaPageClient() {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedNome, permissaoMembros]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        pdfMenuRef.current &&
+        !pdfMenuRef.current.contains(event.target as Node)
+      ) {
+        setPdfMenuOpen(false);
+      }
+    };
+
+    const handleEsc = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setPdfMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEsc);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEsc);
+    };
+  }, []);
 
   // ✅ aplica filtro por status (vencida / a vencer(<=30) / ok)
   const itensFiltrados = useMemo(() => {
@@ -1115,31 +1148,68 @@ export default function SecretariaPageClient() {
         <div className={styles.actionsRow}>
           {canShare && (
             <>
-              <button
-                onClick={gerarPdfLista}
-                className={styles.btnPDF}
-                type="button"
-              >
-                <FileText size={16} /> PDF Lista
-              </button>
+              <div className={styles.pdfMenuWrap} ref={pdfMenuRef}>
+                <button
+                  type="button"
+                  className={styles.btnPDF}
+                  onClick={() => setPdfMenuOpen((prev) => !prev)}
+                  aria-expanded={pdfMenuOpen}
+                  aria-haspopup="menu"
+                  disabled={gerandoPdfCompleto}
+                >
+                  <FileText size={16} />
+                  {gerandoPdfCompleto ? " Gerando..." : " PDF"}
+                  <ChevronDown
+                    size={16}
+                    className={`${styles.pdfChevron} ${
+                      pdfMenuOpen ? styles.pdfChevronOpen : ""
+                    }`}
+                  />
+                </button>
 
-              <button
-                onClick={gerarPdfCompleto}
-                className={styles.btnPDF}
-                type="button"
-                disabled={gerandoPdfCompleto}
-              >
-                <FileText size={16} />
-                {gerandoPdfCompleto ? " Gerando..." : " PDF Completo"}
-              </button>
+                {pdfMenuOpen && (
+                  <div className={styles.pdfDropdown} role="menu">
+                    <button
+                      type="button"
+                      className={styles.pdfDropdownItem}
+                      onClick={() => {
+                        setPdfMenuOpen(false);
+                        void gerarPdfLista();
+                      }}
+                    >
+                      <FileText size={15} />
+                      PDF Lista
+                    </button>
 
-              <button
-                onClick={gerarPdfFichaEmBranco}
-                className={styles.btnPDF}
-                type="button"
-              >
-                <FileText size={16} /> Ficha em Branco
-              </button>
+                    <button
+                      type="button"
+                      className={styles.pdfDropdownItem}
+                      onClick={() => {
+                        setPdfMenuOpen(false);
+                        void gerarPdfCompleto();
+                      }}
+                      disabled={gerandoPdfCompleto}
+                    >
+                      <FileText size={15} />
+                      {gerandoPdfCompleto
+                        ? "Gerando PDF Completo..."
+                        : "PDF Completo"}
+                    </button>
+
+                    <button
+                      type="button"
+                      className={styles.pdfDropdownItem}
+                      onClick={() => {
+                        setPdfMenuOpen(false);
+                        void gerarPdfFichaEmBranco();
+                      }}
+                    >
+                      <FileText size={15} />
+                      Ficha em Branco
+                    </button>
+                  </div>
+                )}
+              </div>
 
               <button
                 onClick={enviarWhats}
