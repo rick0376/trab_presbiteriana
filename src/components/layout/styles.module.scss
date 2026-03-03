@@ -1,0 +1,30 @@
+.wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  background: radial-gradient(
+    circle at top,
+    #0f2a3d 0%,
+    #9ccae9 40%,
+    #04121c 100%
+  );
+}
+
+.mainArea {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.dashboardContent {
+  flex: 1;
+  width: 100%;
+  padding: 32px;
+}
+
+@media (max-width: 420px) {
+  .dashboardContent {
+    padding: 12px;
+  }
+}

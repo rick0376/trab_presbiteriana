@@ -1,0 +1,21 @@
+/* src/components/ui/Button.module.scss */
+
+.button {
+  padding: 10px 20px;
+  border: none;
+  background-color: #3498db;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.button:disabled {
+  background-color: #ddd;
+  cursor: not-allowed;
+}
+
+.fullWidth {
+  width: 100%;
+}

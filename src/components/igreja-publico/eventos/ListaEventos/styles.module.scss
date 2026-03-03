@@ -1,0 +1,591 @@
+/* =======================================================
+   GRID DE CARDS
+======================================================= */
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+.cardWrap {
+  position: relative;
+}
+
+/* =======================================================
+   CARD
+======================================================= */
+
+.card {
+  width: 100%;
+  background: #b3bec5;
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  border: none;
+
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.28);
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+
+  outline: none;
+  user-select: none;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 38px rgba(0, 0, 0, 0.32);
+}
+
+.card:focus-visible {
+  box-shadow:
+    0 0 0 4px rgba(34, 211, 238, 0.25),
+    0 20px 38px rgba(0, 0, 0, 0.32);
+}
+
+/* =======================================================
+   IMAGEM DO CARD
+======================================================= */
+
+.thumb {
+  position: relative;
+  height: 220px;
+  background: #0b2330;
+  overflow: hidden;
+}
+
+.thumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+}
+
+.thumbPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-weight: 800;
+  color: #083a52;
+}
+
+/* Badges */
+.badges {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.badge {
+  background: rgba(8, 58, 82, 0.85);
+  color: white;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+/* =======================================================
+   CORPO DO CARD
+======================================================= */
+
+.body {
+  padding: 14px 16px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 900;
+  color: #083a52;
+  margin-bottom: 6px;
+}
+
+.meta {
+  font-size: 14px;
+  font-weight: 600;
+  color: #25576e;
+}
+
+/* =======================================================
+   AÇÕES (ícones)
+======================================================= */
+
+.actions {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 6px;
+}
+
+.iconBtn,
+.iconBtnDanger {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.22);
+  transition: all 0.2s ease;
+}
+
+.iconBtn {
+  background: #f59e0b;
+  color: white;
+
+  &:hover {
+    background: #e9bd10;
+    color: #92400e;
+  }
+}
+
+.iconBtnDanger {
+  background: #ef4444;
+  color: white;
+
+  &:hover {
+    background: #f3bfbf;
+    color: #991b1b;
+  }
+}
+
+/* =======================================================
+   FORM (reuso no editar)
+======================================================= */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 850;
+  color: #083a52;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: #f7f7f8;
+  color: #083a52;
+  outline: none;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+}
+
+.input:focus {
+  background: #e6f1f1;
+  border-color: #22d3ee;
+  box-shadow: 0 0 0 4px rgba(11, 79, 108, 0.18);
+}
+
+/* =======================================================
+   BOTÕES
+======================================================= */
+
+.btn,
+.btnGhost {
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-weight: 950;
+  cursor: pointer;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.18s ease;
+}
+
+.btn {
+  background: linear-gradient(135deg, #0ea5e9 0%, #2581a8 70%, #22d3ee 130%);
+  color: #eef3f1;
+}
+
+.btn:hover {
+  background: #c8e4f1;
+  color: #2581a8;
+  border: 1px solid #2581a8;
+  transform: translateY(-2px);
+}
+
+.btnGhost {
+  background-color: #ef4444;
+  color: white;
+}
+
+.btnGhost:hover {
+  background-color: #f3bfbf;
+  color: #991b1b;
+  border: 1px solid #991b1b;
+  transform: translateY(-2px);
+}
+
+/* =======================================================
+   EDIÇÃO (maior + preview)
+======================================================= */
+
+.editCard {
+  padding: 24px;
+  border-radius: 20px;
+  background: #e7ebee;
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.28);
+  width: 100%;
+}
+
+.editLayout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  align-items: start;
+  width: 100%;
+}
+
+.editMedia {
+  background: #0b2330;
+  border-radius: 20px;
+  padding: 16px;
+}
+
+.editImg,
+.editImgPlaceholder {
+  width: 100%;
+  height: 220px;
+  border-radius: 16px;
+  display: block;
+  margin-bottom: 14px;
+}
+
+.editImg {
+  object-fit: contain;
+  object-position: center;
+  background: #0b2330;
+}
+
+.editImgPlaceholder {
+  background: rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  color: rgba(247, 247, 248, 0.85);
+}
+
+.editFields {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.editActions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.editGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.fileRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.fileInput {
+  display: none;
+}
+
+.fileBtn {
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: #f7f7f8;
+  color: #083a52;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+}
+
+.fileBtn:hover {
+  background: #e6f1f1;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.12);
+}
+
+.fileBtnSelected {
+  background: rgba(34, 211, 238, 0.16);
+  border-color: rgba(34, 211, 238, 0.55);
+  color: #0b4f6c;
+  box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.14);
+}
+
+.fileName {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(8, 58, 82, 0.75);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 260px;
+}
+
+.fileNameSelected {
+  color: rgba(11, 79, 108, 0.95);
+}
+
+.imagePreviewWrapper {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.imagePreview {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* =======================================================
+   EMPTY
+======================================================= */
+
+.empty {
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px dashed rgba(255, 255, 255, 0.22);
+  text-align: center;
+  font-size: 14px;
+  font-weight: 650;
+  color: rgba(247, 247, 248, 0.75);
+}
+
+/* =======================================================
+   ANIMAÇÃO
+======================================================= */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* =======================================================
+   MODAL
+======================================================= */
+
+/* Modal Overlay */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center; /* Centraliza a modal vertical e horizontalmente */
+  padding: 20px;
+  z-index: 1000;
+}
+
+/* Modal */
+.modal {
+  width: 100%;
+  max-width: 920px;
+  border-radius: 24px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #73a5be 0%, #3e6f86 100%);
+  box-shadow: 0 26px 60px rgba(0, 0, 0, 0.45);
+  animation: fadeIn 0.25s ease;
+
+  /* Ajuste para telas pequenas */
+  max-height: 80vh; /* Limita a altura da modal para telas pequenas */
+  margin-top: 10vh; /* Dá um espaçamento superior */
+}
+
+/* Modal Grid */
+.modalGrid {
+  display: grid;
+  align-items: start;
+  grid-template-columns: 360px 1fr;
+  gap: 18px;
+  padding: 18px 22px 22px;
+  max-height: calc(80vh - 80px); /* Ajuste para usar toda a altura disponível */
+  overflow-y: auto;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.modalHeaderTitle {
+  font-size: 22px;
+  font-weight: 900;
+  color: #eef3f1;
+}
+
+.modalClose {
+  background: rgba(255, 255, 255, 0.12);
+  color: #eef3f1;
+  border: none;
+  border-radius: 999px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.modalMedia {
+  border-radius: 20px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.modalMediaImg {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+}
+
+.modalMediaPlaceholder {
+  padding: 22px;
+  color: rgba(238, 243, 241, 0.75);
+  font-weight: 800;
+}
+
+.modalSide {
+  max-height: 480px;
+  overflow: auto;
+  padding-right: 6px;
+  color: #eef3f1;
+}
+
+.modalMeta {
+  font-size: 14px;
+  font-weight: 800;
+  color: rgba(238, 243, 241, 0.85);
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.modalRow {
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: rgba(238, 243, 241, 0.9);
+}
+
+.tabs {
+  display: flex;
+  gap: 16px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.tabBtn {
+  background: transparent;
+  border: none;
+  color: rgba(238, 243, 241, 0.75);
+  font-weight: 900;
+  padding: 8px 2px;
+  position: relative;
+}
+
+.tabActive {
+  color: #fbbf24;
+}
+
+.tabActive::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 3px;
+  border-radius: 99px;
+  background: #fbbf24;
+}
+
+.modalDesc {
+  margin-top: 14px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgba(238, 243, 241, 0.92);
+}
+
+.modalDescMuted {
+  margin-top: 14px;
+  font-size: 14px;
+  color: rgba(238, 243, 241, 0.65);
+}
+
+/* =======================================================
+   RESPONSIVO
+======================================================= */
+
+@media (max-width: 1024px) {
+  .editLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .modalGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .editImg,
+  .editImgPlaceholder {
+    height: 200px;
+  }
+
+  .editGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .modalSide {
+    max-height: 55vh;
+  }
+}

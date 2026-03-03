@@ -1,0 +1,238 @@
+.container {
+  margin-top: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+/* ✅ Card responsivo */
+.card {
+  background: radial-gradient(
+    circle at top,
+    #15405f 0%,
+    #5d8baa 40%,
+    #083658 100%
+  );
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  padding: 3rem;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.089);
+
+  width: min(420px, 100%); /* ✅ no lugar de min-width: 400px */
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  text-align: center;
+  color: white;
+  margin-bottom: 2rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.subtitle {
+  text-align: center;
+  color: white;
+  margin-bottom: 10px;
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.input {
+  width: 100%;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1rem;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: rgba(59, 130, 246, 0.9);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+.button {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-weight: 600;
+
+  &:hover {
+    color: white;
+    text-decoration: underline;
+  }
+}
+
+/* ===== Modal ===== */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.modal {
+  width: min(420px, 100%);
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  color: white;
+}
+
+.modalTitle {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.modalText {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 16px;
+}
+
+.modalBtn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #ef4444, #f97316);
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* ===========================
+   ✅ RESPONSIVO (DIMINUI CARD)
+   =========================== */
+@media (max-width: 520px) {
+  .container {
+    padding: 14px;
+  }
+
+  .card {
+    padding: 22px;
+    border-radius: 18px;
+  }
+
+  .title {
+    font-size: 1.35rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .subtitle {
+    font-size: 15px;
+  }
+
+  .input {
+    padding: 0.9rem;
+    font-size: 0.95rem;
+  }
+
+  .button {
+    padding: 0.9rem;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 390px) {
+  .container {
+    padding: 12px;
+  }
+
+  .card {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .title {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+
+  .subtitle {
+    font-size: 14px;
+  }
+
+  .input {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .button {
+    padding: 0.8rem;
+    font-size: 0.95rem;
+  }
+
+  .modalOverlay {
+    padding: 16px;
+  }
+
+  .modal {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 340px) {
+  .card {
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .title {
+    font-size: 1.1rem;
+  }
+
+  .input {
+    padding: 0.7rem;
+    font-size: 0.85rem;
+  }
+
+  .button {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+  }
+}

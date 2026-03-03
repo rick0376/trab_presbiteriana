@@ -1,0 +1,264 @@
+/* ===================== HEADER ===================== */
+
+.header {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 64px;
+  background: rgba(15, 11, 46, 0.96);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(99, 102, 241, 0.25);
+  z-index: 1003;
+}
+
+/* layout estável em qualquer largura */
+.mainContainer {
+  height: 100%;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ===================== LOGO ===================== */
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo img {
+  width: 38px;
+  height: 38px;
+  display: block;
+}
+
+/* ===================== NOME IGREJA ===================== */
+
+.igrejaNome {
+  color: white;
+  font-weight: 700;
+  line-height: 1.1;
+
+  /* tamanho automático e progressivo */
+  font-size: clamp(12px, 3vw, 20px);
+
+  /* comportamento correto em telas pequenas */
+  white-space: normal;
+  overflow: hidden;
+  word-break: break-word;
+
+  min-width: 0;
+}
+
+/* ===================== LADO DIREITO ===================== */
+
+.rightSection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ===================== USER CARD ===================== */
+
+.userCard {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+
+  flex: 0 0 auto;
+  width: auto;
+  max-width: 200px;
+}
+
+.userAvatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+}
+
+.userInfo {
+  display: none;
+}
+
+.userName {
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.userRole {
+  font-size: 12px;
+  color: #93c5fd;
+  white-space: nowrap;
+}
+
+.logoutBtn {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.icoLogout {
+  width: 14px;
+  height: 14px;
+}
+
+/* ===================== MENU ===================== */
+
+.menuToggle {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  font-size: 18px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+/* ===================== ≥ 640px ===================== */
+
+@media (min-width: 640px) {
+  .header {
+    height: 70px;
+  }
+
+  .mainContainer {
+    padding: 0 16px;
+    gap: 12px;
+  }
+
+  .userCard {
+    padding: 6px 10px;
+    gap: 8px;
+    max-width: 240px;
+  }
+
+  .menuToggle {
+    width: 42px;
+    height: 42px;
+  }
+  .userInfo {
+    display: flex;
+    flex-direction: column;
+    min-width: 0px;
+  }
+}
+
+/* ===================== ≥ 768px ===================== */
+
+@media (min-width: 768px) {
+  .mainContainer {
+    padding: 0 20px;
+    gap: 14px;
+  }
+
+  .logoutBtn {
+    width: auto;
+    height: auto;
+    padding: 6px 10px;
+  }
+}
+
+/* ===================== ≥ 1024px ===================== */
+
+@media (min-width: 1024px) {
+  .header {
+    height: 80px;
+  }
+
+  .mainContainer {
+    padding: 0 24px;
+    gap: 18px;
+  }
+
+  .userCard {
+    padding: 10px 14px;
+    border-radius: 22px;
+  }
+
+  .userAvatar {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+
+  .menuToggle {
+    width: 46px;
+    height: 46px;
+  }
+}
+
+/* ===================== MODAL ===================== */
+
+.logoutModal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  z-index: 9999;
+  backdrop-filter: blur(4px);
+}
+
+.modalContent {
+  background: white;
+  border-radius: 16px;
+  padding: 28px;
+  text-align: center;
+  width: min(420px, 100%);
+}
+
+.modalIcon {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+.modalButtons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 18px;
+}
+
+.confirmBtn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.cancelBtn {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+}

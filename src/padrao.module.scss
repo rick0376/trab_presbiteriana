@@ -1,0 +1,37 @@
+.container {
+  background: linear-gradient(135deg, #2b3950 0%, #293a61 50%, #2a2572 100%);
+  border-radius: 24px;
+  padding: 24px;
+  display: grid;
+  gap: 14px;
+}
+
+.card {
+  text-decoration: none;
+  border-radius: 16px;
+  padding: 16px;
+  background: radial-gradient(
+    circle at top,
+    #266c9e 0%,
+    #6696b6 40%,
+    #296592 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.35);
+  color: #ffffff;
+  font-weight: 800;
+  transition: 0.2s;
+}
+
+.btnSecondary {
+  background: linear-gradient(135deg, #cf9b16 0%, #a75b04 100%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #f5f3f3;
+}
+
+.btnSecondary:hover {
+  background: linear-gradient(135deg, #e0b12a 0%, #c46a06 100%);
+  transform: translateY(-3px);
+}
+
+

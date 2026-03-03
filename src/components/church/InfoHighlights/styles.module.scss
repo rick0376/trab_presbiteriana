@@ -1,0 +1,23 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.infoItem {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+
+  p {
+    margin: 0;
+  }
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #00ff88;
+  margin-top: 6px;
+}

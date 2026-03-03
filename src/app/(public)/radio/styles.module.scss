@@ -1,0 +1,116 @@
+.container {
+  min-height: calc(100vh - 80px);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.card {
+  width: 100%;
+  max-width: 420px;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  padding: 22px;
+  color: #fff;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.live {
+  color: #22c55e;
+  font-weight: 800;
+}
+
+.offline {
+  color: #f87171;
+  font-weight: 800;
+}
+
+/* Texto */
+.subtitle {
+  margin: 12px 0 18px;
+  opacity: 0.8;
+  font-size: 14px;
+}
+
+/* Botão principal */
+.radioBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 16px;
+  border: none;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    transform 0.08s ease,
+    opacity 0.08s ease;
+}
+
+.radioBtn:hover {
+  transform: translateY(-1px);
+  opacity: 0.95;
+}
+
+.radioIcon {
+  font-size: 20px;
+}
+
+.radioText {
+  flex: 1;
+  text-align: left;
+}
+
+.badge {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* Footer / Admin */
+.footer {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.adminLink {
+  font-size: 13px;
+  opacity: 0.7;
+  text-decoration: none;
+  color: #fff;
+}
+
+.adminLink:hover {
+  opacity: 1;
+}
+
+/* Mobile */
+@media (max-width: 520px) {
+  .card {
+    padding: 18px;
+  }
+
+  .title {
+    font-size: 18px;
+  }
+}

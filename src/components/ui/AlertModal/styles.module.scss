@@ -1,0 +1,45 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal {
+  width: 100%;
+  max-width: 420px;
+  border-radius: 16px;
+  padding: 18px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  color: #fff;
+}
+
+.title {
+  margin: 0 0 8px 0;
+  font-weight: 800;
+}
+
+.message {
+  margin: 0 0 14px 0;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ok {
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  background: #0284c7;
+  border: none;
+  color: #fff;
+}

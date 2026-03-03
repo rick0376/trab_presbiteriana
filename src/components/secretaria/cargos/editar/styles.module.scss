@@ -1,0 +1,330 @@
+/* =====================================================
+   CARGOS - PÁGINA DE CARGOS (PADRÃO REVISADO)
+===================================================== */
+
+.container {
+  width: 100%;
+  max-width: 1124px;
+  margin: 64px auto 0;
+  padding: 22px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #0b4f6c 0%, #083a52 60%, #05293a 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 22px 48px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  display: grid;
+  gap: 16px;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.headerRight {
+  display: grid;
+  gap: 2px;
+}
+
+.h1Editar {
+  color: #f7f7f8;
+}
+
+.title {
+  color: #f7f7f8;
+  font-weight: 950;
+  letter-spacing: -0.35px;
+  font-size: 26px;
+  line-height: 1.1;
+}
+
+.sub {
+  color: rgba(247, 247, 248, 0.7);
+  font-weight: 650;
+  font-size: 13px;
+}
+
+/* BACK BUTTON */
+.back {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  cursor: pointer;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #f7f7f8;
+  font-weight: 900;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease;
+
+  box-shadow: 0 12px 22px rgba(0, 0, 0, 0.22);
+}
+
+.back:hover {
+  color: #0b4f6c;
+  background: #ffffff;
+  border-color: rgba(255, 255, 255, 0.22);
+  transform: translateY(-1px);
+  box-shadow: 0 16px 28px rgba(0, 0, 0, 0.28);
+}
+
+/* FORM */
+.form {
+  display: grid;
+  gap: 14px;
+}
+
+/* SECTIONS */
+.section {
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid rgba(2, 6, 23, 0.07);
+  box-shadow: 0 10px 22px rgba(2, 6, 23, 0.06);
+  padding: 16px;
+}
+
+/* SECTION TITLE */
+.sectionTitle {
+  font-weight: 950;
+  color: #083a52;
+  letter-spacing: -0.2px;
+  margin-bottom: 10px;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sectionTitle::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%);
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.22);
+}
+
+/* FIELDS */
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 850;
+  color: rgba(2, 6, 23, 0.72);
+}
+
+.req {
+  color: #2563eb;
+  font-weight: 950;
+}
+
+/* INPUT FIELDS */
+.input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(2, 6, 23, 0.12);
+  background: #f8fafc;
+  color: #0b1220;
+  outline: none;
+  transition: 0.18s ease;
+}
+
+.input::placeholder {
+  color: rgba(2, 6, 23, 0.42);
+}
+
+.input:focus {
+  background: #ffffff;
+  border-color: rgba(37, 99, 235, 0.45);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.14);
+}
+
+/* BUTTON */
+.btn {
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 950;
+  border-color: rgba(56, 189, 248, 0.45);
+  cursor: pointer;
+  background: linear-gradient(135deg, #148ac0 0%, #1e6e91 70%, #22d3ee 130%);
+  color: #eef3f1;
+  box-shadow:
+    0 16px 30px rgba(14, 165, 233, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.18);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.03);
+  box-shadow:
+    0 22px 38px rgba(14, 165, 233, 0.32),
+    0 12px 26px rgba(34, 211, 238, 0.18);
+}
+
+.btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* LOADING */
+.loading {
+  padding: 26px;
+  text-align: center;
+  font-weight: 900;
+  color: rgba(2, 6, 23, 0.65);
+}
+
+/* CARDS GRID */
+.cards {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+/* CARD BASE */
+.card {
+  border-radius: 22px;
+  padding: 16px 16px;
+  display: grid;
+  gap: 10px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(255, 255, 255, 0.08) 60%,
+    rgba(0, 0, 0, 0.12) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow:
+    0 18px 38px rgba(0, 0, 0, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease,
+    filter 0.18s ease,
+    background 0.18s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.26);
+  filter: brightness(1.04);
+  box-shadow:
+    0 26px 54px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* CARD HEADER */
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.cardTitle {
+  color: #f7f7f8;
+  font-weight: 950;
+  line-height: 1.15;
+  letter-spacing: -0.2px;
+  font-size: 16px;
+}
+
+/* CARD ACTIONS */
+.cardActions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.edit,
+.delete {
+  cursor: pointer;
+  border-radius: 12px;
+  padding: 9px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease,
+    filter 0.18s ease;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(247, 247, 248, 0.92);
+  box-shadow: 0 12px 22px rgba(0, 0, 0, 0.22);
+}
+
+.edit:hover,
+.delete:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 16px 28px rgba(0, 0, 0, 0.28);
+}
+
+.edit {
+  border-color: rgba(245, 158, 11, 0.32);
+}
+
+.delete {
+  border-color: rgba(239, 68, 68, 0.32);
+}
+
+.delete:hover {
+  background: rgba(239, 68, 68, 0.18);
+}
+
+/* EMPTY STATE */
+.emptyCard {
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px dashed rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(247, 247, 248, 0.75);
+  text-align: center;
+  grid-column: 1 / -1;
+  font-weight: 850;
+}
+
+/* RESPONSIVE */
+@media (min-width: 640px) {
+  .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 900px) {
+  .cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .input,
+  .select {
+    min-width: 100%;
+  }
+
+  .filters {
+    gap: 8px;
+  }
+}

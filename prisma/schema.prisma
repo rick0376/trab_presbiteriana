@@ -1,0 +1,295 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model User {
+  id            String      @id @default(cuid())
+  name          String?
+  email         String?     @unique
+  emailVerified DateTime?
+  image         String?
+  role          Role        @default(USER)
+  igrejaId      String?
+  senha         String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  cargoId       String?
+  accounts      Account[]
+  igrejasAdmin  Igreja?     @relation("IgrejaAdmin")
+  permissoes    Permissao[]
+  sessions      Session[]
+  cargo         Cargo?      @relation(fields: [cargoId], references: [id])
+  igreja        Igreja?     @relation(fields: [igrejaId], references: [id])
+
+  @@map("users")
+}
+
+model Igreja {
+  id                  String               @id @default(cuid())
+  nome                String
+  slug                String               @unique
+  plano               Plano                @default(FREE)
+  adminId             String?              @unique
+  membros             Int                  @default(1)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  cargos              Cargo[]
+  eventos             Evento[]
+  admin               User?                @relation("IgrejaAdmin", fields: [adminId], references: [id])
+  publico             IgrejaPublico?
+  cronogramaAnual     CronogramaAnual[]
+  membrosLista        Membro[]
+  users               User[]
+  backupConfig        BackupConfig?
+  backupGlobalTargets BackupGlobalConfig[] @relation("BackupGlobalTargetIgreja")
+
+  @@map("igrejas")
+}
+
+model Cargo {
+  id        String   @id @default(cuid())
+  nome      String
+  igrejaId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  igreja    Igreja   @relation(fields: [igrejaId], references: [id])
+  users     User[]
+
+  @@unique([igrejaId, nome])
+  @@map("cargos")
+}
+
+model Permissao {
+  id           String   @id @default(cuid())
+  userId       String
+  recurso      String
+  ler          Boolean  @default(false)
+  criar        Boolean  @default(false)
+  editar       Boolean  @default(false)
+  deletar      Boolean  @default(false)
+  compartilhar Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, recurso])
+  @@map("permissoes")
+}
+
+model Membro {
+  id                     String    @id @default(cuid())
+  igrejaId               String
+  numeroSequencial       Int
+  nome                   String
+  telefone               String?
+  endereco               String?
+  numeroEndereco         String?
+  bairro                 String?
+  cidade                 String?
+  estado                 String?
+  estadoCivil            String?
+  nomeMae                String?
+  nomePai                String?
+  rg                     String?
+  cpf                    String?   @db.VarChar(11)
+  cargo                  String
+  dataNascimento         DateTime?
+  dataBatismo            DateTime?
+  numeroCarteirinha      String?
+  dataCriacaoCarteirinha DateTime?
+  dataVencCarteirinha    DateTime?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  observacoes            String?
+
+  ativo Boolean @default(true)
+
+  igreja Igreja @relation(fields: [igrejaId], references: [id], onDelete: Cascade)
+
+  @@index([igrejaId])
+  @@index([igrejaId, nome])
+  @@index([igrejaId, cargo])
+  @@index([igrejaId, dataVencCarteirinha])
+  @@map("membros")
+}
+
+model Evento {
+  id     String @id @default(cuid())
+  titulo String
+
+  data DateTime @db.Timestamp(0)
+
+  igrejaId  String
+  criadoPor String
+
+  imagemUrl      String?
+  imagemPublicId String?
+
+  descricao   String?
+  local       String?
+  responsavel String?
+  tipo        String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  igreja Igreja @relation(fields: [igrejaId], references: [id])
+
+  @@map("eventos")
+}
+
+model IgrejaPublico {
+  id             String           @id @default(cuid())
+  igrejaId       String           @unique
+  bannerSubtitle String?
+  whatsappUrl    String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  facebookUrl    String?
+  instagramUrl   String?
+  endereco       String?
+  cronograma     CronogramaItem[]
+  horarios       HorarioPublico[]
+  igreja         Igreja           @relation(fields: [igrejaId], references: [id], onDelete: Cascade)
+
+  @@map("igrejas_publico")
+}
+
+model HorarioPublico {
+  id              String        @id @default(cuid())
+  igrejaPublicoId String
+  texto           String
+  ordem           Int           @default(0)
+  igrejaPublico   IgrejaPublico @relation(fields: [igrejaPublicoId], references: [id], onDelete: Cascade)
+
+  @@index([igrejaPublicoId])
+  @@map("horarios_publico")
+}
+
+model CronogramaItem {
+  id              String        @id @default(cuid())
+  igrejaPublicoId String
+  dia             DiaSemana
+  hora            String
+  titulo          String
+  ordem           Int           @default(0)
+  igrejaPublico   IgrejaPublico @relation(fields: [igrejaPublicoId], references: [id], onDelete: Cascade)
+
+  @@index([igrejaPublicoId])
+  @@index([dia])
+  @@map("cronograma_itens")
+}
+
+model CronogramaAnual {
+  id        String   @id @default(cuid())
+  igrejaId  String
+  titulo    String
+  data      DateTime
+  ordem     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  igreja Igreja @relation(fields: [igrejaId], references: [id], onDelete: Cascade)
+
+  @@index([igrejaId])
+  @@map("cronograma_anual")
+}
+
+//BACKUP
+model BackupConfig {
+  id             String    @id @default(cuid())
+  igrejaId       String    @unique
+  ativo          Boolean   @default(false)
+  intervalo      String    @default("diario")
+  hora           String    @default("02:00")
+  ultimoBackupEm DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  igreja Igreja @relation(fields: [igrejaId], references: [id], onDelete: Cascade)
+
+  @@index([ativo])
+  @@map("backup_configs")
+}
+
+model BackupGlobalConfig {
+  id             String    @id
+  ativo          Boolean   @default(false)
+  intervalo      String    @default("diario")
+  hora           String    @default("02:00")
+  modo           String    @default("todas")
+  igrejaId       String?
+  ultimoBackupEm DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  igreja Igreja? @relation("BackupGlobalTargetIgreja", fields: [igrejaId], references: [id], onDelete: SetNull)
+
+  @@index([ativo])
+  @@map("backup_global_configs")
+}
+
+model RadioStatus {
+  id        String   @id
+  live      Boolean
+  title     String?
+  streamUrl String?
+  updatedAt DateTime @updatedAt
+}
+
+enum DiaSemana {
+  SEGUNDA
+  TERCA
+  QUARTA
+  QUINTA
+  SEXTA
+  SABADO
+  DOMINGO
+}
+
+enum Role {
+  ADMIN
+  USER
+  PASTOR
+  SUPERADMIN
+}
+
+enum Plano {
+  FREE
+  PRO
+  PREMIUM
+}

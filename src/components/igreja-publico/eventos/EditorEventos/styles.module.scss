@@ -1,0 +1,307 @@
+/* =====================================================
+   EDITOR EVENTOS (PADRÃO DASHBOARD)
+===================================================== */
+
+.wrap {
+  width: 100%;
+  display: block;
+  padding: 0 12px;
+}
+
+.container {
+  width: 100%;
+  max-width: 1124px;
+  margin: 64px auto 0;
+  padding: 22px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #0b4f6c 0%, #083a52 60%, #05293a 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 22px 48px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+
+  display: grid;
+  gap: 14px;
+}
+
+.header {
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+
+  padding-bottom: 14px;
+  margin-bottom: 4px;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.headerLeft {
+  min-width: 0;
+}
+
+.h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 950;
+  letter-spacing: -0.25px;
+  color: #f7f7f8;
+}
+
+.sub {
+  margin: 6px 0 0;
+  font-size: 14px;
+  font-weight: 650;
+  color: rgba(247, 247, 248, 0.75);
+  line-height: 1.35;
+}
+
+/* =====================================================
+   FORM
+===================================================== */
+
+.form {
+  display: grid;
+  //grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: 1fr 2fr;
+  gap: 12px;
+  background: #e7ebee;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 18px;
+
+  padding: 16px;
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.28);
+}
+
+.form:hover {
+  background: #c3d4e0;
+  transform: translateY(-2px);
+  filter: brightness(1.02);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.32);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 850;
+  color: #083a52;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+
+  border: 1px solid #a4c5d4;
+  background: #efeff7;
+  color: #083a52;
+  outline: none;
+
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+}
+
+.input::placeholder {
+  color: rgba(15, 23, 42, 0.45);
+}
+
+.input:focus {
+  background: #e6dfdf;
+  border-color: rgba(11, 79, 108, 0.75);
+  box-shadow: 0 0 0 4px rgba(11, 79, 108, 0.18);
+}
+
+.btn {
+  align-self: end;
+  height: 46px;
+  padding: 0 18px;
+  border-radius: 16px;
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  cursor: pointer;
+  font-weight: 950;
+  font-size: 15px;
+  color: #ecfeff;
+  background: linear-gradient(135deg, #0ea5e9 0%, #0b4f6c 70%, #22d3ee 130%);
+  box-shadow:
+    0 16px 30px rgba(14, 165, 233, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    filter 0.18s ease;
+}
+
+.btn:hover {
+  background: #c8e4f1;
+  color: #2581a8;
+  transform: translateY(-2px);
+  filter: brightness(1.04);
+  box-shadow:
+    0 22px 38px rgba(14, 165, 233, 0.32),
+    0 12px 26px rgba(34, 211, 238, 0.18);
+}
+
+.btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* =====================================================
+   READONLY (quando canEdit=false)
+===================================================== */
+
+.readonlyHint {
+  padding: 12px 14px;
+  border-radius: 18px;
+
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  color: rgba(247, 247, 248, 0.9);
+
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* =====================================================
+   FEEDBACK
+===================================================== */
+
+.error {
+  padding: 12px 14px;
+  border-radius: 14px;
+
+  background: rgba(239, 68, 68, 0.16);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: rgba(247, 247, 248, 0.92);
+
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.loading {
+  padding: 14px 16px;
+  border-radius: 18px;
+
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.28);
+
+  font-size: 14px;
+  font-weight: 650;
+  color: rgba(247, 247, 248, 0.75);
+}
+
+.fileRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.fileInput {
+  display: none;
+}
+
+.fileBtn {
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: #f7f7f8;
+  color: #083a52;
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+}
+
+.fileBtn:hover {
+  background: #e6f1f1;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.12);
+}
+
+.fileBtn:active {
+  transform: translateY(0);
+}
+
+.fileName {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(8, 58, 82, 0.75);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 260px;
+}
+
+.fileBtnSelected {
+  background: rgba(34, 211, 238, 0.16);
+  border-color: rgba(34, 211, 238, 0.55);
+  color: #0b4f6c;
+  box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.14);
+}
+
+.fileNameSelected {
+  color: rgba(11, 79, 108, 0.95);
+}
+
+.previewImg {
+  width: 100%;
+  max-width: 420px;
+  height: 220px;
+  object-fit: contain;
+  background: #0b2330;
+  border-radius: 16px;
+  display: block;
+  margin: 8px 0 12px;
+}
+/* =====================================================
+   RESPONSIVO
+===================================================== */
+
+@media (max-width: 900px) {
+  .form {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .btn {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
+
+@media (max-width: 560px) {
+  .container {
+    padding: 16px;
+  }
+
+  .form {
+    grid-template-columns: 1fr;
+    padding: 14px;
+  }
+
+  .h2 {
+    font-size: 20px;
+  }
+
+  .sub {
+    font-size: 13px;
+  }
+}

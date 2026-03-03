@@ -1,0 +1,36 @@
+/* Layout Público */
+.publicLayout {
+  min-height: 100vh;
+  background: radial-gradient(
+    circle at top,
+    #0f2a3d 0%,
+    #9ccae9 40%,
+    #04121c 100%
+  );
+  display: flex;
+  flex-direction: column;
+}
+
+.headerSpace {
+  padding-top: 5rem;
+}
+
+.content {
+  flex: 1;
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+@media (max-width: 1200px) {
+  .content {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .content {
+    max-width: 100%;
+    padding: 10px;
+  }
+}

@@ -1,0 +1,577 @@
+/* =====================================================
+   LAYOUT BASE (PADRÃO DASHBOARD)
+===================================================== */
+.container {
+  margin: 64px auto 0;
+  padding: 22px;
+  border-radius: 22px;
+  max-width: 1124px;
+
+  color: #f1f5f9;
+  background: linear-gradient(135deg, #0b4f6c 0%, #083a52 60%, #05293a 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+
+  box-shadow:
+    0 22px 48px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* =====================================================
+   HEADER
+===================================================== */
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.titleBox {
+  min-width: 0;
+}
+
+.h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 950;
+  letter-spacing: -0.6px;
+}
+
+.sub {
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 650;
+  color: rgba(247, 247, 248, 0.75);
+}
+
+.topRight {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.select {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-weight: 700;
+}
+
+/* =====================================================
+   BOTÕES GLOBAIS
+===================================================== */
+.btn,
+.btnPDF,
+.btnWhats,
+.btnGreen {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 13px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.btn {
+  background: linear-gradient(135deg, #dbeafe 0%, #38bdf8 130%);
+  color: #0f2a3d;
+}
+
+.btnPDF {
+  background: linear-gradient(135deg, #ffe4e6 0%, #fb7185 130%);
+  color: #7f1d1d;
+}
+
+.btnWhats {
+  background: linear-gradient(135deg, #dcfce7 0%, #22c55e 130%);
+  color: #14532d;
+}
+
+.btnGreen {
+  margin-top: 12px;
+  background: linear-gradient(135deg, #fcd34d 0%, #f59e0b 100%);
+  color: #4b2e00;
+}
+
+.btn:hover,
+.btnPDF:hover,
+.btnWhats:hover,
+.btnGreen:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+}
+
+/* =====================================================
+   FORM NOVO USUÁRIO (CARD AZUL)
+===================================================== */
+.createForm {
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 18px;
+
+  background: linear-gradient(135deg, #dbeafe 0%, #c7d2fe 55%, #a78bfa 130%);
+  border: 1px solid rgba(79, 70, 229, 0.22);
+
+  box-shadow:
+    0 18px 36px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.blockTitle {
+  font-weight: 950;
+  margin-bottom: 14px;
+  font-size: 15px;
+  color: #1e3a8a;
+}
+
+.grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-weight: 850;
+  font-size: 13px;
+  color: #1e3a8a;
+}
+
+.input {
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.85);
+  color: #1f2937;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+/* =====================================================
+   GRID DE USUÁRIOS
+===================================================== */
+.cards {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+/* =====================================================
+   CARD USUÁRIO (DOURADO PREMIUM)
+===================================================== */
+.card {
+  border-radius: 18px;
+  padding: 16px;
+
+  background: linear-gradient(135deg, #fff7cc 0%, #ac8e36 55%, #d4a017 130%);
+
+  border: 1px solid rgba(212, 160, 23, 0.35);
+
+  box-shadow:
+    0 18px 36px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+
+  position: relative;
+  overflow: hidden;
+  transition: 0.2s ease;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: -40px -60px auto auto;
+  width: 180px;
+  height: 180px;
+  border-radius: 999px;
+
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.9),
+    rgba(255, 255, 255, 0) 60%
+  );
+
+  transform: rotate(12deg);
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  filter: brightness(1.03);
+}
+
+.cardInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.name {
+  font-weight: 950;
+  font-size: 16px;
+  color: #5a3b00;
+}
+
+.email {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(90, 59, 0, 0.85);
+}
+
+.role {
+  margin-top: 6px;
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+
+  background: rgba(255, 255, 255, 0.75);
+  color: #7a5200;
+  border: 1px solid rgba(122, 82, 0, 0.2);
+}
+
+/* =====================================================
+   VARIAÇÃO DE COR POR CARD (6 COMBINAÇÕES)
+   + Texto/inputs/badges harmonizados
+===================================================== */
+
+/* 1) AZUL (base #224f6e) */
+.card:nth-child(6n + 1) {
+  background: linear-gradient(135deg, #fff7cc 0%, #2f6f9a 55%, #224f6e 130%);
+  border: 1px solid rgba(34, 79, 110, 0.35);
+}
+.card:nth-child(6n + 1) .name {
+  color: #0b2f46;
+}
+.card:nth-child(6n + 1) .email {
+  color: rgba(11, 47, 70, 0.82);
+}
+.card:nth-child(6n + 1) .role {
+  color: #0b2f46;
+  border-color: rgba(34, 79, 110, 0.22);
+}
+.card:nth-child(6n + 1) .input,
+.card:nth-child(6n + 1) .eyeBtn,
+.card:nth-child(6n + 1) .btnGhost {
+  border-color: rgba(34, 79, 110, 0.25);
+}
+.card:nth-child(6n + 1) .input:focus {
+  border-color: #224f6e;
+  box-shadow: 0 0 0 2px rgba(34, 79, 110, 0.22);
+}
+.card:nth-child(6n + 1) .btnSmall {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(255, 255, 255, 0.55) 100%
+  );
+  color: #0b2f46;
+}
+
+/* 2) SKY (base #0ea5e9) */
+.card:nth-child(6n + 2) {
+  background: linear-gradient(135deg, #fff7cc 0%, #39b8ef 55%, #0ea5e9 130%);
+  border: 1px solid rgba(14, 165, 233, 0.35);
+}
+.card:nth-child(6n + 2) .name {
+  color: #063a52;
+}
+.card:nth-child(6n + 2) .email {
+  color: rgba(6, 58, 82, 0.82);
+}
+.card:nth-child(6n + 2) .role {
+  color: #063a52;
+  border-color: rgba(14, 165, 233, 0.22);
+}
+.card:nth-child(6n + 2) .input,
+.card:nth-child(6n + 2) .eyeBtn,
+.card:nth-child(6n + 2) .btnGhost {
+  border-color: rgba(14, 165, 233, 0.25);
+}
+.card:nth-child(6n + 2) .input:focus {
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.22);
+}
+.card:nth-child(6n + 2) .btnSmall {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(255, 255, 255, 0.55) 100%
+  );
+  color: #063a52;
+}
+
+/* 3) VERDE (base #22c55e) */
+.card:nth-child(6n + 3) {
+  background: linear-gradient(135deg, #fff7cc 0%, #4ade80 55%, #22c55e 130%);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+}
+.card:nth-child(6n + 3) .name {
+  color: #14532d;
+}
+.card:nth-child(6n + 3) .email {
+  color: rgba(20, 83, 45, 0.82);
+}
+.card:nth-child(6n + 3) .role {
+  color: #14532d;
+  border-color: rgba(34, 197, 94, 0.22);
+}
+.card:nth-child(6n + 3) .input,
+.card:nth-child(6n + 3) .eyeBtn,
+.card:nth-child(6n + 3) .btnGhost {
+  border-color: rgba(34, 197, 94, 0.25);
+}
+.card:nth-child(6n + 3) .input:focus {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.22);
+}
+.card:nth-child(6n + 3) .btnSmall {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(255, 255, 255, 0.55) 100%
+  );
+  color: #14532d;
+}
+
+/* 4) VERMELHO (base #ef4444) */
+.card:nth-child(6n + 4) {
+  background: linear-gradient(135deg, #fff7cc 0%, #f87171 55%, #ef4444 130%);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+.card:nth-child(6n + 4) .name {
+  color: #7f1d1d;
+}
+.card:nth-child(6n + 4) .email {
+  color: rgba(127, 29, 29, 0.82);
+}
+.card:nth-child(6n + 4) .role {
+  color: #7f1d1d;
+  border-color: rgba(239, 68, 68, 0.22);
+}
+.card:nth-child(6n + 4) .input,
+.card:nth-child(6n + 4) .eyeBtn,
+.card:nth-child(6n + 4) .btnGhost {
+  border-color: rgba(239, 68, 68, 0.25);
+}
+.card:nth-child(6n + 4) .input:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.22);
+}
+.card:nth-child(6n + 4) .btnSmall {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(255, 255, 255, 0.55) 100%
+  );
+  color: #7f1d1d;
+}
+
+/* 5) ÂMBAR (base #f59e0b) */
+.card:nth-child(6n + 5) {
+  background: linear-gradient(135deg, #fff7cc 0%, #f6b34a 55%, #f59e0b 130%);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+.card:nth-child(6n + 5) .name {
+  color: #4b2e00;
+}
+.card:nth-child(6n + 5) .email {
+  color: rgba(75, 46, 0, 0.82);
+}
+.card:nth-child(6n + 5) .role {
+  color: #4b2e00;
+  border-color: rgba(245, 158, 11, 0.22);
+}
+.card:nth-child(6n + 5) .input,
+.card:nth-child(6n + 5) .eyeBtn,
+.card:nth-child(6n + 5) .btnGhost {
+  border-color: rgba(245, 158, 11, 0.25);
+}
+.card:nth-child(6n + 5) .input:focus {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.22);
+}
+.card:nth-child(6n + 5) .btnSmall {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(255, 255, 255, 0.55) 100%
+  );
+  color: #4b2e00;
+}
+
+/* 6) ROXO (base #8b5cf6) */
+.card:nth-child(6n + 6) {
+  background: linear-gradient(135deg, #fff7cc 0%, #a78bfa 55%, #8b5cf6 130%);
+  border: 1px solid rgba(139, 92, 246, 0.35);
+}
+.card:nth-child(6n + 6) .name {
+  color: #3b1b7a;
+}
+.card:nth-child(6n + 6) .email {
+  color: rgba(59, 27, 122, 0.82);
+}
+.card:nth-child(6n + 6) .role {
+  color: #3b1b7a;
+  border-color: rgba(139, 92, 246, 0.22);
+}
+.card:nth-child(6n + 6) .input,
+.card:nth-child(6n + 6) .eyeBtn,
+.card:nth-child(6n + 6) .btnGhost {
+  border-color: rgba(139, 92, 246, 0.25);
+}
+.card:nth-child(6n + 6) .input:focus {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.22);
+}
+.card:nth-child(6n + 6) .btnSmall {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(255, 255, 255, 0.55) 100%
+  );
+  color: #3b1b7a;
+}
+
+/* =====================================================
+   PASSWORD BOX
+===================================================== */
+.passwordBox {
+  margin-top: 14px;
+}
+
+.gridPassword {
+  display: grid;
+  gap: 10px;
+}
+
+.passwordInput {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.eyeBtn {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(122, 82, 0, 0.25);
+  border-radius: 10px;
+  padding: 6px;
+  cursor: pointer;
+  color: #5a3b00;
+  transition: 0.2s ease;
+}
+
+.eyeBtn:hover {
+  background: #fff;
+}
+
+/* =====================================================
+   ACTIONS
+===================================================== */
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.iconBtnEdit,
+.iconBtnKey,
+.iconBtnDelete {
+  padding: 6px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.iconBtnEdit {
+  background: rgba(30, 58, 138, 0.15);
+  color: #1e3a8a;
+}
+
+.iconBtnKey {
+  background: rgba(234, 179, 8, 0.25);
+  color: #7a5200;
+}
+
+.iconBtnDelete {
+  background: rgba(239, 68, 68, 0.25);
+  color: #7f1d1d;
+}
+
+.iconBtnEdit:hover,
+.iconBtnKey:hover,
+.iconBtnDelete:hover {
+  transform: scale(1.1);
+}
+
+/* =====================================================
+   BOTÕES INTERNOS
+===================================================== */
+.btnSmall {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: none;
+  font-weight: 900;
+  cursor: pointer;
+
+  background: linear-gradient(135deg, #fcd34d 0%, #f59e0b 100%);
+
+  color: #4b2e00;
+}
+
+.btnSmall:hover {
+  transform: translateY(-2px);
+}
+
+.btnGhost {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(122, 82, 0, 0.35);
+  background: rgba(255, 255, 255, 0.7);
+  color: #5a3b00;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* =====================================================
+   EMPTY
+===================================================== */
+.emptyCard {
+  padding: 16px;
+  border-radius: 16px;
+  text-align: center;
+  font-weight: 850;
+
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px dashed rgba(255, 255, 255, 0.3);
+  color: #224f6e;
+}
+
+/* =====================================================
+   RESPONSIVO
+===================================================== */
+@media (max-width: 768px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
+}

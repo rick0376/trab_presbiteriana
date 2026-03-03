@@ -1,0 +1,157 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  width: 100%;
+  padding: 14px 18px;
+  background: rgba(5, 18, 28, 0.65);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: #fff;
+}
+
+.logoImg {
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+  filter: drop-shadow(0px 8px 18px rgba(0, 0, 0, 0.45));
+}
+
+.logoText {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.logoLine1 {
+  font-size: 21px;
+  margin-bottom: 3px;
+}
+
+.logoLine2 {
+  font-size: 16px;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+.logoTextMobile {
+  display: none;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.superadminBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 14px;
+  text-decoration: none;
+
+  transition: 0.25s;
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.25);
+}
+
+.superadminBtn:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+/* ===== RESPONSIVO ===== */
+@media (max-width: 520px) {
+  .logoImg {
+    width: 42px;
+    height: 42px;
+  }
+
+  .superadminBtn {
+    padding: 9px 12px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 470px) {
+  .logoLine1 {
+    font-size: 18px;
+  }
+
+  .logoLine2 {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 442px) {
+  .logoLine1 {
+    font-size: 16px;
+  }
+
+  .logoLine2 {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 412px) {
+  .logoText {
+    display: none;
+  }
+
+  .logoTextMobile {
+    display: grid;
+  }
+
+  .logoLine1 {
+    font-size: 14px;
+  }
+
+  .logoLine2 {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 390px) {
+  .logoText {
+    display: none;
+  }
+
+  .logoTextMobile {
+    display: grid;
+  }
+
+  .logoLine1 {
+    display: none;
+    font-size: 14px;
+  }
+
+  .logoLine2 {
+    font-size: 14px;
+  }
+}

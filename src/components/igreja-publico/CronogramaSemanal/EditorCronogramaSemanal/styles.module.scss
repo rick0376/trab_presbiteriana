@@ -1,0 +1,161 @@
+/* ===================== CONTAINER ===================== */
+
+.container {
+  width: 100%;
+  max-width: 1124px;
+  margin: 64px auto 0;
+  padding: 22px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #0b4f6c 0%, #083a52 60%, #05293a 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 22px 48px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.card {
+  width: 100%;
+}
+
+/* ===================== TEXT ===================== */
+
+.title {
+  margin-bottom: 18px;
+  font-size: 26px;
+  font-weight: 900;
+  color: #f7f7f8;
+}
+
+/* ===================== GRID ===================== */
+
+.grid3 {
+  display: grid;
+  grid-template-columns: 1fr 120px 1fr auto;
+  gap: 10px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+
+/* ===================== INPUT ===================== */
+
+.input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: #f7f7f8;
+  color: #000008;
+  outline: none;
+
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.input::placeholder {
+  color: rgba(15, 23, 42, 0.45);
+}
+
+.input:focus {
+  background: #e6dfdf;
+  border-color: rgba(11, 79, 108, 0.75);
+  box-shadow: 0 0 0 4px rgba(11, 79, 108, 0.18);
+}
+
+/* ===================== BUTTONS ===================== */
+
+.btn {
+  width: 100%;
+  margin-top: 10px;
+
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+
+  background: rgba(255, 255, 255, 0.12);
+  color: #f7f7f8;
+  font-weight: 900;
+  cursor: pointer;
+
+  transition: all 0.18s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.btnGreen {
+  margin-top: 14px;
+  width: 100%;
+
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(56, 189, 248, 0.45);
+
+  background: linear-gradient(135deg, #0ea5e9 0%, #2484ad 70%, #22d3ee 130%);
+  color: #eef3f1;
+  font-weight: 900;
+  cursor: pointer;
+
+  box-shadow: 0 16px 30px rgba(14, 165, 233, 0.25);
+  transition: all 0.18s ease;
+}
+
+.btnGreen:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.04);
+}
+
+.btnGreen:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ===================== DELETE ===================== */
+
+.deleteButton {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+
+  background: #ef4444;
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: all 0.2s ease;
+}
+
+.deleteButton:hover {
+  background: #f3bfbf;
+  color: #991b1b;
+}
+
+/* ===================== MOBILE ===================== */
+
+@media (max-width: 760px) {
+  .grid3 {
+    grid-template-columns: 1fr;
+  }
+
+  .deleteButton {
+    width: 100%;
+  }
+}
+
+@media (max-width: 560px) {
+  .container {
+    padding: 16px;
+  }
+
+  .title {
+    font-size: 22px;
+  }
+}

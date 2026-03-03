@@ -1,0 +1,630 @@
+/* =====================================================
+   LAYOUT BASE
+===================================================== */
+.container {
+  margin: 64px auto 0;
+  padding: 22px;
+  border-radius: 22px;
+  max-width: 1124px;
+
+  color: #f7f7f8;
+  background: linear-gradient(135deg, #0b4f6c 0%, #083a52 60%, #05293a 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+
+  box-shadow:
+    0 22px 48px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.titleBox {
+  min-width: 0;
+}
+
+.h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 950;
+  letter-spacing: -0.6px;
+  color: #f7f7f8;
+}
+
+.sub {
+  margin-top: 6px;
+  color: rgba(247, 247, 248, 0.75);
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.badgeRole {
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 13px;
+  white-space: nowrap;
+
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.22);
+}
+
+/* =====================================================
+   GRIDS
+===================================================== */
+.gridStats {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 14px;
+}
+
+/* =====================================================
+   STATS (PREMIUM + ÍCONES)
+===================================================== */
+.statCard,
+.statCardM,
+.statCardMM,
+.statCardE,
+.statCardCS,
+.statCardCA {
+  border-radius: 18px;
+  padding: 16px;
+
+  border: 1px solid rgba(255, 255, 255, 0.14);
+
+  box-shadow:
+    0 18px 38px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+
+  position: relative;
+  overflow: hidden;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+/* brilho */
+.statCard::before,
+.statCardM::before,
+.statCardMM::before,
+.statCardE::before,
+.statCardCS::before,
+.statCardCA::before {
+  content: "";
+  position: absolute;
+  inset: -40px -60px auto auto;
+  width: 180px;
+  height: 180px;
+  border-radius: 999px;
+
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.85),
+    rgba(255, 255, 255, 0) 62%
+  );
+
+  transform: rotate(12deg);
+  pointer-events: none;
+}
+
+.statCard:hover,
+.statCardM:hover,
+.statCardMM:hover,
+.statCardE:hover,
+.statCardCS:hover,
+.statCardCA:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.02);
+  box-shadow:
+    0 22px 44px rgba(0, 0, 0, 0.26),
+    0 14px 26px rgba(0, 0, 0, 0.12);
+}
+
+/* ícones */
+.statCardM::after,
+.statCardMM::after,
+.statCardE::after,
+.statCardCS::after,
+.statCardCA::after {
+  position: absolute;
+  left: 14px;
+  top: 12px;
+  font-size: 18px;
+  opacity: 0.9;
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.18));
+}
+
+.statCardM::after {
+  content: "👥";
+}
+.statCardMM::after {
+  content: "✨";
+}
+.statCardE::after {
+  content: "📅";
+}
+.statCardCS::after {
+  content: "🗓️";
+}
+.statCardCA::after {
+  content: "📆";
+}
+
+.statLabel {
+  position: relative;
+  z-index: 1;
+
+  padding-left: 28px;
+
+  font-weight: 900;
+  font-size: 13px;
+  letter-spacing: -0.2px;
+  color: rgba(15, 42, 61, 0.9);
+}
+
+.statValue {
+  position: relative;
+  z-index: 1;
+
+  margin-top: 10px;
+  font-size: 36px;
+  font-weight: 950;
+  letter-spacing: -0.8px;
+
+  color: #0f2a3d;
+}
+
+/* cores (gradiente vibrante) */
+.statCardM {
+  background: linear-gradient(135deg, #dbeafe 0%, #a7d9ee 55%, #38bdf8 130%);
+  border-color: rgba(56, 189, 248, 0.35);
+}
+
+.statCardMM {
+  background: linear-gradient(135deg, #dcfce7 0%, #96f3ae 55%, #22c55e 130%);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.statCardE {
+  background: linear-gradient(135deg, #ffe4e6 0%, #fca5a5 55%, #fb7185 130%);
+  border-color: rgba(251, 113, 133, 0.3);
+}
+
+.statCardCS {
+  background: linear-gradient(135deg, #fef3c7 0%, #f5e392 55%, #f59e0b 130%);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.statCardCA {
+  background: linear-gradient(135deg, #ede9fe 0%, #d9f99d 55%, #a3e635 130%);
+  border-color: rgba(163, 230, 53, 0.3);
+}
+
+/* =====================================================
+   CARD BASE (neutro)
+===================================================== */
+.card {
+  border-radius: 18px;
+  padding: 16px;
+
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.28);
+
+  background: #dce4eb;
+}
+
+.cardHeader,
+.cardHeaderNiver {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.cardHeader h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 950;
+  color: #224f6e;
+}
+
+.cardHeader span {
+  font-weight: 900;
+  color: #224f6e;
+}
+
+.spanCard {
+  height: 26px;
+  width: 26px;
+  border-radius: 999px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 5px;
+  background: #224f6e;
+  color: #f7f7f8;
+  font-weight: 950;
+}
+
+/* =====================================================
+   LISTAS + EMPTY (base)
+===================================================== */
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+
+  padding: 12px;
+  border-radius: 14px;
+
+  border: 1px solid rgba(255, 255, 255, 0.12);
+
+  background: #d4d3da;
+  color: #224f6e;
+}
+
+.listTitle {
+  font-weight: 950;
+  font-size: 14px;
+  color: #224f6e;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.listSub {
+  margin-top: 4px;
+  color: #224f6e;
+  font-weight: 650;
+  font-size: 13px;
+}
+
+/* empty base */
+.empty {
+  margin: 0;
+  padding: 12px 14px;
+
+  border-radius: 14px;
+
+  font-size: 14px;
+  font-weight: 850;
+
+  color: #224f6e;
+
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px dashed rgba(34, 79, 110, 0.22);
+
+  text-align: center;
+}
+
+/* =====================================================
+   CARD: ANIVERSARIANTES DO DIA (rosa/vinho)
+===================================================== */
+.cardNiver {
+  border-radius: 18px;
+  padding: 16px;
+
+  background: linear-gradient(135deg, #ffe4e6 0%, #fecdd3 55%, #fda4af 130%);
+  border: 1px solid rgba(225, 29, 72, 0.22);
+
+  box-shadow:
+    0 18px 36px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+
+  position: relative;
+  overflow: hidden;
+}
+
+.cardNiver::before {
+  content: "";
+  position: absolute;
+  inset: -40px -60px auto auto;
+  width: 180px;
+  height: 180px;
+  border-radius: 999px;
+
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.65),
+    rgba(255, 255, 255, 0) 60%
+  );
+
+  transform: rotate(12deg);
+  pointer-events: none;
+}
+
+.cardHeaderNiver h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 950;
+  color: #9f1239;
+  letter-spacing: -0.2px;
+}
+
+.spanNiver {
+  min-width: 38px;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  font-weight: 950;
+  color: #9f1239;
+
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(159, 18, 57, 0.22);
+
+  box-shadow: 0 10px 18px rgba(159, 18, 57, 0.12);
+}
+
+.listItemNiver {
+  padding: 10px 12px;
+  border-radius: 14px;
+
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(159, 18, 57, 0.12);
+
+  color: #7f1d1d;
+  font-weight: 850;
+}
+
+.cardNiver .empty {
+  color: #7f1d1d;
+  border-color: rgba(159, 18, 57, 0.18);
+}
+
+/* =====================================================
+   CARD: PRÓXIMOS EVENTOS (azul/violeta vibrante)
+===================================================== */
+.cardEventos {
+  border-radius: 18px;
+  padding: 16px;
+
+  background: linear-gradient(135deg, #dbeafe 0%, #c7d2fe 55%, #a78bfa 130%);
+  border: 1px solid rgba(79, 70, 229, 0.22);
+
+  box-shadow:
+    0 18px 36px rgba(0, 0, 0, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+
+  position: relative;
+  overflow: hidden;
+}
+
+.cardEventos::before {
+  content: "";
+  position: absolute;
+  inset: -40px -60px auto auto;
+  width: 180px;
+  height: 180px;
+  border-radius: 999px;
+
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.85),
+    rgba(255, 255, 255, 0) 62%
+  );
+
+  transform: rotate(12deg);
+  pointer-events: none;
+}
+
+.cardEventos .cardHeader h2 {
+  color: #1e3a8a;
+}
+
+.cardEventos .spanCard {
+  min-width: 38px;
+  height: 30px;
+  width: auto;
+  padding: 0 10px;
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.7);
+  color: #4f46e5;
+  border: 1px solid rgba(79, 70, 229, 0.25);
+  box-shadow: 0 10px 18px rgba(79, 70, 229, 0.12);
+}
+
+.cardEventos .listItem {
+  background: rgba(255, 255, 255, 0.65);
+  border-color: rgba(79, 70, 229, 0.14);
+}
+
+.cardEventos .listTitle {
+  color: #1e3a8a;
+}
+
+.cardEventos .listSub {
+  color: rgba(30, 58, 138, 0.8);
+  font-weight: 850;
+}
+
+.cardEventos .empty {
+  color: #1e3a8a;
+  border-color: rgba(79, 70, 229, 0.22);
+}
+
+/* =====================================================
+   CARD: ÚLTIMOS MEMBROS (verde/limão vibrante)
+===================================================== */
+.cardUltimos {
+  border-radius: 18px;
+  padding: 16px;
+
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 55%, #bef264 130%);
+  border: 1px solid rgba(22, 163, 74, 0.22);
+
+  box-shadow:
+    0 18px 36px rgba(0, 0, 0, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+
+  position: relative;
+  overflow: hidden;
+}
+
+.cardUltimos::before {
+  content: "";
+  position: absolute;
+  inset: -40px -60px auto auto;
+  width: 180px;
+  height: 180px;
+  border-radius: 999px;
+
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.85),
+    rgba(255, 255, 255, 0) 62%
+  );
+
+  transform: rotate(12deg);
+  pointer-events: none;
+}
+
+.cardUltimos .cardHeader h2 {
+  color: #14532d;
+}
+
+.cardUltimos .spanCard {
+  min-width: 38px;
+  height: 30px;
+  width: auto;
+  padding: 0 10px;
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.7);
+  color: #166534;
+  border: 1px solid rgba(22, 163, 74, 0.22);
+  box-shadow: 0 10px 18px rgba(22, 163, 74, 0.12);
+}
+
+.cardUltimos .listItem {
+  background: rgba(255, 255, 255, 0.65);
+  border-color: rgba(22, 163, 74, 0.14);
+}
+
+.cardUltimos .listTitle {
+  color: #14532d;
+}
+
+.cardUltimos .listSub {
+  color: rgba(20, 83, 45, 0.82);
+  font-weight: 850;
+}
+
+.cardUltimos .empty {
+  color: #14532d;
+  border-color: rgba(22, 163, 74, 0.22);
+}
+
+/* =====================================================
+   HELPERS (pill/table) - mantém pra futuro
+===================================================== */
+.pill {
+  background: rgba(239, 68, 68, 0.22);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.pillAlt {
+  background: rgba(56, 189, 248, 0.16);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table th {
+  text-align: left;
+  padding: 10px;
+  font-weight: 950;
+  color: rgba(247, 247, 248, 0.8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.table td {
+  padding: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(247, 247, 248, 0.92);
+}
+
+.tdStrong {
+  font-weight: 950;
+  color: #f7f7f8;
+}
+
+/* =====================================================
+   RESPONSIVO
+===================================================== */
+@media (max-width: 980px) {
+  .gridStats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .grid2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .container {
+    margin-top: 64px;
+  }
+}
+
+@media (max-width: 420px) {
+  .card,
+  .cardNiver {
+    font-size: 12px;
+    padding: 12px;
+    min-width: 0;
+    word-break: break-word;
+  }
+}
