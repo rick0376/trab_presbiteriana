@@ -315,6 +315,45 @@ export default function SecretariaPageClient() {
     });
   }, [items, statusFiltro]);
 
+  //***************s */
+  const gerarCarteirinhaDoFiltro = async () => {
+    if (!canShare) return;
+
+    if (itensFiltrados.length === 0) {
+      showAlert(
+        "Atenção",
+        "Nenhum membro encontrado para gerar a carteirinha.",
+      );
+      return;
+    }
+
+    try {
+      // pega o primeiro membro do filtro atual
+      const membroBase = itensFiltrados[0];
+
+      const res = await fetch(`/api/membros/${membroBase.id}`, {
+        cache: "no-store",
+      });
+
+      if (!res.ok) {
+        showAlert("Erro", "Não foi possível buscar os dados do membro.");
+        return;
+      }
+
+      const detalhado = (await res.json()) as MembroDetalhado;
+
+      if (!detalhado?.id) {
+        showAlert("Erro", "Dados do membro inválidos.");
+        return;
+      }
+
+      await gerarPdfCarteirinha(detalhado);
+    } catch (err) {
+      console.error(err);
+      showAlert("Erro", "Falha ao gerar a carteirinha.");
+    }
+  };
+
   // =========================
   // PDF LISTA
   // =========================
@@ -1038,6 +1077,157 @@ export default function SecretariaPageClient() {
     }
   };
 
+  const gerarPdfCarteirinha = async (dadosMembro: MembroDetalhado) => {
+    if (!dadosMembro?.id) return;
+
+    try {
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: [85, 54],
+      });
+
+      const getImageBase64 = async (path: string) => {
+        const origin =
+          typeof window !== "undefined" ? window.location.origin : "";
+        const resp = await fetch(`${origin}${path}`, { cache: "no-store" });
+
+        if (!resp.ok) return "";
+
+        const blob = await resp.blob();
+
+        return await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () =>
+            resolve(typeof reader.result === "string" ? reader.result : "");
+          reader.onerror = () => resolve("");
+          reader.readAsDataURL(blob);
+        });
+      };
+
+      const fundoFrente = await getImageBase64(
+        "/images/carteirinha-frente.png",
+      );
+
+      const fundoVerso = await getImageBase64("/images/carteirinha-verso.png");
+
+      const inicio = formatDateBR(dadosMembro.dataCriacaoCarteirinha);
+      const fim = formatDateBR(dadosMembro.dataVencCarteirinha);
+
+      // ===============================
+      // FRENTE
+      // ===============================
+
+      if (fundoFrente) {
+        doc.addImage(fundoFrente, "PNG", 0, 0, 85, 54);
+      }
+
+      // Título igreja
+      doc.setFont("times", "bold");
+      doc.setFontSize(10);
+      doc.text("IPR PRESBITERIANA RENOVADA-MC", 42.5, 8, { align: "center" });
+
+      doc.setFont("times", "normal");
+      doc.setFontSize(7);
+      doc.text("R. Rafael Popoli, 330 | Jd. Morro Cruz", 42.5, 11.5, {
+        align: "center",
+      });
+
+      doc.text("Pindamonhangaba - SP", 42.5, 14, { align: "center" });
+
+      doc.setFont("times", "bold");
+      doc.setFontSize(8.5);
+      doc.text("Carteirinha de Membro", 42.5, 18, { align: "center" });
+
+      // ===============================
+      // Dados do membro
+      // ===============================
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+
+      let y = 24;
+
+      const labelX = 7;
+      const valueX = 25;
+
+      const linha = (label: string, valor: string) => {
+        doc.setFont("helvetica", "bold");
+        doc.text(label, labelX, y);
+
+        doc.setFont("helvetica", "normal");
+        doc.text(valor || "-", valueX, y);
+
+        y += 4.5;
+      };
+
+      linha("Nome:", dadosMembro.nome || "-");
+
+      linha("Data de nasc.:", formatDateBR(dadosMembro.dataNascimento));
+
+      linha("Data de batismo:", formatDateBR(dadosMembro.dataBatismo));
+
+      // RG + Estado civil na mesma linha
+
+      doc.setFont("helvetica", "bold");
+      doc.text("RG:", labelX, y);
+
+      doc.setFont("helvetica", "normal");
+      doc.text(dadosMembro.rg || "-", valueX, y);
+
+      doc.setFont("helvetica", "bold");
+      doc.text("Estado civil", 47, y);
+
+      doc.setFont("helvetica", "normal");
+      doc.text(dadosMembro.estadoCivil || "-", 68, y);
+
+      y += 4.5;
+
+      linha("Mãe:", dadosMembro.nomeMae || "-");
+
+      linha("Pai:", dadosMembro.nomePai || "-");
+
+      // ===============================
+      // VERSO
+      // ===============================
+
+      doc.addPage();
+
+      if (fundoVerso) {
+        doc.addImage(fundoVerso, "PNG", 0, 0, 85, 54);
+      }
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(7);
+
+      doc.text("Constituição Federal:", 6, 12);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(7);
+
+      const texto = doc.splitTextToSize(
+        `Art. 5º VI: É inviolável a liberdade de consciência e de crença, sendo assegurado o livre exercício dos cultos religiosos e garantida, na forma da lei, a proteção aos locais de cultos e às suas liturgias.
+
+Art. 5º VII: É assegurada, nos termos da lei, a prestação de assistência religiosa nas entidades civis e militares de internação coletiva.
+
+Para validade obrigatória a apresentação do RG.
+
+Data: ${inicio} a ${fim}.`,
+        73,
+      );
+
+      doc.text(texto, 6, 17);
+
+      doc.save(
+        `carteirinha-${(dadosMembro.nome || "membro")
+          .replace(/\s+/g, "-")
+          .toLowerCase()}.pdf`,
+      );
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+    }
+  };
+
   // =========================
   // WhatsApp
   // =========================
@@ -1161,9 +1351,7 @@ export default function SecretariaPageClient() {
                   {gerandoPdfCompleto ? " Gerando..." : " PDF"}
                   <ChevronDown
                     size={16}
-                    className={`${styles.pdfChevron} ${
-                      pdfMenuOpen ? styles.pdfChevronOpen : ""
-                    }`}
+                    className={`${styles.pdfChevron} ${pdfMenuOpen ? styles.pdfChevronOpen : ""}`}
                   />
                 </button>
 
@@ -1206,6 +1394,19 @@ export default function SecretariaPageClient() {
                     >
                       <FileText size={15} />
                       Ficha em Branco
+                    </button>
+
+                    {/* Botão para gerar carteirinha */}
+                    <button
+                      type="button"
+                      className={styles.pdfDropdownItem}
+                      onClick={() => {
+                        setPdfMenuOpen(false);
+                        void gerarCarteirinhaDoFiltro();
+                      }}
+                    >
+                      <FileText size={15} />
+                      Carteirinha (1º do filtro)
                     </button>
                   </div>
                 )}
