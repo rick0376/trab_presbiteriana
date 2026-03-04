@@ -316,6 +316,7 @@ export default function SecretariaPageClient() {
   }, [items, statusFiltro]);
 
   //***************s */
+  /*
   const gerarCarteirinhaDoFiltro = async () => {
     if (!canShare) return;
 
@@ -328,29 +329,325 @@ export default function SecretariaPageClient() {
     }
 
     try {
-      // pega o primeiro membro do filtro atual
-      const membroBase = itensFiltrados[0];
+      for (let i = 0; i < itensFiltrados.length; i++) {
+        const item = itensFiltrados[i];
 
-      const res = await fetch(`/api/membros/${membroBase.id}`, {
-        cache: "no-store",
-      });
+        const res = await fetch(`/api/membros/${item.id}`, {
+          cache: "no-store",
+        });
 
-      if (!res.ok) {
-        showAlert("Erro", "Não foi possível buscar os dados do membro.");
-        return;
+        if (!res.ok) {
+          console.error("Erro ao buscar membro:", item.id, res.status);
+          continue;
+        }
+
+        const detalhado = (await res.json()) as MembroDetalhado;
+
+        if (!detalhado?.id) {
+          console.error("Dados inválidos do membro:", item.id);
+          continue;
+        }
+
+        await gerarPdfCarteirinha(detalhado);
       }
-
-      const detalhado = (await res.json()) as MembroDetalhado;
-
-      if (!detalhado?.id) {
-        showAlert("Erro", "Dados do membro inválidos.");
-        return;
-      }
-
-      await gerarPdfCarteirinha(detalhado);
     } catch (err) {
       console.error(err);
-      showAlert("Erro", "Falha ao gerar a carteirinha.");
+      showAlert("Erro", "Falha ao gerar as carteirinhas.");
+    }
+  };
+*/
+
+  const desenharCarteirinhaNoDoc = async (
+    doc: jsPDF,
+    dadosMembro: MembroDetalhado,
+    originX: number,
+    originY: number,
+    fundoFrente: string,
+    fundoVerso: string,
+  ) => {
+    const cardW = 85;
+    const cardH = 54;
+
+    const gapFV = 2; // espaço entre frente e verso
+
+    const FRONT_X = originX;
+    const BACK_X = originX + cardW + gapFV; // ✅ AQUI
+
+    const safe = (v?: string | null) => String(v ?? "").trim() || "-";
+    const inicio = formatDateBR(dadosMembro.dataCriacaoCarteirinha);
+    const fim = formatDateBR(dadosMembro.dataVencCarteirinha);
+
+    // --- fundos (frente e verso)
+    if (fundoFrente)
+      doc.addImage(fundoFrente, "PNG", FRONT_X, originY, cardW, cardH);
+    if (fundoVerso)
+      doc.addImage(fundoVerso, "PNG", BACK_X, originY, cardW, cardH);
+
+    // =========================
+    // CONFIG (IGREJA)
+    // =========================
+    const IGREJA_TITULO = (
+      dadosMembro.igrejaNome?.trim() || "IPR PRESBITERIANA RENOVADA-MC"
+    ).toUpperCase();
+
+    const IGREJA_LINHA2 = "R. Rafael Popoaski, 130 | Ipê I - Moreira César";
+    const IGREJA_LINHA3 = "Pindamonhangaba - SP";
+    const IGREJA_SUBTITULO = "Carteirinha de Membro";
+
+    // =========================
+    // FRENTE (esquerda do bloco)
+    // =========================
+    const logoBoxW = 24;
+    const headerX = FRONT_X + logoBoxW + 4;
+    const headerW = cardW - (logoBoxW + 8);
+    const headerCenterX = headerX + headerW / 2;
+
+    doc.setTextColor(160, 120, 20);
+
+    doc.setFont("times", "bold");
+    doc.setFontSize(8.2);
+    doc.text(IGREJA_TITULO, headerX, originY + 8.0, { maxWidth: headerW });
+
+    doc.setFont("times", "normal");
+    doc.setFontSize(6.6);
+    doc.text(IGREJA_LINHA2, headerX, originY + 11.2, { maxWidth: headerW });
+    doc.text(IGREJA_LINHA3, headerX, originY + 13.8, { maxWidth: headerW });
+
+    doc.setFont("times", "bold");
+    doc.setFontSize(7.6);
+    doc.text(IGREJA_SUBTITULO, headerCenterX, originY + 19.2, {
+      align: "center",
+      maxWidth: headerW,
+    } as any);
+
+    // --- dados do membro
+    const labelX = FRONT_X + 7;
+    const lineH = 4.7;
+    let y = originY + 28;
+
+    const writeRow = (label: string, value: string) => {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor(0, 0, 0);
+
+      doc.text(label, labelX, y);
+
+      const labelW = doc.getTextWidth(label);
+      const gap = 3;
+      const valueStartX = labelX + labelW + gap;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+
+      const maxValueW = FRONT_X + cardW - valueStartX - 5;
+      const lines = doc.splitTextToSize(value, maxValueW);
+
+      doc.text(lines, valueStartX, y);
+      y += Math.max(lineH, lines.length * 3.8);
+    };
+
+    writeRow("Nome:", safe(dadosMembro.nome));
+    writeRow("Data de nasc.:", formatDateBR(dadosMembro.dataNascimento));
+    writeRow("Data de batismo:", formatDateBR(dadosMembro.dataBatismo));
+
+    const rgValueX = FRONT_X + 15;
+    const ecLabelX = FRONT_X + 42;
+    const ecValueX = FRONT_X + 60;
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.text("RG:", labelX, y);
+
+    doc.setFont("helvetica", "normal");
+    doc.text(safe(dadosMembro.rg), rgValueX, y);
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Estado civil:", ecLabelX, y);
+
+    doc.setFont("helvetica", "normal");
+    doc.text(safe(dadosMembro.estadoCivil), ecValueX, y);
+
+    y += lineH;
+
+    writeRow("Mãe:", safe(dadosMembro.nomeMae));
+    writeRow("Pai:", safe(dadosMembro.nomePai));
+
+    // =========================
+    // VERSO (direita do bloco)
+    // =========================
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(7);
+    doc.setTextColor(0, 0, 0);
+    doc.text("Constituição Federal:", BACK_X + 6, originY + 12);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(6.8);
+    doc.setTextColor(0, 0, 0);
+
+    const texto1 = `Art. 5º VI: É inviolável a liberação de consciência e de crença, sendo assegurado o livre exercício dos cultos religiosos e garantida, na forma da lei, a proteção aos locais de cultos e as suas liturgias;`;
+
+    const texto2 = `Att. 5º VII: É assegurada, nos termos da lei, a prestação de assistência religiosa nas entidades civis e militares de internação coletiva.`;
+
+    const texto3 = `Para validade obrigatório a apresentação do RG.`;
+
+    const larguraTexto = 73;
+    const startX = BACK_X + (cardW - larguraTexto) / 2;
+
+    let posY = originY + 17;
+
+    const drawJustified = (text: string) => {
+      const lines = doc.splitTextToSize(text, larguraTexto);
+
+      lines.forEach((line: string) => {
+        const words = line.trim().split(" ");
+        const gaps = words.length - 1;
+
+        if (gaps <= 0) {
+          doc.text(line, startX, posY);
+          posY += 3.2;
+          return;
+        }
+
+        const wordsWidth = words.reduce(
+          (sum, w) => sum + doc.getTextWidth(w),
+          0,
+        );
+        const spaceWidth = doc.getTextWidth(" ");
+        const totalWidth = wordsWidth + gaps * spaceWidth;
+        const extra = (larguraTexto - totalWidth) / gaps;
+
+        let cursorX = startX;
+
+        words.forEach((word: string, i: number) => {
+          doc.text(word, cursorX, posY);
+          cursorX += doc.getTextWidth(word);
+          if (i < gaps) cursorX += spaceWidth + extra;
+        });
+
+        posY += 3.2;
+      });
+    };
+
+    drawJustified(texto1);
+    posY += 1.2;
+
+    drawJustified(texto2);
+    posY += 1.2;
+
+    doc.text(texto3, startX, posY, { maxWidth: larguraTexto });
+
+    posY += 6.4;
+
+    const gapData = 2.4; // 👈 distância entre "Data" e a validade
+    doc.setFont("helvetica", "bold");
+    doc.text("Data", startX, posY);
+
+    const dataX = startX + doc.getTextWidth("Data") + gapData;
+    doc.setFont("helvetica", "normal");
+    doc.text(`${inicio} a ${fim}`, dataX, posY);
+  };
+
+  const gerarCarteirinhasA4DoFiltro = async () => {
+    if (!canShare) return;
+
+    if (itensFiltrados.length === 0) {
+      showAlert(
+        "Atenção",
+        "Nenhum membro encontrado para gerar a carteirinha.",
+      );
+      return;
+    }
+
+    setGerandoPdfCompleto(true);
+    setPdfCompletoAtual(0);
+    setPdfCompletoTotal(itensFiltrados.length);
+
+    try {
+      // 1) carregar fundos 1 vez
+      const origin =
+        typeof window !== "undefined" ? window.location.origin : "";
+
+      const getImageBase64 = async (path: string) => {
+        const resp = await fetch(`${origin}${path}`, { cache: "no-store" });
+        if (!resp.ok) return "";
+        const blob = await resp.blob();
+        return await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () =>
+            resolve(typeof reader.result === "string" ? reader.result : "");
+          reader.onerror = () => resolve("");
+          reader.readAsDataURL(blob);
+        });
+      };
+
+      const fundoFrente = await getImageBase64(
+        "/images/carteirinha-frente.png",
+      );
+      const fundoVerso = await getImageBase64("/images/carteirinha-verso.png");
+
+      // 2) doc A4 retrato (4 carteirinhas por folha)
+      const doc = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+      const pageW = doc.internal.pageSize.width; // 210
+      const pageH = doc.internal.pageSize.height; // 297
+
+      const gapFV = 2; // mesmo valor do gapFV de cima
+      const blocoW = 170 + gapFV;
+
+      const blocoH = 54;
+
+      const marginX = 20; // sobra pro corte
+      const marginY = 12;
+      const gapY = 8;
+
+      const slotsPorPagina = 4;
+
+      // 3) loop dos membros
+      for (let i = 0; i < itensFiltrados.length; i++) {
+        setPdfCompletoAtual(i + 1);
+
+        const item = itensFiltrados[i];
+        const res = await fetch(`/api/membros/${item.id}`, {
+          cache: "no-store",
+        });
+        if (!res.ok) continue;
+
+        const detalhado = (await res.json()) as MembroDetalhado;
+        if (!detalhado?.id) continue;
+
+        // paginação
+        const slot = i % slotsPorPagina;
+        if (i > 0 && slot === 0) doc.addPage();
+
+        const y = marginY + slot * (blocoH + gapY);
+        const x = (pageW - blocoW) / 2; // centraliza na folha
+
+        // se estourar altura (proteção)
+        if (y + blocoH > pageH - marginY) {
+          doc.addPage();
+        }
+
+        await desenharCarteirinhaNoDoc(
+          doc,
+          detalhado,
+          x,
+          y,
+          fundoFrente,
+          fundoVerso,
+        );
+      }
+
+      doc.save("carteirinhas-a4.pdf");
+    } catch (err) {
+      console.error(err);
+      showAlert("Erro", "Falha ao gerar as carteirinhas em A4.");
+    } finally {
+      setGerandoPdfCompleto(false);
+      setPdfCompletoAtual(0);
+      setPdfCompletoTotal(0);
     }
   };
 
@@ -1077,157 +1374,6 @@ export default function SecretariaPageClient() {
     }
   };
 
-  const gerarPdfCarteirinha = async (dadosMembro: MembroDetalhado) => {
-    if (!dadosMembro?.id) return;
-
-    try {
-      const doc = new jsPDF({
-        orientation: "landscape",
-        unit: "mm",
-        format: [85, 54],
-      });
-
-      const getImageBase64 = async (path: string) => {
-        const origin =
-          typeof window !== "undefined" ? window.location.origin : "";
-        const resp = await fetch(`${origin}${path}`, { cache: "no-store" });
-
-        if (!resp.ok) return "";
-
-        const blob = await resp.blob();
-
-        return await new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () =>
-            resolve(typeof reader.result === "string" ? reader.result : "");
-          reader.onerror = () => resolve("");
-          reader.readAsDataURL(blob);
-        });
-      };
-
-      const fundoFrente = await getImageBase64(
-        "/images/carteirinha-frente.png",
-      );
-
-      const fundoVerso = await getImageBase64("/images/carteirinha-verso.png");
-
-      const inicio = formatDateBR(dadosMembro.dataCriacaoCarteirinha);
-      const fim = formatDateBR(dadosMembro.dataVencCarteirinha);
-
-      // ===============================
-      // FRENTE
-      // ===============================
-
-      if (fundoFrente) {
-        doc.addImage(fundoFrente, "PNG", 0, 0, 85, 54);
-      }
-
-      // Título igreja
-      doc.setFont("times", "bold");
-      doc.setFontSize(10);
-      doc.text("IPR PRESBITERIANA RENOVADA-MC", 42.5, 8, { align: "center" });
-
-      doc.setFont("times", "normal");
-      doc.setFontSize(7);
-      doc.text("R. Rafael Popoli, 330 | Jd. Morro Cruz", 42.5, 11.5, {
-        align: "center",
-      });
-
-      doc.text("Pindamonhangaba - SP", 42.5, 14, { align: "center" });
-
-      doc.setFont("times", "bold");
-      doc.setFontSize(8.5);
-      doc.text("Carteirinha de Membro", 42.5, 18, { align: "center" });
-
-      // ===============================
-      // Dados do membro
-      // ===============================
-
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(8);
-
-      let y = 24;
-
-      const labelX = 7;
-      const valueX = 25;
-
-      const linha = (label: string, valor: string) => {
-        doc.setFont("helvetica", "bold");
-        doc.text(label, labelX, y);
-
-        doc.setFont("helvetica", "normal");
-        doc.text(valor || "-", valueX, y);
-
-        y += 4.5;
-      };
-
-      linha("Nome:", dadosMembro.nome || "-");
-
-      linha("Data de nasc.:", formatDateBR(dadosMembro.dataNascimento));
-
-      linha("Data de batismo:", formatDateBR(dadosMembro.dataBatismo));
-
-      // RG + Estado civil na mesma linha
-
-      doc.setFont("helvetica", "bold");
-      doc.text("RG:", labelX, y);
-
-      doc.setFont("helvetica", "normal");
-      doc.text(dadosMembro.rg || "-", valueX, y);
-
-      doc.setFont("helvetica", "bold");
-      doc.text("Estado civil", 47, y);
-
-      doc.setFont("helvetica", "normal");
-      doc.text(dadosMembro.estadoCivil || "-", 68, y);
-
-      y += 4.5;
-
-      linha("Mãe:", dadosMembro.nomeMae || "-");
-
-      linha("Pai:", dadosMembro.nomePai || "-");
-
-      // ===============================
-      // VERSO
-      // ===============================
-
-      doc.addPage();
-
-      if (fundoVerso) {
-        doc.addImage(fundoVerso, "PNG", 0, 0, 85, 54);
-      }
-
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(7);
-
-      doc.text("Constituição Federal:", 6, 12);
-
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(7);
-
-      const texto = doc.splitTextToSize(
-        `Art. 5º VI: É inviolável a liberdade de consciência e de crença, sendo assegurado o livre exercício dos cultos religiosos e garantida, na forma da lei, a proteção aos locais de cultos e às suas liturgias.
-
-Art. 5º VII: É assegurada, nos termos da lei, a prestação de assistência religiosa nas entidades civis e militares de internação coletiva.
-
-Para validade obrigatória a apresentação do RG.
-
-Data: ${inicio} a ${fim}.`,
-        73,
-      );
-
-      doc.text(texto, 6, 17);
-
-      doc.save(
-        `carteirinha-${(dadosMembro.nome || "membro")
-          .replace(/\s+/g, "-")
-          .toLowerCase()}.pdf`,
-      );
-    } catch (error) {
-      console.error("Erro ao gerar PDF:", error);
-    }
-  };
-
   // =========================
   // WhatsApp
   // =========================
@@ -1396,17 +1542,16 @@ Data: ${inicio} a ${fim}.`,
                       Ficha em Branco
                     </button>
 
-                    {/* Botão para gerar carteirinha */}
                     <button
                       type="button"
                       className={styles.pdfDropdownItem}
                       onClick={() => {
                         setPdfMenuOpen(false);
-                        void gerarCarteirinhaDoFiltro();
+                        void gerarCarteirinhasA4DoFiltro();
                       }}
                     >
                       <FileText size={15} />
-                      Carteirinha (1º do filtro)
+                      Gerar Carteirinha(s)
                     </button>
                   </div>
                 )}

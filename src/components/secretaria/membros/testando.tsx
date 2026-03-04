@@ -1,14 +1,20 @@
 //src/components/secretaria/membros/SecretariaPageClient.tsx
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import ConfirmModal from "@/components/ui/ConfirmModal/ConfirmModal";
 import AlertModal from "@/components/ui/AlertModal/AlertModal";
 import styles from "./styles.module.scss";
 import { Share2 } from "lucide-react";
 import { jsPDF } from "jspdf";
-import { FileText, MessageCircle, PencilLine, Trash2 } from "lucide-react";
+import {
+  ChevronDown,
+  FileText,
+  MessageCircle,
+  PencilLine,
+  Trash2,
+} from "lucide-react";
 
 type Membro = {
   id: string;
@@ -124,6 +130,8 @@ export default function SecretariaPageClient() {
   const [gerandoPdfCompleto, setGerandoPdfCompleto] = useState(false);
   const [pdfCompletoAtual, setPdfCompletoAtual] = useState(0);
   const [pdfCompletoTotal, setPdfCompletoTotal] = useState(0);
+  const [pdfMenuOpen, setPdfMenuOpen] = useState(false);
+  const pdfMenuRef = useRef<HTMLDivElement | null>(null);
 
   const [numeroSequencial, setNumeroSequencial] = useState<number | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -272,6 +280,31 @@ export default function SecretariaPageClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedNome, permissaoMembros]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        pdfMenuRef.current &&
+        !pdfMenuRef.current.contains(event.target as Node)
+      ) {
+        setPdfMenuOpen(false);
+      }
+    };
+
+    const handleEsc = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setPdfMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEsc);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEsc);
+    };
+  }, []);
+
   // ✅ aplica filtro por status (vencida / a vencer(<=30) / ok)
   const itensFiltrados = useMemo(() => {
     if (statusFiltro === "all") return items;
@@ -281,6 +314,45 @@ export default function SecretariaPageClient() {
       return s.type === statusFiltro;
     });
   }, [items, statusFiltro]);
+
+  //***************s */
+  const gerarCarteirinhaDoFiltro = async () => {
+    if (!canShare) return;
+
+    if (itensFiltrados.length === 0) {
+      showAlert(
+        "Atenção",
+        "Nenhum membro encontrado para gerar a carteirinha.",
+      );
+      return;
+    }
+
+    try {
+      // pega o primeiro membro do filtro atual
+      const membroBase = itensFiltrados[0];
+
+      const res = await fetch(`/api/membros/${membroBase.id}`, {
+        cache: "no-store",
+      });
+
+      if (!res.ok) {
+        showAlert("Erro", "Não foi possível buscar os dados do membro.");
+        return;
+      }
+
+      const detalhado = (await res.json()) as MembroDetalhado;
+
+      if (!detalhado?.id) {
+        showAlert("Erro", "Dados do membro inválidos.");
+        return;
+      }
+
+      await gerarPdfCarteirinha(detalhado);
+    } catch (err) {
+      console.error(err);
+      showAlert("Erro", "Falha ao gerar a carteirinha.");
+    }
+  };
 
   // =========================
   // PDF LISTA
@@ -956,83 +1028,44 @@ export default function SecretariaPageClient() {
       drawSection("Dados principais", 112, (startY) => {
         const row = 15;
 
-        drawField(leftX, startY, colW, "Nome *", "Nome completo");
-        drawField(rightX, startY, colW, "Telefone", "(11) 99999-9999");
+        drawField(leftX, startY, colW, "Nome");
+        drawField(rightX, startY, colW, "Telefone");
 
-        drawField(leftX, startY + row, colW, "Endereço", "Rua / Avenida");
-        drawField(rightX, startY + row, colW, "Número", "Número");
+        drawField(leftX, startY + row, colW, "Endereço");
+        drawField(rightX, startY + row, colW, "Número");
 
-        drawField(leftX, startY + row * 2, colW, "Bairro", "Bairro");
-        drawField(
-          rightX,
-          startY + row * 2,
-          colW,
-          "Cidade / Distrito",
-          "Cidade",
-        );
+        drawField(leftX, startY + row * 2, colW, "Bairro");
+        drawField(rightX, startY + row * 2, colW, "Cidade / Distrito");
 
-        drawField(leftX, startY + row * 3, colW, "Estado (UF)", "Selecione", {
-          select: true,
-        });
-        drawField(rightX, startY + row * 3, colW, "Estado Civil", "Selecione", {
-          select: true,
-        });
+        drawField(leftX, startY + row * 3, colW, "Estado (UF)");
+        drawField(rightX, startY + row * 3, colW, "Estado Civil");
 
-        drawField(leftX, startY + row * 4, colW, "Nome da Mãe", "Nome da mãe");
-        drawField(rightX, startY + row * 4, colW, "Nome do Pai", "Nome do pai");
+        drawField(leftX, startY + row * 4, colW, "Nome da Mãe");
+        drawField(rightX, startY + row * 4, colW, "Nome do Pai");
 
-        drawField(leftX, startY + row * 5, colW, "RG", "RG");
-        drawField(rightX, startY + row * 5, colW, "CPF", "000.000.000-00");
+        drawField(leftX, startY + row * 5, colW, "RG");
+        drawField(rightX, startY + row * 5, colW, "CPF");
 
-        drawField(leftX, startY + row * 6, contentWidth, "Cargo *", "Membro", {
-          select: true,
-        });
+        drawField(leftX, startY + row * 6, contentWidth, "Cargo");
       });
 
       drawSection("Datas importantes", 26, (startY) => {
-        drawField(leftX, startY, colW, "Data de Nascimento", "dd/mm/aaaa", {
-          date: true,
-        });
-        drawField(rightX, startY, colW, "Data de Batismo", "dd/mm/aaaa", {
-          date: true,
-        });
+        drawField(leftX, startY, colW, "Data de Nascimento");
+        drawField(rightX, startY, colW, "Data de Batismo");
       });
 
       drawSection("Carteirinha", 41, (startY) => {
         const row = 15;
 
-        drawField(leftX, startY, colW, "Nº Carteirinha", "Número");
-        drawField(
-          rightX,
-          startY,
-          colW,
-          "Criação da Carteirinha",
-          "dd/mm/aaaa",
-          {
-            date: true,
-          },
-        );
+        drawField(leftX, startY, colW, "Nº Carteirinha");
+        drawField(rightX, startY, colW, "Criação da Carteirinha");
 
-        drawField(
-          leftX,
-          startY + row,
-          colW,
-          "Vencimento da Carteirinha",
-          "dd/mm/aaaa",
-          { date: true },
-        );
+        drawField(leftX, startY + row, colW, "Vencimento da Carteirinha");
         drawStatusField(rightX, startY + row, colW);
       });
 
       drawSection("Observações", 38, (startY) => {
-        drawTextarea(
-          leftX,
-          startY,
-          contentWidth,
-          22,
-          "Observações",
-          "Ex.: informações adicionais, notas...",
-        );
+        drawTextarea(leftX, startY, contentWidth, 22, "Observações");
       });
 
       printFooter();
@@ -1041,6 +1074,247 @@ export default function SecretariaPageClient() {
     } catch (error) {
       console.error(error);
       showAlert("Erro", "Não foi possível gerar a ficha em branco.");
+    }
+  };
+
+  const gerarPdfCarteirinha = async (dadosMembro: MembroDetalhado) => {
+    if (!dadosMembro?.id) return;
+
+    try {
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: [85, 54],
+      });
+
+      const pageWidth = 85;
+      const pageHeight = 54;
+
+      const getImageBase64 = async (path: string) => {
+        try {
+          const origin =
+            typeof window !== "undefined" ? window.location.origin : "";
+          const resp = await fetch(`${origin}${path}`, { cache: "no-store" });
+          if (!resp.ok) return "";
+
+          const blob = await resp.blob();
+          return await new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () =>
+              resolve(typeof reader.result === "string" ? reader.result : "");
+            reader.onerror = () => resolve("");
+            reader.readAsDataURL(blob);
+          });
+        } catch {
+          return "";
+        }
+      };
+
+      const safe = (v?: string | null) => String(v ?? "").trim() || "-";
+
+      const inicio = formatDateBR(dadosMembro.dataCriacaoCarteirinha);
+      const fim = formatDateBR(dadosMembro.dataVencCarteirinha);
+
+      const fundoFrente = await getImageBase64(
+        "/images/carteirinha-frente.png",
+      );
+      const fundoVerso = await getImageBase64("/images/carteirinha-verso.png");
+
+      // =========================
+      // CONFIG (IGREJA)
+      // =========================
+      const IGREJA_TITULO = (
+        dadosMembro.igrejaNome?.trim() || "IPR PRESBITERIANA RENOVADA-MC"
+      ).toUpperCase();
+
+      const IGREJA_LINHA2 = "R. Rafael Popoaski, 130 | Ipê I - Moreira César";
+      const IGREJA_LINHA3 = "Pindamonhangaba - SP";
+      const IGREJA_SUBTITULO = "Carteirinha de Membro";
+
+      // =========================
+      // FRENTE
+      // =========================
+      if (fundoFrente) {
+        doc.addImage(fundoFrente, "PNG", 0, 0, pageWidth, pageHeight);
+      }
+
+      /**
+       * Área do logo (esquerda)
+       */
+      const logoBoxW = 24;
+      // 👈 ALTERE AQUI: aumenta/diminui se o texto do cabeçalho ainda encostar no logo.
+      // Ex.: 22, 24, 26...
+
+      const headerX = logoBoxW + 4;
+      // 👈 ALTERE AQUI: distância do texto do cabeçalho para o logo.
+      // Se quiser mais pra direita, aumente o +4 pra +5/+6...
+
+      const headerW = pageWidth - headerX - 4;
+      // 👈 ALTERE AQUI: largura máxima do texto no topo (evita passar da borda)
+
+      // --- Cabeçalho da igreja
+      doc.setTextColor(30, 30, 30);
+      // 👈 ALTERE AQUI: cor do texto do cabeçalho (RGB). Ex.: (0,0,0) mais preto.
+
+      doc.setFont("times", "bold");
+      // 👈 ALTERE AQUI: FONTE DO TÍTULO
+      // Opções padrão do jsPDF: "helvetica" | "times" | "courier"
+      // Estilo: "normal" | "bold" | "italic" | "bolditalic"
+
+      doc.setFontSize(8.2);
+      // 👈 ALTERE AQUI: TAMANHO DA FONTE DO TÍTULO (maior = sobe visualmente)
+
+      doc.text(IGREJA_TITULO, headerX, 7, { maxWidth: headerW });
+      // 👈 ALTERE AQUI: POSIÇÃO DO TÍTULO
+      // headerX = mexe na horizontal
+      // 7 = mexe na vertical (menor sobe / maior desce)
+
+      doc.setFont("times", "normal");
+      doc.setFontSize(5.5);
+      // 👈 ALTERE AQUI: TAMANHO DAS LINHAS 2/3 (endereço/cidade)
+
+      doc.text(IGREJA_LINHA2, headerX, 10.2, { maxWidth: headerW });
+      // 👈 ALTERE AQUI: posição vertical da linha 2 (10.2)
+
+      doc.text(IGREJA_LINHA3, headerX, 12.8, { maxWidth: headerW });
+      // 👈 ALTERE AQUI: posição vertical da linha 3 (12.8)
+
+      doc.setFont("times", "bold");
+      doc.setFontSize(7.6);
+      // 👈 ALTERE AQUI: tamanho do "Carteirinha de Membro" (título menor)
+
+      doc.text(IGREJA_SUBTITULO, headerX, 17.2, { maxWidth: headerW });
+      // 👈 ALTERE AQUI: posição vertical do subtítulo (17.2)
+
+      // =========================
+      // DADOS DO MEMBRO
+      // =========================
+      const labelX = 7;
+      // 👈 ALTERE AQUI: move TODAS as labels (Nome, Data, RG...) pra esquerda/direita
+
+      const valueX = 28;
+      // 👈 ALTERE AQUI: move TODOS os valores (nomes/datas) pra esquerda/direita.
+      // Se estiver “grudando” no label, aumente (ex.: 30/32).
+      // Se ficar longe demais, diminua (ex.: 26).
+
+      const lineH = 4.7;
+      // 👈 ALTERE AQUI: espaço entre linhas (menor = mais “apertado”)
+      // Ex.: 4.2 (mais estreito) | 5.0 (mais espaçado)
+
+      let y = 26;
+      // 👈 ALTERE AQUI: onde começa o bloco de dados do membro.
+      // AUMENTAR (ex.: 27/28) => desce tudo.
+      // DIMINUIR (ex.: 24/25) => sobe tudo.
+
+      const writeRow = (label: string, value: string) => {
+        doc.setFont("helvetica", "bold");
+        // 👈 ALTERE AQUI: FONTE DAS LABELS (Nome:, Data:, etc.)
+
+        doc.setFontSize(8);
+        // 👈 ALTERE AQUI: TAMANHO DA FONTE DOS DADOS (labels/valores)
+        // Ex.: 7.5 menor | 8.5 maior
+
+        doc.setTextColor(0, 0, 0);
+        // 👈 ALTERE AQUI: cor das labels/valores (0,0,0 é preto)
+
+        doc.text(label, labelX, y);
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        // 👈 ALTERE AQUI: tamanho do valor também (pode deixar 7.8 por ex.)
+        // Ex.: label 8 e valor 7.6 (fica mais elegante)
+
+        const maxValueW = pageWidth - valueX - 5;
+        // 👈 ALTERE AQUI: margem direita do texto (5).
+        // Aumentar (ex.: 7/8) reduz área e evita encostar na borda.
+
+        const lines = doc.splitTextToSize(value, maxValueW);
+
+        doc.text(lines, valueX, y);
+
+        // 👇 AQUI define quanto a linha desce quando o texto quebra
+        y += Math.max(lineH, lines.length * 3.8);
+        // 👈 ALTERE AQUI: 3.8 controla o “passo” quando quebra linha.
+        // Se quebrar e ficar muito espaçado: 3.4
+        // Se quebrar e ficar apertado: 4.0
+      };
+
+      writeRow("Nome:", safe(dadosMembro.nome));
+      writeRow("Data de nasc.:", formatDateBR(dadosMembro.dataNascimento));
+      writeRow("Data de batismo:", formatDateBR(dadosMembro.dataBatismo));
+
+      // RG + Estado civil (mesma linha)
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+
+      doc.text("RG:", labelX, y);
+
+      doc.setFont("helvetica", "normal");
+      doc.text(safe(dadosMembro.rg), valueX, y);
+
+      doc.setFont("helvetica", "bold");
+      doc.text("Estado civil:", 48, y);
+      // 👈 ALTERE AQUI: 48 move o label "Estado civil:" pra esquerda/direita
+
+      doc.setFont("helvetica", "normal");
+      doc.text(safe(dadosMembro.estadoCivil), 70, y);
+      // 👈 ALTERE AQUI: 70 move o valor "CASADO" pra esquerda/direita
+
+      y += lineH;
+
+      writeRow("Mãe:", safe(dadosMembro.nomeMae));
+      writeRow("Pai:", safe(dadosMembro.nomePai));
+
+      // =========================
+      // VERSO
+      // =========================
+      doc.addPage();
+
+      if (fundoVerso) {
+        doc.addImage(fundoVerso, "PNG", 0, 0, pageWidth, pageHeight);
+      }
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(7);
+      doc.setTextColor(0, 0, 0);
+      doc.text("Constituição Federal:", 6, 12);
+      // 👈 ALTERE AQUI: posição do título no verso (6 = horizontal, 12 = vertical)
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(7);
+      // 👈 ALTERE AQUI: tamanho do texto do verso (6.5 menor / 7.5 maior)
+
+      const texto = doc.splitTextToSize(
+        `Art. 5º VI: É inviolável a liberdade de consciência e de crença, sendo assegurado o livre exercício dos cultos religiosos e garantida, na forma da lei, 
+a proteção aos locais de cultos e às suas liturgias.
+
+Art. 5º VII: É assegurada, nos termos da lei, a prestação de assistência religiosa nas entidades civis e militares de internação coletiva.
+
+Para validade obrigatória a apresentação do RG.
+
+Data: ${inicio} a ${fim}.`,
+        73,
+        // 👈 ALTERE AQUI: largura do bloco do texto no verso.
+        // Menor = quebra mais linhas (mais “quadrado”)
+        // Maior = quebra menos (mais “comprido”)
+      );
+
+      // ALINHAMENTO DO TEXTO NO VERSO:
+      // doc.text(texto, X, Y) é alinhado à esquerda por padrão.
+      // Para centralizar: doc.text(texto, pageWidth/2, Y, { align: "center" })
+      // Para alinhar à direita: doc.text(texto, pageWidth-6, Y, { align: "right" })
+
+      doc.text(texto, 6, 17);
+      // 👈 ALTERE AQUI: posição do bloco de texto (6 = horizontal, 17 = vertical)
+
+      const nomeArquivo =
+        safe(dadosMembro.nome) === "-"
+          ? "carteirinha-membro.pdf"
+          : `carteirinha-${safe(dadosMembro.nome).replace(/\s+/g, "-").toLowerCase()}.pdf`;
+
+      doc.save(nomeArquivo);
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
     }
   };
 
@@ -1154,31 +1428,79 @@ export default function SecretariaPageClient() {
         <div className={styles.actionsRow}>
           {canShare && (
             <>
-              <button
-                onClick={gerarPdfLista}
-                className={styles.btnPDF}
-                type="button"
-              >
-                <FileText size={16} /> PDF Lista
-              </button>
+              <div className={styles.pdfMenuWrap} ref={pdfMenuRef}>
+                <button
+                  type="button"
+                  className={styles.btnPDF}
+                  onClick={() => setPdfMenuOpen((prev) => !prev)}
+                  aria-expanded={pdfMenuOpen}
+                  aria-haspopup="menu"
+                  disabled={gerandoPdfCompleto}
+                >
+                  <FileText size={16} />
+                  {gerandoPdfCompleto ? " Gerando..." : " PDF"}
+                  <ChevronDown
+                    size={16}
+                    className={`${styles.pdfChevron} ${pdfMenuOpen ? styles.pdfChevronOpen : ""}`}
+                  />
+                </button>
 
-              <button
-                onClick={gerarPdfCompleto}
-                className={styles.btnPDF}
-                type="button"
-                disabled={gerandoPdfCompleto}
-              >
-                <FileText size={16} />
-                {gerandoPdfCompleto ? " Gerando..." : " PDF Completo"}
-              </button>
+                {pdfMenuOpen && (
+                  <div className={styles.pdfDropdown} role="menu">
+                    <button
+                      type="button"
+                      className={styles.pdfDropdownItem}
+                      onClick={() => {
+                        setPdfMenuOpen(false);
+                        void gerarPdfLista();
+                      }}
+                    >
+                      <FileText size={15} />
+                      PDF Lista
+                    </button>
 
-              <button
-                onClick={gerarPdfFichaEmBranco}
-                className={styles.btnPDF}
-                type="button"
-              >
-                <FileText size={16} /> Ficha em Branco
-              </button>
+                    <button
+                      type="button"
+                      className={styles.pdfDropdownItem}
+                      onClick={() => {
+                        setPdfMenuOpen(false);
+                        void gerarPdfCompleto();
+                      }}
+                      disabled={gerandoPdfCompleto}
+                    >
+                      <FileText size={15} />
+                      {gerandoPdfCompleto
+                        ? "Gerando PDF Completo..."
+                        : "PDF Completo"}
+                    </button>
+
+                    <button
+                      type="button"
+                      className={styles.pdfDropdownItem}
+                      onClick={() => {
+                        setPdfMenuOpen(false);
+                        void gerarPdfFichaEmBranco();
+                      }}
+                    >
+                      <FileText size={15} />
+                      Ficha em Branco
+                    </button>
+
+                    {/* Botão para gerar carteirinha */}
+                    <button
+                      type="button"
+                      className={styles.pdfDropdownItem}
+                      onClick={() => {
+                        setPdfMenuOpen(false);
+                        void gerarCarteirinhaDoFiltro();
+                      }}
+                    >
+                      <FileText size={15} />
+                      Carteirinha (1º do filtro)
+                    </button>
+                  </div>
+                )}
+              </div>
 
               <button
                 onClick={enviarWhats}
