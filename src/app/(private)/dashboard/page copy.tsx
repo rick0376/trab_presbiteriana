@@ -17,21 +17,13 @@ export default async function DashboardPage() {
   if (isSuperAdmin) {
     const hoje = new Date();
 
-    const [
-      totalIgrejas,
-      totalMembros,
-      totalMembrosAtivos,
-      totalMembrosInativos,
-      totalEventos,
-      totalCronogramas,
-    ] = await Promise.all([
-      prisma.igreja.count(),
-      prisma.membro.count(),
-      prisma.membro.count({ where: { ativo: true } }),
-      prisma.membro.count({ where: { ativo: false } }),
-      prisma.evento.count(),
-      prisma.cronogramaAnual.count(),
-    ]);
+    const [totalIgrejas, totalMembros, totalEventos, totalCronogramas] =
+      await Promise.all([
+        prisma.igreja.count(),
+        prisma.membro.count(),
+        prisma.evento.count(),
+        prisma.cronogramaAnual.count(),
+      ]);
 
     const mediaPorIgreja =
       totalIgrejas > 0 ? Math.round(totalMembros / totalIgrejas) : 0;
@@ -55,16 +47,6 @@ export default async function DashboardPage() {
           <div className={styles.statCardMM}>
             <div className={styles.statLabel}>Membros</div>
             <div className={styles.statValue}>{totalMembros}</div>
-
-            {/* ✅ só isso aqui foi adicionado */}
-            <div className={styles.statBreakdown}>
-              <span className={`${styles.pill} ${styles.pillOn}`}>
-                Ativos {totalMembrosAtivos}
-              </span>
-              <span className={`${styles.pill} ${styles.pillOff}`}>
-                Inativos {totalMembrosInativos}
-              </span>
-            </div>
           </div>
 
           <div className={styles.statCardE}>
@@ -98,7 +80,7 @@ export default async function DashboardPage() {
   }
 
   // ======================================================
-  // DATAS
+  // DATAS (DECLARADAS ANTES DO PROMISE.ALL)
   // ======================================================
   const hoje = new Date();
 
@@ -129,8 +111,6 @@ export default async function DashboardPage() {
   const [
     igreja,
     membrosCount,
-    membrosAtivosCount,
-    membrosInativosCount,
     eventosCount,
     proximosEventos,
     ultimosMembros,
@@ -151,16 +131,6 @@ export default async function DashboardPage() {
 
     prisma.membro.count({
       where: { igrejaId },
-    }),
-
-    // ✅ só isso aqui foi adicionado
-    prisma.membro.count({
-      where: { igrejaId, ativo: true },
-    }),
-
-    // ✅ só isso aqui foi adicionado
-    prisma.membro.count({
-      where: { igrejaId, ativo: false },
     }),
 
     prisma.evento.count({
@@ -232,10 +202,12 @@ export default async function DashboardPage() {
   // ======================================================
   // ANIVERSARIANTES DE HOJE
   // ======================================================
+
   const aniversariantesDoDia = membrosComNascimento.filter((m) => {
     if (!m.dataNascimento) return false;
 
     const nascimento = new Date(m.dataNascimento);
+
     const diaNascimento = nascimento.getUTCDate();
     const mesNascimento = nascimento.getUTCMonth();
 
@@ -248,6 +220,7 @@ export default async function DashboardPage() {
   // ======================================================
   // ANIVERSARIANTES DO MÊS (com idade)
   // ======================================================
+
   const mesHoje = hoje.getUTCMonth();
   const anoHoje = hoje.getUTCFullYear();
 
@@ -263,6 +236,7 @@ export default async function DashboardPage() {
       const mth = nasc.getUTCMonth();
       const d = nasc.getUTCDate();
 
+      // idade atual (considerando mês/dia)
       let idade = anoHoje - y;
       const jaFezAniversarioEsteAno =
         mesHoje > mth || (mesHoje === mth && hoje.getUTCDate() >= d);
@@ -299,18 +273,8 @@ export default async function DashboardPage() {
 
       <section className={styles.gridStats}>
         <div className={styles.statCardM}>
-          <div className={styles.statLabel}>Membros Ativos</div>
-
-          {/* destaque */}
-          <div className={styles.statValue}>{membrosAtivosCount}</div>
-
-          {/* informações secundárias */}
-          <div className={styles.statSubInfo}>
-            <span>Total {membrosCount}</span>
-            <span className={styles.inativos}>
-              Inativos {membrosInativosCount}
-            </span>
-          </div>
+          <div className={styles.statLabel}>Membros</div>
+          <div className={styles.statValue}>{membrosCount}</div>
         </div>
 
         <div className={styles.statCardMM}>
@@ -357,7 +321,7 @@ export default async function DashboardPage() {
           )}
         </div>
 
-        {/* 🎂 Aniversariantes do mês */}
+        {/* 🎂 Aniversariantes do mês (card + modal) */}
         <AniversariantesMesCard
           total={aniversariantesDoMes.length}
           mesLabel={mesLabel}

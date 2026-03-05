@@ -14,14 +14,13 @@ export default async function DashboardPage() {
   // ======================================================
   // SUPERADMIN
   // ======================================================
-  if (isSuperAdmin) {
-    const hoje = new Date();
 
+  if (isSuperAdmin) {
     const [
       totalIgrejas,
       totalMembros,
-      totalMembrosAtivos,
-      totalMembrosInativos,
+      membrosAtivos,
+      membrosInativos,
       totalEventos,
       totalCronogramas,
     ] = await Promise.all([
@@ -43,6 +42,7 @@ export default async function DashboardPage() {
             <h1 className={styles.h1}>Dashboard</h1>
             <p className={styles.sub}>Visão geral do sistema (SUPERADMIN)</p>
           </div>
+
           <div className={styles.badgeRole}>SUPERADMIN</div>
         </div>
 
@@ -55,16 +55,6 @@ export default async function DashboardPage() {
           <div className={styles.statCardMM}>
             <div className={styles.statLabel}>Membros</div>
             <div className={styles.statValue}>{totalMembros}</div>
-
-            {/* ✅ só isso aqui foi adicionado */}
-            <div className={styles.statBreakdown}>
-              <span className={`${styles.pill} ${styles.pillOn}`}>
-                Ativos {totalMembrosAtivos}
-              </span>
-              <span className={`${styles.pill} ${styles.pillOff}`}>
-                Inativos {totalMembrosInativos}
-              </span>
-            </div>
           </div>
 
           <div className={styles.statCardE}>
@@ -84,6 +74,7 @@ export default async function DashboardPage() {
   // ======================================================
   // USUÁRIO NORMAL
   // ======================================================
+
   if (!igrejaId) {
     return (
       <div className={styles.container}>
@@ -97,9 +88,6 @@ export default async function DashboardPage() {
     );
   }
 
-  // ======================================================
-  // DATAS
-  // ======================================================
   const hoje = new Date();
 
   const primeiroDiaMes = new Date(
@@ -126,11 +114,12 @@ export default async function DashboardPage() {
   // ======================================================
   // CONSULTAS
   // ======================================================
+
   const [
     igreja,
     membrosCount,
-    membrosAtivosCount,
-    membrosInativosCount,
+    membrosAtivos,
+    membrosInativos,
     eventosCount,
     proximosEventos,
     ultimosMembros,
@@ -153,12 +142,10 @@ export default async function DashboardPage() {
       where: { igrejaId },
     }),
 
-    // ✅ só isso aqui foi adicionado
     prisma.membro.count({
       where: { igrejaId, ativo: true },
     }),
 
-    // ✅ só isso aqui foi adicionado
     prisma.membro.count({
       where: { igrejaId, ativo: false },
     }),
@@ -230,24 +217,24 @@ export default async function DashboardPage() {
   ]);
 
   // ======================================================
-  // ANIVERSARIANTES DE HOJE
+  // ANIVERSARIANTES DO DIA
   // ======================================================
+
   const aniversariantesDoDia = membrosComNascimento.filter((m) => {
     if (!m.dataNascimento) return false;
 
     const nascimento = new Date(m.dataNascimento);
-    const diaNascimento = nascimento.getUTCDate();
-    const mesNascimento = nascimento.getUTCMonth();
 
-    const diaHoje = hoje.getUTCDate();
-    const mesHoje = hoje.getUTCMonth();
-
-    return diaNascimento === diaHoje && mesNascimento === mesHoje;
+    return (
+      nascimento.getUTCDate() === hoje.getUTCDate() &&
+      nascimento.getUTCMonth() === hoje.getUTCMonth()
+    );
   });
 
   // ======================================================
-  // ANIVERSARIANTES DO MÊS (com idade)
+  // ANIVERSARIANTES DO MÊS
   // ======================================================
+
   const mesHoje = hoje.getUTCMonth();
   const anoHoje = hoje.getUTCFullYear();
 
@@ -259,16 +246,19 @@ export default async function DashboardPage() {
     })
     .map((m) => {
       const nasc = new Date(m.dataNascimento as any);
-      const y = nasc.getUTCFullYear();
-      const mth = nasc.getUTCMonth();
-      const d = nasc.getUTCDate();
 
-      let idade = anoHoje - y;
-      const jaFezAniversarioEsteAno =
-        mesHoje > mth || (mesHoje === mth && hoje.getUTCDate() >= d);
-      if (!jaFezAniversarioEsteAno) idade -= 1;
+      let idade = anoHoje - nasc.getUTCFullYear();
 
-      const ymd = `${y}-${String(mth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+      const jaFezAniversario =
+        mesHoje > nasc.getUTCMonth() ||
+        (mesHoje === nasc.getUTCMonth() &&
+          hoje.getUTCDate() >= nasc.getUTCDate());
+
+      if (!jaFezAniversario) idade--;
+
+      const ymd = `${nasc.getUTCFullYear()}-${String(
+        nasc.getUTCMonth() + 1,
+      ).padStart(2, "0")}-${String(nasc.getUTCDate()).padStart(2, "0")}`;
 
       return {
         id: m.id,
@@ -287,6 +277,7 @@ export default async function DashboardPage() {
   // ======================================================
   // RENDER
   // ======================================================
+
   return (
     <div className={styles.container}>
       <div className={styles.top}>
@@ -294,22 +285,20 @@ export default async function DashboardPage() {
           <h1 className={styles.h1}>Dashboard</h1>
           <p className={styles.sub}>{igreja?.nome ?? "Minha igreja"}</p>
         </div>
+
         <div className={styles.badgeRole}>{user.name}</div>
       </div>
 
       <section className={styles.gridStats}>
         <div className={styles.statCardM}>
-          <div className={styles.statLabel}>Membros Ativos</div>
+          <div className={styles.statLabel}>Membros</div>
 
-          {/* destaque */}
-          <div className={styles.statValue}>{membrosAtivosCount}</div>
+          <div className={styles.statValue}>{membrosCount}</div>
 
-          {/* informações secundárias */}
-          <div className={styles.statSubInfo}>
-            <span>Total {membrosCount}</span>
-            <span className={styles.inativos}>
-              Inativos {membrosInativosCount}
-            </span>
+          {/* ADIÇÃO QUE VOCÊ PEDIU */}
+          <div className={styles.statMini}>
+            <span className={styles.miniOn}>Ativos {membrosAtivos}</span>
+            <span className={styles.miniOff}>Inativos {membrosInativos}</span>
           </div>
         </div>
 
@@ -335,7 +324,6 @@ export default async function DashboardPage() {
       </section>
 
       <section className={styles.grid2}>
-        {/* 🎉 Aniversariantes */}
         <div className={styles.cardNiver}>
           <div className={styles.cardHeaderNiver}>
             <h2>🎉 Aniversariantes do dia</h2>
@@ -357,63 +345,11 @@ export default async function DashboardPage() {
           )}
         </div>
 
-        {/* 🎂 Aniversariantes do mês */}
         <AniversariantesMesCard
           total={aniversariantesDoMes.length}
           mesLabel={mesLabel}
           items={aniversariantesDoMes}
         />
-
-        {/* 📅 Próximos Eventos */}
-        <div className={`${styles.card} ${styles.cardEventos}`}>
-          <div className={styles.cardHeader}>
-            <h2>📅 Próximos eventos</h2>
-            <div className={styles.spanCard}>{proximosEventos.length}</div>
-          </div>
-
-          {proximosEventos.length === 0 ? (
-            <p className={styles.empty}>Nenhum evento futuro.</p>
-          ) : (
-            <ul className={styles.list}>
-              {proximosEventos.map((e) => (
-                <li key={e.id} className={styles.listItem}>
-                  <div>
-                    <div className={styles.listTitle}>{e.titulo}</div>
-                    <div className={styles.listSub}>
-                      {new Date(e.data).toLocaleString("pt-BR")}
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        {/* 👥 Últimos membros */}
-        <div className={`${styles.card} ${styles.cardUltimos}`}>
-          <div className={styles.cardHeader}>
-            <h2>👥 Últimos membros</h2>
-            <div className={styles.spanCard}>{ultimosMembros.length}</div>
-          </div>
-
-          {ultimosMembros.length === 0 ? (
-            <p className={styles.empty}>Nenhum membro ainda.</p>
-          ) : (
-            <ul className={styles.list}>
-              {ultimosMembros.map((m) => (
-                <li key={m.id} className={styles.listItem}>
-                  <div>
-                    <div className={styles.listTitle}>{m.nome}</div>
-                    <div className={styles.listSub}>
-                      {m.cargo} •{" "}
-                      {new Date(m.createdAt).toLocaleDateString("pt-BR")}
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
       </section>
     </div>
   );

@@ -80,8 +80,14 @@
 .statCardE,
 .statCardCS,
 .statCardCA {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   border-radius: 18px;
   padding: 16px;
+
+  align-items: center;
+  text-align: center;
 
   border: 1px solid rgba(255, 255, 255, 0.14);
 
@@ -174,19 +180,28 @@
   font-weight: 900;
   font-size: 13px;
   letter-spacing: -0.2px;
+
   color: rgba(15, 42, 61, 0.9);
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .statValue {
   position: relative;
   z-index: 1;
 
-  margin-top: 10px;
+  margin-top: 8px;
+
   font-size: 36px;
   font-weight: 950;
-  letter-spacing: -0.8px;
 
   color: #0f2a3d;
+
+  display: flex;
+  justify-content: center; /* centraliza horizontal */
+  align-items: center;
 }
 
 /* cores (gradiente vibrante) */
@@ -627,4 +642,57 @@
     min-width: 0;
     word-break: break-word;
   }
+}
+
+.statBreakdown {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pill {
+  font-size: 12px;
+  font-weight: 900;
+  padding: 6px 10px;
+  border-radius: 999px;
+  line-height: 1;
+  letter-spacing: 0.2px;
+
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(8px);
+}
+
+/* ✅ Verde com contraste */
+.pillOn {
+  background: linear-gradient(
+    135deg,
+    rgba(16, 185, 129, 0.95),
+    rgba(34, 197, 94, 0.85)
+  );
+  color: #062a1b;
+}
+
+/* ✅ Vermelho com contraste */
+.pillOff {
+  background: linear-gradient(
+    135deg,
+    rgba(239, 68, 68, 0.95),
+    rgba(244, 63, 94, 0.85)
+  );
+  color: #2b0a0a;
+}
+
+.statSubInfo {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  gap: 10px;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.inativos {
+  color: #ef4444;
 }
