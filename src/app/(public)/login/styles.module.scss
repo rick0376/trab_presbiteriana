@@ -1,13 +1,12 @@
-/* ===== Página ===== */
 .container {
-  margin-top: 30px;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 18px;
+  padding: 2rem;
 }
 
-/* ===== Card ===== */
+/* ✅ Card responsivo (igual ao SuperAdmin) */
 .card {
   background: radial-gradient(
     circle at top,
@@ -15,180 +14,195 @@
     #5d8baa 40%,
     #083658 100%
   );
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  padding: 3rem;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.089);
+
   width: min(420px, 100%);
-  display: grid;
-  gap: 12px;
+  display: flex;
+  flex-direction: column;
+}
 
-  padding: 22px;
-  border-radius: 18px;
-
-  //background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(18px);
-
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+.title {
+  text-align: center;
+  color: white;
+  margin-bottom: 2rem;
+  font-size: 1.75rem;
+  font-weight: 700;
 }
 
 .back {
-  color: rgba(255, 255, 255, 0.92);
-  text-decoration: none;
-  font-weight: 800;
   display: inline-flex;
-  width: fit-content;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-weight: 600;
 
   &:hover {
+    color: white;
     text-decoration: underline;
   }
 }
 
-.title {
-  color: #ffffff;
-  font-weight: 900;
-  letter-spacing: 0.3px;
-  font-size: 22px;
-  margin: 4px 0 6px 0;
-}
-
-/* ===== Campos ===== */
 .input {
   width: 100%;
-  padding: 12px 14px;
+  padding: 1rem;
+  margin-bottom: 1rem;
   border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1rem;
 
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(0, 0, 0, 0.25);
-  color: #ffffff;
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.65);
+  }
 
-  outline: none;
-  transition: 0.2s;
-  font-size: 15px;
-}
+  &:focus {
+    outline: none;
+    border-color: rgba(59, 130, 246, 0.9);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  }
 
-.input::placeholder {
-  color: rgba(255, 255, 255, 0.75);
-}
-
-.input:focus {
-  border-color: rgba(156, 202, 233, 0.85);
-  box-shadow: 0 0 0 3px rgba(156, 202, 233, 0.18);
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
 }
 
 .button {
   width: 100%;
-  padding: 12px 14px;
-  border-radius: 12px;
-
+  padding: 1rem;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  color: white;
   border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
   cursor: pointer;
 
-  font-weight: 900;
-  font-size: 15px;
-  color: #ffffff;
-
-  background: linear-gradient(135deg, #cf9b16 0%, #a75b04 100%);
-  transition: 0.25s;
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
 }
 
-.button:hover {
-  transform: translateY(-2px);
-  background: linear-gradient(135deg, #e0b12a 0%, #c46a06 100%);
-  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.25);
+/* ✅ Password com olho (igual ao SuperAdmin) */
+.passwordInput {
+  position: relative;
+  margin-bottom: 20px;
 }
 
-.button:disabled {
-  opacity: 0.75;
+.passwordInput .input {
+  padding-right: 48px;
+  margin-bottom: 0;
+}
+
+.eyeBtn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.eyeBtn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-50%) scale(1.03);
+}
+
+.eyeBtn:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
+  transform: translateY(-50%);
 }
 
-/* ===== Modal ===== */
+/* ===== Modal (igual ao SuperAdmin) ===== */
 .modalOverlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(4px);
-
   display: flex;
   align-items: center;
   justify-content: center;
-
-  padding: 16px;
-  z-index: 9999;
+  padding: 24px;
 }
 
 .modal {
   width: min(420px, 100%);
-  background: #ffffff;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 16px;
-  padding: 22px;
-
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  animation: modalIn 0.22s ease-out;
+  padding: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  color: white;
 }
 
 .modalTitle {
-  font-weight: 900;
-  color: #111827;
   font-size: 18px;
-  margin-bottom: 8px;
+  font-weight: 700;
+  margin-bottom: 10px;
 }
 
 .modalText {
-  color: #374151;
-  font-weight: 600;
-  line-height: 1.35;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
   margin-bottom: 16px;
 }
 
 .modalBtn {
   width: 100%;
-  padding: 12px 14px;
+  padding: 10px;
   border-radius: 12px;
   border: none;
+  background: linear-gradient(135deg, #ef4444, #f97316);
+  color: white;
+  font-weight: 700;
   cursor: pointer;
-
-  font-weight: 900;
-  color: #ffffff;
-  background: linear-gradient(135deg, #ef4444, #b91c1c);
-  transition: 0.2s;
 }
 
-.modalBtn:hover {
-  opacity: 0.92;
-  transform: translateY(-1px);
-}
-
-@keyframes modalIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px) scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* ===== RESPONSIVO: reduz card no mobile ===== */
+/* ✅ RESPONSIVO (igual ao SuperAdmin) */
 @media (max-width: 520px) {
   .container {
     padding: 14px;
   }
 
   .card {
-    padding: 18px;
-    border-radius: 16px;
+    padding: 22px;
+    border-radius: 18px;
   }
 
   .title {
-    font-size: 20px;
+    font-size: 1.35rem;
+    margin-bottom: 1.2rem;
   }
 
-  .input,
+  .input {
+    padding: 0.9rem;
+    font-size: 0.95rem;
+  }
+
   .button {
-    padding: 11px 12px;
-    font-size: 14px;
+    padding: 0.9rem;
+    font-size: 1rem;
   }
 }
 
@@ -198,35 +212,52 @@
   }
 
   .card {
-    padding: 14px;
-    border-radius: 14px;
-    gap: 10px;
+    padding: 16px;
+    border-radius: 16px;
   }
 
   .title {
-    font-size: 18px;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
   }
 
-  .input,
+  .input {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+  }
+
   .button {
-    padding: 10px 11px;
-    font-size: 14px;
+    padding: 0.8rem;
+    font-size: 0.95rem;
+  }
+
+  .modalOverlay {
+    padding: 16px;
+  }
+
+  .modal {
+    padding: 16px;
   }
 }
 
 @media (max-width: 340px) {
   .card {
     padding: 12px;
-    border-radius: 12px;
+    border-radius: 14px;
   }
 
   .title {
-    font-size: 17px;
+    font-size: 1.1rem;
   }
 
-  .input,
+  .input {
+    padding: 0.7rem;
+    font-size: 0.85rem;
+  }
+
   .button {
-    padding: 9px 10px;
-    font-size: 13px;
+    padding: 0.75rem;
+    font-size: 0.9rem;
   }
 }

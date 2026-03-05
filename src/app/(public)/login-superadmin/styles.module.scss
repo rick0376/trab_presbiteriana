@@ -1,9 +1,16 @@
 .container {
-  margin-top: 30px;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2rem;
+
+  margin-top: 0;
+}
+
+.container {
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 /* ✅ Card responsivo */
@@ -83,6 +90,49 @@
     opacity: 0.7;
     cursor: not-allowed;
   }
+}
+
+.passwordInput {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.passwordInput .input {
+  padding-right: 48px;
+  margin-bottom: 0;
+}
+
+.eyeBtn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.9);
+
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.eyeBtn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-50%) scale(1.03);
+}
+
+.eyeBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: translateY(-50%);
 }
 
 .back {

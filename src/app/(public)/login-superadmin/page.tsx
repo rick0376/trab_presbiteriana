@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
 import styles from "./styles.module.scss";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginSuperAdminPage() {
   const router = useRouter();
@@ -12,6 +13,7 @@ export default function LoginSuperAdminPage() {
 
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [showSenha, setShowSenha] = useState(false);
 
   const [loading, setLoading] = useState(false);
 
@@ -67,15 +69,27 @@ export default function LoginSuperAdminPage() {
           disabled={loading}
         />
 
-        <input
-          type="password"
-          placeholder="Senha"
-          value={senha}
-          onChange={(e) => setSenha(e.target.value)}
-          className={styles.input}
-          required
-          disabled={loading}
-        />
+        <div className={styles.passwordInput}>
+          <input
+            type={showSenha ? "text" : "password"}
+            placeholder="Senha"
+            value={senha}
+            onChange={(e) => setSenha(e.target.value)}
+            className={styles.input}
+            required
+            disabled={loading}
+          />
+
+          <button
+            type="button"
+            className={styles.eyeBtn}
+            onClick={() => setShowSenha((v) => !v)}
+            disabled={loading}
+            title={showSenha ? "Ocultar" : "Mostrar"}
+          >
+            {showSenha ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        </div>
 
         <button type="submit" disabled={loading} className={styles.button}>
           {loading ? "Entrando..." : "Entrar"}
