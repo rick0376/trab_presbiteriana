@@ -73,9 +73,6 @@ export default function UsuariosPageClient({
   const [users, setUsers] = useState<UserItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [membros, setMembros] = useState<any[]>([]);
-  const [selectedMembro, setSelectedMembro] = useState<any>(null);
-
   const [igrejas, setIgrejas] = useState<Igreja[]>([]);
   const [selectedIgreja, setSelectedIgreja] = useState(igrejaId ?? "");
 
@@ -209,47 +206,24 @@ export default function UsuariosPageClient({
     }
   }
 
-  async function loadMembros(igreja?: string) {
-    try {
-      const qs = new URLSearchParams();
-      if (igreja) qs.set("igrejaId", igreja);
-
-      const res = await fetch(`/api/membros?${qs.toString()}`, {
-        cache: "no-store",
-      });
-
-      const data = await res.json().catch(() => []);
-      setMembros(Array.isArray(data) ? data : []);
-    } catch {
-      setMembros([]);
-    }
-  }
-
   async function loadIgrejas() {
     const r = await fetch("/api/igrejas", { cache: "no-store" });
     const j = await r.json().catch(() => []);
     if (!Array.isArray(j)) return;
 
     setIgrejas(j);
-
     const first = j[0]?.id ?? "";
     setSelectedIgreja(first);
-
     await loadUsers(first);
-    await loadMembros(first); // ⭐ FALTAVA ISSO
   }
 
   useEffect(() => {
     (async () => {
       if (!permsLoaded || !canView) return;
-
-      if (isSuperAdmin) {
-        await loadIgrejas();
-      } else {
-        await loadUsers(igrejaId ?? undefined);
-        await loadMembros(igrejaId ?? undefined);
-      }
+      if (isSuperAdmin) await loadIgrejas();
+      else await loadUsers(igrejaId ?? undefined);
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [permsLoaded, canView]);
 
   // =========================
@@ -548,12 +522,7 @@ export default function UsuariosPageClient({
       setNewRole("USER");
       setCreateOpen(false);
 
-      const igrejaAtual = isSuperAdmin
-        ? selectedIgreja
-        : (igrejaId ?? undefined);
-
-      await loadUsers(igrejaAtual);
-      await loadMembros(igrejaAtual);
+      await loadUsers(isSuperAdmin ? selectedIgreja : (igrejaId ?? undefined));
     } catch {
       toast.error("Falha de conexão.", "Erro");
     } finally {
@@ -643,11 +612,6 @@ export default function UsuariosPageClient({
     return null; // vai redirecionar pro /sem-permissao
   }
 
-  const membroOptions = membros.map((m: any) => ({
-    value: m.id,
-    label: `${m.nome} — ${m.cargo || "Membro"}`,
-  }));
-
   return (
     <div className={styles.container}>
       <div className={styles.top}>
@@ -662,7 +626,6 @@ export default function UsuariosPageClient({
                 const id = e.target.value;
                 setSelectedIgreja(id);
                 loadUsers(id);
-                loadMembros(id);
               }}
             >
               {igrejas.map((i) => (
@@ -717,17 +680,12 @@ export default function UsuariosPageClient({
           <div className={styles.grid}>
             <div className={styles.field}>
               <label className={styles.label}>Nome</label>
-              <Select
-                className={styles.reactSelect}
-                classNamePrefix="rs"
-                options={membroOptions}
-                value={selectedMembro}
-                onChange={(option: any) => {
-                  setSelectedMembro(option);
-                  setNewName(option?.label || "");
-                }}
-                placeholder="Buscar membro..."
-                isClearable
+              <input
+                className={styles.input}
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                placeholder="Nome (opcional)"
+                disabled={savingCreate}
               />
             </div>
 
