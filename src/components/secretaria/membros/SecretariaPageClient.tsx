@@ -24,6 +24,7 @@ type Membro = {
   telefone: string | null;
   numeroCarteirinha: string | null;
   dataVencCarteirinha: string | null;
+  ativo?: boolean | null;
 };
 
 type Permissao = {
@@ -114,7 +115,9 @@ const PERM_DEFAULT_MEMBROS: Permissao = {
   compartilhar: false,
 };
 
-type StatusFiltro = "all" | "danger" | "warn" | "ok";
+//type StatusFiltro = "all" | "danger" | "warn" | "ok";
+
+type StatusFiltro = "all" | "danger" | "warn" | "ok" | "ativo" | "inativo";
 
 export default function SecretariaPageClient() {
   const router = useRouter();
@@ -309,53 +312,35 @@ export default function SecretariaPageClient() {
   const itensFiltrados = useMemo(() => {
     if (statusFiltro === "all") return items;
 
+    if (statusFiltro === "ativo") {
+      return items.filter((m: any) => m.ativo === true);
+    }
+
+    if (statusFiltro === "inativo") {
+      return items.filter((m: any) => m.ativo === false);
+    }
+
     return items.filter((m) => {
       const s = getStatus(m.dataVencCarteirinha);
       return s.type === statusFiltro;
     });
   }, [items, statusFiltro]);
 
-  //***************s */
-  /*
-  const gerarCarteirinhaDoFiltro = async () => {
-    if (!canShare) return;
-
-    if (itensFiltrados.length === 0) {
-      showAlert(
-        "Atenção",
-        "Nenhum membro encontrado para gerar a carteirinha.",
-      );
-      return;
-    }
-
-    try {
-      for (let i = 0; i < itensFiltrados.length; i++) {
-        const item = itensFiltrados[i];
-
-        const res = await fetch(`/api/membros/${item.id}`, {
-          cache: "no-store",
-        });
-
-        if (!res.ok) {
-          console.error("Erro ao buscar membro:", item.id, res.status);
-          continue;
-        }
-
-        const detalhado = (await res.json()) as MembroDetalhado;
-
-        if (!detalhado?.id) {
-          console.error("Dados inválidos do membro:", item.id);
-          continue;
-        }
-
-        await gerarPdfCarteirinha(detalhado);
-      }
-    } catch (err) {
-      console.error(err);
-      showAlert("Erro", "Falha ao gerar as carteirinhas.");
-    }
-  };
-*/
+  const contadores = useMemo(() => {
+    return {
+      all: items.length,
+      ok: items.filter((m) => getStatus(m.dataVencCarteirinha).type === "ok")
+        .length,
+      danger: items.filter(
+        (m) => getStatus(m.dataVencCarteirinha).type === "danger",
+      ).length,
+      warn: items.filter(
+        (m) => getStatus(m.dataVencCarteirinha).type === "warn",
+      ).length,
+      ativo: items.filter((m: any) => m.ativo === true).length,
+      inativo: items.filter((m: any) => m.ativo === false).length,
+    };
+  }, [items]);
 
   const desenharCarteirinhaNoDoc = async (
     doc: jsPDF,
@@ -367,184 +352,173 @@ export default function SecretariaPageClient() {
   ) => {
     const cardW = 85;
     const cardH = 54;
-
-    const gapFV = 2; // espaço entre frente e verso
+    const gap = 2;
 
     const FRONT_X = originX;
-    const BACK_X = originX + cardW + gapFV; // ✅ AQUI
+    const BACK_X = originX + cardW + gap;
 
     const safe = (v?: string | null) => String(v ?? "").trim() || "-";
+
     const inicio = formatDateBR(dadosMembro.dataCriacaoCarteirinha);
     const fim = formatDateBR(dadosMembro.dataVencCarteirinha);
 
-    // --- fundos (frente e verso)
-    if (fundoFrente)
+    const numeroCarteirinha = formatCarteirinha(
+      dadosMembro.numeroCarteirinha,
+      dadosMembro.numeroSequencial,
+    );
+
+    // =========================
+    // FUNDOS
+    // =========================
+
+    if (fundoFrente) {
       doc.addImage(fundoFrente, "PNG", FRONT_X, originY, cardW, cardH);
-    if (fundoVerso)
+    }
+
+    if (fundoVerso) {
       doc.addImage(fundoVerso, "PNG", BACK_X, originY, cardW, cardH);
+    }
 
     // =========================
-    // CONFIG (IGREJA)
+    // CABEÇALHO
     // =========================
-    const IGREJA_TITULO = (
-      dadosMembro.igrejaNome?.trim() || "IPR PRESBITERIANA RENOVADA-MC"
-    ).toUpperCase();
 
-    const IGREJA_LINHA2 = "R. Rafael Popoaski, 130 | Ipê I - Moreira César";
-    const IGREJA_LINHA3 = "Pindamonhangaba - SP";
-    const IGREJA_SUBTITULO = "Carteirinha de Membro";
+    const logoArea = 22;
 
-    // =========================
-    // FRENTE (esquerda do bloco)
-    // =========================
-    const logoBoxW = 24;
-    const headerX = FRONT_X + logoBoxW + 4;
-    const headerW = cardW - (logoBoxW + 8);
-    const headerCenterX = headerX + headerW / 2;
+    const headerX = FRONT_X + logoArea + 4;
+    const headerW = cardW - logoArea - 6;
+    const centerHeader = headerX + headerW / 2;
 
     doc.setTextColor(160, 120, 20);
 
     doc.setFont("times", "bold");
-    doc.setFontSize(8.2);
-    doc.text(IGREJA_TITULO, headerX, originY + 8.0, { maxWidth: headerW });
+    doc.setFontSize(8);
+
+    doc.text("IGREJA PRESBITERIANA RENOVADA-MC", headerX, originY + 8, {
+      maxWidth: headerW,
+    });
 
     doc.setFont("times", "normal");
-    doc.setFontSize(6.6);
-    doc.text(IGREJA_LINHA2, headerX, originY + 11.2, { maxWidth: headerW });
-    doc.text(IGREJA_LINHA3, headerX, originY + 13.8, { maxWidth: headerW });
+    doc.setFontSize(6.5);
+
+    doc.text(
+      "R. Rafael Popoaski, 130 | Ipê I - Moreira César",
+      headerX,
+      originY + 11.2,
+      { maxWidth: headerW },
+    );
+
+    doc.text("Pindamonhangaba - SP", headerX, originY + 13.8, {
+      maxWidth: headerW,
+    });
 
     doc.setFont("times", "bold");
-    doc.setFontSize(7.6);
-    doc.text(IGREJA_SUBTITULO, headerCenterX, originY + 19.2, {
-      align: "center",
-      maxWidth: headerW,
-    } as any);
+    doc.setFontSize(7);
 
-    // --- dados do membro
-    const labelX = FRONT_X + 7;
-    const lineH = 4.7;
-    let y = originY + 28;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+
+    doc.text(
+      `Carteirinha de Membro        Nº: ${numeroCarteirinha}`,
+      centerHeader,
+      originY + 20,
+      { align: "center" },
+    );
+
+    doc.setTextColor(0, 0, 0);
+
+    // =========================
+    // DADOS MEMBRO
+    // =========================
+
+    const labelX = FRONT_X + 6;
+    let y = originY + 29;
+    const line = 4.6;
 
     const writeRow = (label: string, value: string) => {
       doc.setFont("helvetica", "bold");
       doc.setFontSize(8);
-      doc.setTextColor(0, 0, 0);
 
       doc.text(label, labelX, y);
 
-      const labelW = doc.getTextWidth(label);
-      const gap = 3;
-      const valueStartX = labelX + labelW + gap;
+      const labelWidth = doc.getTextWidth(label);
 
       doc.setFont("helvetica", "normal");
-      doc.setFontSize(8);
 
-      const maxValueW = FRONT_X + cardW - valueStartX - 5;
-      const lines = doc.splitTextToSize(value, maxValueW);
+      doc.text(value, labelX + labelWidth + 3, y);
 
-      doc.text(lines, valueStartX, y);
-      y += Math.max(lineH, lines.length * 3.8);
+      y += line;
     };
 
     writeRow("Nome:", safe(dadosMembro.nome));
-    writeRow("Data de nasc.:", formatDateBR(dadosMembro.dataNascimento));
-    writeRow("Data de batismo:", formatDateBR(dadosMembro.dataBatismo));
 
-    const rgValueX = FRONT_X + 15;
-    const ecLabelX = FRONT_X + 42;
-    const ecValueX = FRONT_X + 60;
+    writeRow("Data nasc.:", formatDateBR(dadosMembro.dataNascimento));
+
+    writeRow("Data batismo:", formatDateBR(dadosMembro.dataBatismo));
 
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(8);
     doc.text("RG:", labelX, y);
 
     doc.setFont("helvetica", "normal");
-    doc.text(safe(dadosMembro.rg), rgValueX, y);
+    doc.text(safe(dadosMembro.rg), labelX + 12, y);
 
     doc.setFont("helvetica", "bold");
-    doc.text("Estado civil:", ecLabelX, y);
+    doc.text("Estado civil:", FRONT_X + 40, y);
 
     doc.setFont("helvetica", "normal");
-    doc.text(safe(dadosMembro.estadoCivil), ecValueX, y);
+    doc.text(safe(dadosMembro.estadoCivil), FRONT_X + 65, y);
 
-    y += lineH;
+    y += line;
 
     writeRow("Mãe:", safe(dadosMembro.nomeMae));
+
     writeRow("Pai:", safe(dadosMembro.nomePai));
 
     // =========================
-    // VERSO (direita do bloco)
+    // VERSO
     // =========================
+
+    doc.setTextColor(0, 0, 0);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(7);
-    doc.setTextColor(0, 0, 0);
+    doc.text("Constituição Federal:", BACK_X + 6, originY + 12);
+
     doc.text("Constituição Federal:", BACK_X + 6, originY + 12);
 
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(6.8);
-    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(6.7);
 
-    const texto1 = `Art. 5º VI: É inviolável a liberação de consciência e de crença, sendo assegurado o livre exercício dos cultos religiosos e garantida, na forma da lei, a proteção aos locais de cultos e as suas liturgias;`;
-
-    const texto2 = `Att. 5º VII: É assegurada, nos termos da lei, a prestação de assistência religiosa nas entidades civis e militares de internação coletiva.`;
-
-    const texto3 = `Para validade obrigatório a apresentação do RG.`;
-
-    const larguraTexto = 73;
-    const startX = BACK_X + (cardW - larguraTexto) / 2;
+    const largura = 72;
+    const startX = BACK_X + (cardW - largura) / 2;
 
     let posY = originY + 17;
 
-    const drawJustified = (text: string) => {
-      const lines = doc.splitTextToSize(text, larguraTexto);
+    const texto1 =
+      "Art. 5º VI: É inviolável a liberdade de consciência e de crença, sendo assegurado o livre exercício dos cultos religiosos.";
 
-      lines.forEach((line: string) => {
-        const words = line.trim().split(" ");
-        const gaps = words.length - 1;
+    const texto2 =
+      "Art. 5º VII: É assegurada a prestação de assistência religiosa nas entidades civis e militares de internação coletiva.";
 
-        if (gaps <= 0) {
-          doc.text(line, startX, posY);
-          posY += 3.2;
-          return;
-        }
+    const texto3 = "Para validade obrigatório apresentar RG.";
 
-        const wordsWidth = words.reduce(
-          (sum, w) => sum + doc.getTextWidth(w),
-          0,
-        );
-        const spaceWidth = doc.getTextWidth(" ");
-        const totalWidth = wordsWidth + gaps * spaceWidth;
-        const extra = (larguraTexto - totalWidth) / gaps;
+    const linhas1 = doc.splitTextToSize(texto1, largura);
+    const linhas2 = doc.splitTextToSize(texto2, largura);
 
-        let cursorX = startX;
+    doc.text(linhas1, startX, posY);
+    posY += linhas1.length * 3.2 + 1;
 
-        words.forEach((word: string, i: number) => {
-          doc.text(word, cursorX, posY);
-          cursorX += doc.getTextWidth(word);
-          if (i < gaps) cursorX += spaceWidth + extra;
-        });
+    doc.text(linhas2, startX, posY);
+    posY += linhas2.length * 3.2 + 2;
 
-        posY += 3.2;
-      });
-    };
+    doc.text(texto3, startX, posY);
 
-    drawJustified(texto1);
-    posY += 1.2;
+    posY += 6;
 
-    drawJustified(texto2);
-    posY += 1.2;
-
-    doc.text(texto3, startX, posY, { maxWidth: larguraTexto });
-
-    posY += 6.4;
-
-    const gapData = 2.4; // 👈 distância entre "Data" e a validade
     doc.setFont("helvetica", "bold");
     doc.text("Data", startX, posY);
 
-    const dataX = startX + doc.getTextWidth("Data") + gapData;
     doc.setFont("helvetica", "normal");
-    doc.text(`${inicio} a ${fim}`, dataX, posY);
+    doc.text(`${inicio} a ${fim}`, startX + 10, posY);
   };
 
   const gerarCarteirinhasA4DoFiltro = async () => {
@@ -1477,8 +1451,19 @@ export default function SecretariaPageClient() {
             <option value="all">Todos</option>
             <option value="ok">Em Dia</option>
             <option value="danger">Vencidas</option>
-            <option value="warn">Á Vencer (30 dias)</option>
+            <option value="warn">Á Vencer</option>
+            <option value="ativo">Ativos</option>
+            <option value="inativo">Inativos</option>
           </select>
+
+          <label className={styles.labelContador}>
+            Membros — {statusFiltro === "all" && `Total: ${contadores.all}`}
+            {statusFiltro === "ok" && `Em dia: ${contadores.ok}`}
+            {statusFiltro === "danger" && `Vencidas: ${contadores.danger}`}
+            {statusFiltro === "warn" && `A vencer: ${contadores.warn}`}
+            {statusFiltro === "ativo" && `Ativos: ${contadores.ativo}`}
+            {statusFiltro === "inativo" && `Inativos: ${contadores.inativo}`}
+          </label>
         </div>
 
         <div className={styles.actionsRow}>
