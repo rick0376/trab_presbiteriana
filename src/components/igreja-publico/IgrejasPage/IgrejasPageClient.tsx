@@ -165,31 +165,25 @@ export default function IgrejasPageClient({ igrejas, initialPublico }: Props) {
                 </button>
 
                 <footer className={styles.footer}>
-                  <div className={styles.radioLinks}>
-                    <Link href="/radio/admin" className={styles.adminLink}>
-                      🔐 Área do Administrador
-                    </Link>
-
-                    <button
-                      type="button"
-                      className={styles.radioPageLink}
-                      onClick={() => router.push("/radio/ouvir")}
-                    >
-                      📻 Abrir página da rádio
-                    </button>
-                  </div>
-
                   {radioListeners && (
                     <div className={styles.radioStats}>
                       <span>
-                        👥 Online:{" "}
+                        <span className={styles.statsEmoji}>👥</span> Online:{" "}
                         <strong>{radioListeners.current ?? 0}</strong>
                       </span>
                       <span>
-                        📈 Pico: <strong>{radioListeners.peak ?? 0}</strong>
+                        <span className={styles.statsEmoji}>📈</span> Pico:{" "}
+                        <strong>{radioListeners.peak ?? 0}</strong>
                       </span>
                     </div>
                   )}
+
+                  <div className={styles.radioLinks}>
+                    <Link href="/radio/ouvir" className={styles.adminLink}>
+                      <span className={styles.radioEmoji}>📻</span>
+                      <span>Rádio Presbiteriana</span>
+                    </Link>
+                  </div>
                 </footer>
               </div>
             </div>

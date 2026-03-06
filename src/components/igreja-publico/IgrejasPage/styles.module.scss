@@ -179,6 +179,7 @@
 }
 
 .radioLinks {
+  margin-top: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -213,6 +214,22 @@
 
 .radioStats strong {
   color: #ffffff;
+}
+
+.radioEmoji {
+  font-size: 20px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  margin-right: 6px;
+}
+
+.statsEmoji {
+  font-size: 18px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  margin-right: 4px;
 }
 
 /* =========================
