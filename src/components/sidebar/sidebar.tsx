@@ -21,6 +21,26 @@ import {
   Radio,
 } from "lucide-react";
 
+type MenuChild = {
+  label: string;
+  href?: string;
+  icon: any;
+  onClick?: () => void;
+};
+
+type MenuItem = {
+  label: string;
+  href?: string;
+  icon: any;
+  onClick?: () => void;
+  children?: MenuChild[];
+};
+
+type MenuSection = {
+  title: string;
+  items: MenuItem[];
+};
+
 export default function Sidebar({
   isOpen,
   onClose,
@@ -32,7 +52,7 @@ export default function Sidebar({
   const [openMenu, setOpenMenu] = useState<string | null>("");
   const [showModal, setShowModal] = useState(false);
 
-  const sections = [
+  const sections: MenuSection[] = [
     {
       title: "VISÃO GERAL",
       items: [
@@ -98,14 +118,8 @@ export default function Sidebar({
           href: "/backup",
           icon: Database,
         },
-        {
-          label: "Backup2",
-          icon: Database,
-          onClick: () => setShowModal(true),
-        },
       ],
     },
-
     {
       title: "RÁDIO",
       items: [
@@ -198,7 +212,7 @@ export default function Sidebar({
                             ) : (
                               <Link
                                 key={sub.href}
-                                href={sub.href}
+                                href={sub.href!}
                                 className={`${styles.subItem} ${
                                   isActive(sub.href) ? styles.active : ""
                                 }`}
@@ -220,8 +234,8 @@ export default function Sidebar({
                     key={item.label}
                     className={styles.navItem}
                     onClick={() => {
-                      item.onClick?.(); // abre modal
-                      onClose(); // fecha sidebar
+                      item.onClick?.();
+                      onClose();
                     }}
                   >
                     <Icon size={18} />
@@ -230,7 +244,7 @@ export default function Sidebar({
                 ) : (
                   <Link
                     key={item.href}
-                    href={item.href!} // ✅ o "!" garante que não é undefined
+                    href={item.href!}
                     className={`${styles.navItem} ${
                       isActive(item.href) ? styles.active : ""
                     }`}
@@ -250,7 +264,6 @@ export default function Sidebar({
 
       {isOpen && <div className={styles.overlay} onClick={onClose} />}
 
-      {/* ================= MODAL ================= */}
       {showModal && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>

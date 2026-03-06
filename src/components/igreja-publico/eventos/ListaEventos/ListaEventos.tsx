@@ -41,6 +41,9 @@ export default function ListaEventos({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [titulo, setTitulo] = useState("");
   const [data, setData] = useState("");
+  const [tipo, setTipo] = useState("Evento");
+  const [responsavel, setResponsavel] = useState("");
+  const [local, setLocal] = useState("");
   const [descricao, setDescricao] = useState("");
   const [imagem, setImagem] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -52,31 +55,6 @@ export default function ListaEventos({
   function askConfirm(title: string, message: string, onConfirm: () => void) {
     setConfirm({ open: true, title, message, onConfirm });
   }
-
-  /*
-  function isoToDatetimeLocal(iso: string) {
-    const d = new Date(iso);
-
-    const formatter = new Intl.DateTimeFormat("en-CA", {
-      timeZone: "America/Sao_Paulo",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      hourCycle: "h23",
-    });
-
-    const parts = formatter.formatToParts(d);
-
-    const get = (type: string) =>
-      parts.find((p) => p.type === type)?.value ?? "";
-
-    return `${get("year")}-${get("month")}-${get("day")}T${get("hour")}:${get(
-      "minute",
-    )}`;
-  }
-*/
 
   function isoToDatetimeLocal(iso: string) {
     // Remove o Z e os segundos, mantém apenas YYYY-MM-DDTHH:mm
@@ -119,6 +97,9 @@ export default function ListaEventos({
     setEditingId(ev.id);
     setTitulo(ev.titulo);
     setData(isoToDatetimeLocal(ev.data));
+    setTipo(ev.tipo ?? "Evento");
+    setResponsavel(ev.responsavel ?? "");
+    setLocal(ev.local ?? "");
     setDescricao(ev.descricao ?? "");
     setImagem(null);
   }
@@ -127,6 +108,9 @@ export default function ListaEventos({
     setEditingId(null);
     setTitulo("");
     setData("");
+    setTipo("Evento");
+    setResponsavel("");
+    setLocal("");
     setDescricao("");
     setImagem(null);
     clearPreview();
@@ -160,6 +144,9 @@ export default function ListaEventos({
       fd.append("igrejaId", igrejaId);
       fd.append("titulo", titulo.trim());
       fd.append("data", data);
+      fd.append("tipo", tipo);
+      fd.append("responsavel", responsavel.trim());
+      fd.append("local", local.trim());
       fd.append("descricao", descricao.trim());
 
       if (imagem) fd.append("imagem", imagem);
@@ -382,6 +369,46 @@ export default function ListaEventos({
                             value={data}
                             onChange={(e) => setData(e.target.value)}
                             disabled={saving}
+                          />
+                        </div>
+
+                        <div className={styles.field}>
+                          <label className={styles.label}>Tipo</label>
+                          <select
+                            className={styles.input}
+                            value={tipo}
+                            onChange={(e) => setTipo(e.target.value)}
+                            disabled={saving}
+                          >
+                            <option value="Evento">Evento</option>
+                            <option value="Culto">Culto</option>
+                            <option value="Pregação">Pregação</option>
+                            <option value="Conferência">Conferência</option>
+                            <option value="Seminário">Seminário</option>
+                            <option value="Congresso">Congresso</option>
+                            <option value="Ceia">Santa Ceia</option>
+                          </select>
+                        </div>
+
+                        <div className={styles.field}>
+                          <label className={styles.label}>Responsável</label>
+                          <input
+                            className={styles.input}
+                            value={responsavel}
+                            onChange={(e) => setResponsavel(e.target.value)}
+                            disabled={saving}
+                            placeholder="Ex: Pr. Carlos Lima"
+                          />
+                        </div>
+
+                        <div className={styles.field}>
+                          <label className={styles.label}>Local</label>
+                          <input
+                            className={styles.input}
+                            value={local}
+                            onChange={(e) => setLocal(e.target.value)}
+                            disabled={saving}
+                            placeholder="Ex: Rua X, 123 - Centro"
                           />
                         </div>
 

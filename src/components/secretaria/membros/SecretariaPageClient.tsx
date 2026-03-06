@@ -1431,7 +1431,29 @@ export default function SecretariaPageClient() {
           ← Voltar
         </button>
 
-        <h1 className={styles.title}>Membros</h1>
+        <div className={styles.titleRow}>
+          <h1 className={styles.title}>Membros</h1>
+
+          <div className={styles.summaryInline}>
+            <span className={styles.summaryInlineLabel}>
+              {statusFiltro === "all" && "Total"}
+              {statusFiltro === "ok" && "Em dia"}
+              {statusFiltro === "danger" && "Vencidos"}
+              {statusFiltro === "warn" && "A vencer"}
+              {statusFiltro === "ativo" && "Ativos"}
+              {statusFiltro === "inativo" && "Inativos"}
+            </span>
+
+            <strong className={styles.summaryInlineValue}>
+              {statusFiltro === "all" && contadores.all}
+              {statusFiltro === "ok" && contadores.ok}
+              {statusFiltro === "danger" && contadores.danger}
+              {statusFiltro === "warn" && contadores.warn}
+              {statusFiltro === "ativo" && contadores.ativo}
+              {statusFiltro === "inativo" && contadores.inativo}
+            </strong>
+          </div>
+        </div>
       </div>
 
       <div className={styles.filters}>
@@ -1455,15 +1477,6 @@ export default function SecretariaPageClient() {
             <option value="ativo">Ativos</option>
             <option value="inativo">Inativos</option>
           </select>
-
-          <label className={styles.labelContador}>
-            Membros — {statusFiltro === "all" && `Total: ${contadores.all}`}
-            {statusFiltro === "ok" && `Em dia: ${contadores.ok}`}
-            {statusFiltro === "danger" && `Vencidas: ${contadores.danger}`}
-            {statusFiltro === "warn" && `A vencer: ${contadores.warn}`}
-            {statusFiltro === "ativo" && `Ativos: ${contadores.ativo}`}
-            {statusFiltro === "inativo" && `Inativos: ${contadores.inativo}`}
-          </label>
         </div>
 
         <div className={styles.actionsRow}>
