@@ -2,7 +2,6 @@
 
 import Header from "@/components/header/public-header/public-header";
 import Footer from "@/components/footer/public-footer/public-footer";
-import { RadioPlayerProvider } from "@/components/radio/radioplayer/RadioPlayerProvider";
 import styles from "./styles.module.scss";
 
 export default function PublicLayout({
@@ -11,12 +10,10 @@ export default function PublicLayout({
   children: React.ReactNode;
 }) {
   return (
-    <RadioPlayerProvider>
-      <div className={styles.publicLayout}>
-        <Header />
-        <main className={styles.content}>{children}</main>
-        <Footer />
-      </div>
-    </RadioPlayerProvider>
+    <div className={styles.publicLayout}>
+      <Header />
+      <main className={styles.content}>{children}</main>
+      <Footer />
+    </div>
   );
 }

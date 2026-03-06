@@ -2,15 +2,10 @@
 
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./styles.module.scss";
 import { useRouter } from "next/navigation";
-
-type Status = {
-  live: boolean;
-  title?: string;
-  streamUrl?: string | null;
-};
+import { useRadioPlayer } from "@/components/radio/radioplayer/RadioPlayerProvider";
 
 type Listeners = {
   current: number;
@@ -27,40 +22,10 @@ const COVER_IMAGE = "/pastor.png";
 
 export default function OuvirPage() {
   const router = useRouter();
-
-  const [status, setStatus] = useState<Status>({
-    live: false,
-    title: "Oração ao vivo",
-    streamUrl: null,
-  });
+  const { isLive, isPlaying, playError, togglePlay, title, streamUrl } =
+    useRadioPlayer();
 
   const [listeners, setListeners] = useState<Listeners | null>(null);
-
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [playError, setPlayError] = useState<string>("");
-
-  async function load() {
-    try {
-      const r = await fetch("/api/radio/status", { cache: "no-store" });
-      if (!r.ok) return;
-
-      const j = (await r.json()) as Status;
-
-      setStatus((prev) => {
-        if (
-          prev.live !== j.live ||
-          prev.streamUrl !== j.streamUrl ||
-          prev.title !== j.title
-        ) {
-          return j;
-        }
-        return prev;
-      });
-    } catch {
-      // não derruba o player em erro de rede
-    }
-  }
 
   async function loadListeners() {
     try {
@@ -69,27 +34,15 @@ export default function OuvirPage() {
 
       const j = (await r.json()) as Listeners;
       setListeners(j);
-    } catch {
-      // ignora erro silenciosamente
-    }
+    } catch {}
   }
 
-  // Status da rádio
   useEffect(() => {
-    load();
-    const t = setInterval(load, 5000);
-    return () => clearInterval(t);
-  }, []);
-
-  // Listeners (a cada 10s)
-  useEffect(() => {
-    "";
     loadListeners();
     const t = setInterval(loadListeners, 10000);
     return () => clearInterval(t);
   }, []);
 
-  // 🔒 Remove scroll da página
   useEffect(() => {
     const prevHtml = document.documentElement.style.overflow;
     const prevBody = document.body.style.overflow;
@@ -103,37 +56,7 @@ export default function OuvirPage() {
     };
   }, []);
 
-  // Se ficar offline, para o áudio
-  useEffect(() => {
-    if (!status.live || !status.streamUrl) {
-      if (audioRef.current) audioRef.current.pause();
-      setIsPlaying(false);
-      setPlayError("");
-    }
-  }, [status.live, status.streamUrl]);
-
-  async function togglePlay() {
-    setPlayError("");
-
-    const a = audioRef.current;
-    if (!a) return;
-
-    try {
-      if (a.paused) {
-        await a.play();
-        setIsPlaying(true);
-      } else {
-        a.pause();
-        setIsPlaying(false);
-      }
-    } catch {
-      setPlayError("Toque novamente no ▶ para iniciar o áudio.");
-      setIsPlaying(false);
-    }
-  }
-
-  const isLive = !!status.live;
-  const hasUrl = !!status.streamUrl;
+  const hasUrl = !!streamUrl;
 
   return (
     <main className={styles.container}>
@@ -148,7 +71,7 @@ export default function OuvirPage() {
           </button>
         </div>
 
-        <h1 className={styles.pageTitle}>{status.title ?? "Rádio LHP"}</h1>
+        <h1 className={styles.pageTitle}>{title ?? "Rádio LHP"}</h1>
 
         <div className={styles.statusRow}>
           <span
@@ -160,7 +83,6 @@ export default function OuvirPage() {
           <span className={isLive ? styles.dotLive : styles.dotOff} />
         </div>
 
-        {/* ✅ Listeners (público) */}
         {listeners && (
           <div className={styles.listenersPublic}>
             <div>
@@ -261,26 +183,6 @@ export default function OuvirPage() {
             </div>
           </div>
         </section>
-
-        {/* Áudio real (escondido) */}
-        {isLive && hasUrl && (
-          <audio
-            ref={audioRef}
-            src={status.streamUrl ?? undefined}
-            preload="none"
-            onPlay={() => {
-              setPlayError("");
-              setIsPlaying(true);
-            }}
-            onPause={() => setIsPlaying(false)}
-            onError={() => {
-              setIsPlaying(false);
-              setPlayError(
-                "Não foi possível reproduzir o áudio agora. Verifique se a rádio está ligada e tente novamente.",
-              );
-            }}
-          />
-        )}
       </div>
     </main>
   );

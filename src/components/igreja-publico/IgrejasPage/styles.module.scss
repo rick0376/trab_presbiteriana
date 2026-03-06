@@ -178,6 +178,43 @@
   opacity: 1;
 }
 
+.radioLinks {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.radioPageLink {
+  border: none;
+  background: transparent;
+  color: #dbe7f0;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.radioPageLink:hover {
+  color: #ffffff;
+}
+
+.radioStats {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.radioStats strong {
+  color: #ffffff;
+}
+
 /* =========================
    BANNER BUTTONS
 ========================= */

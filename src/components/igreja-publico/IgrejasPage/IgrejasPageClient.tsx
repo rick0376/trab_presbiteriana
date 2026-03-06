@@ -4,13 +4,13 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./styles.module.scss";
 import CronogramaSemanal from "@/components/igreja-publico/CronogramaSemanal/CronogramaSemanal";
 import EventosPublicos from "@/components/igreja-publico/eventos/EventosPublicos/EventosPublicos";
 import CronogramaAnual from "@/components/igreja-publico/CronogramaAnual/CronogramaAnual";
 import { FaFacebookF, FaInstagram, FaWhatsapp } from "react-icons/fa";
-import { useRadioStatus } from "@/hooks/useRadioStatus";
+import { useRadioPlayer } from "@/components/radio/radioplayer/RadioPlayerProvider";
 
 type IgrejaDB = {
   id: string;
@@ -50,28 +50,34 @@ type Props = {
   initialPublico: IgrejaPublicoData | null;
 };
 
-// ✅ fallback enquanto Igreja ainda não tem imagem/endereço no banco
+type RadioListeners = {
+  current: number;
+  peak: number;
+  max?: number;
+  uptime?: number;
+  online?: boolean;
+};
+
 const FALLBACK_IMG = "/images/igreja-a.png";
 const FALLBACK_ENDERECO = "Sem endereço";
 
 export default function IgrejasPageClient({ igrejas, initialPublico }: Props) {
   const router = useRouter();
+  const { isLive, isPlaying, togglePlay } = useRadioPlayer();
+
+  const [radioListeners, setRadioListeners] = useState<RadioListeners | null>(
+    null,
+  );
 
   const [imgOk, setImgOk] = useState(true);
   const [buildOpen, setBuildOpen] = useState(false);
   const [buildPage, setBuildPage] = useState("");
-
   const [openSemanal, setOpenSemanal] = useState(false);
   const [openAnual, setOpenAnual] = useState(false);
-
   const [publico, setPublico] = useState<IgrejaPublicoData | null>(
     initialPublico,
   );
 
-  // ✅ usa hook compartilhado para status da rádio
-  const { isLive } = useRadioStatus({ intervalMs: 15000 });
-
-  //const mainSlug = useMemo(() => igrejas?.[0]?.slug ?? "", [igrejas]);
   const mainSlug = igrejas.length === 1 ? igrejas[0].slug : "";
 
   async function loadPublico(slug: string) {
@@ -86,6 +92,15 @@ export default function IgrejasPageClient({ igrejas, initialPublico }: Props) {
     } catch {}
   }
 
+  async function loadRadioListeners() {
+    try {
+      const r = await fetch("/api/radio/listeners", { cache: "no-store" });
+      if (!r.ok) return;
+      const j = (await r.json()) as RadioListeners;
+      setRadioListeners(j);
+    } catch {}
+  }
+
   useEffect(() => {
     loadPublico(mainSlug);
   }, [mainSlug]);
@@ -94,6 +109,12 @@ export default function IgrejasPageClient({ igrejas, initialPublico }: Props) {
     setBuildPage(pageName);
     setBuildOpen(true);
   }
+
+  useEffect(() => {
+    loadRadioListeners();
+    const t = setInterval(loadRadioListeners, 10000);
+    return () => clearInterval(t);
+  }, []);
 
   const instagramLink =
     (publico?.instagramUrl ?? "").trim() ||
@@ -110,7 +131,6 @@ export default function IgrejasPageClient({ igrejas, initialPublico }: Props) {
 
   return (
     <div className={styles.home}>
-      {/* BANNER */}
       <section className={styles.banner}>
         <div className={styles.bannerInner}>
           <div className={styles.bannerLeft}>
@@ -126,23 +146,50 @@ export default function IgrejasPageClient({ igrejas, initialPublico }: Props) {
                 <button
                   type="button"
                   className={styles.radioBtn}
-                  onClick={() => router.push("/radio/ouvir")}
+                  onClick={togglePlay}
+                  disabled={!isLive}
                 >
                   <span className={styles.radioIcon}>
-                    {isLive ? "🔴" : "🔊"}
+                    {isPlaying ? "⏸" : isLive ? "▶" : "🔊"}
                   </span>
                   <span className={styles.radioText}>
-                    {isLive ? "Ouvir agora" : "Ouvir Rádio"}
+                    {!isLive
+                      ? "Rádio Offline"
+                      : isPlaying
+                        ? "Pausar Rádio"
+                        : "Ouvir Rádio"}
                   </span>
                   <span className={styles.badge}>
-                    {isLive ? "Ao vivo" : "Em breve"}
+                    {!isLive ? "Offline" : isPlaying ? "Tocando" : "Ao vivo"}
                   </span>
                 </button>
 
                 <footer className={styles.footer}>
-                  <Link href="/radio/admin" className={styles.adminLink}>
-                    🔐 Área do Administrador
-                  </Link>
+                  <div className={styles.radioLinks}>
+                    <Link href="/radio/admin" className={styles.adminLink}>
+                      🔐 Área do Administrador
+                    </Link>
+
+                    <button
+                      type="button"
+                      className={styles.radioPageLink}
+                      onClick={() => router.push("/radio/ouvir")}
+                    >
+                      📻 Abrir página da rádio
+                    </button>
+                  </div>
+
+                  {radioListeners && (
+                    <div className={styles.radioStats}>
+                      <span>
+                        👥 Online:{" "}
+                        <strong>{radioListeners.current ?? 0}</strong>
+                      </span>
+                      <span>
+                        📈 Pico: <strong>{radioListeners.peak ?? 0}</strong>
+                      </span>
+                    </div>
+                  )}
                 </footer>
               </div>
             </div>
@@ -169,12 +216,10 @@ export default function IgrejasPageClient({ igrejas, initialPublico }: Props) {
                   </div>
                 ))
               ) : (
-                <>
-                  <div className={styles.infoItem}>
-                    <span className={styles.dot}></span>
-                    <p>Aguardando Informações</p>
-                  </div>
-                </>
+                <div className={styles.infoItem}>
+                  <span className={styles.dot}></span>
+                  <p>Aguardando Informações</p>
+                </div>
               )}
             </div>
 
@@ -257,12 +302,8 @@ export default function IgrejasPageClient({ igrejas, initialPublico }: Props) {
         </div>
       </section>
 
-      {/* ✅ CARD(S) DA IGREJA */}
       <section className={styles.cards}>
         {igrejas.map((item) => {
-          const endereco =
-            item.publico?.endereco ?? "Rua Rafael Popoaski, 130 - IPE I";
-
           return (
             <div key={item.id} className={styles.card}>
               <button
@@ -280,7 +321,6 @@ export default function IgrejasPageClient({ igrejas, initialPublico }: Props) {
       <EventosPublicos slug={mainSlug} />
 
       <section id="cronograma" className={styles.cronogramaSection}>
-        {/* CRONOGRAMA SEMANAL */}
         <div className={styles.cronogramaCard}>
           <button
             type="button"
@@ -305,7 +345,6 @@ export default function IgrejasPageClient({ igrejas, initialPublico }: Props) {
           )}
         </div>
 
-        {/* CRONOGRAMA ANUAL */}
         <div className={styles.cronogramaCard}>
           <button
             type="button"
