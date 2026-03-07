@@ -418,8 +418,10 @@ export default function SecretariaPageClient() {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(8);
 
+    const cargoCarteirinha = safe(dadosMembro.cargo);
+
     doc.text(
-      `Carteirinha de Membro        Nº: ${numeroCarteirinha}`,
+      `Carteirinha de ${cargoCarteirinha}        Nº: ${numeroCarteirinha}`,
       centerHeader,
       originY + 20,
       { align: "center" },
