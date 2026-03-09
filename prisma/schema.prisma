@@ -263,12 +263,27 @@ model BackupGlobalConfig {
   @@map("backup_global_configs")
 }
 
-model RadioStatus {
+/*model RadioStatus {
   id        String   @id
   live      Boolean
   title     String?
   streamUrl String?
   updatedAt DateTime @updatedAt
+}
+*/
+
+
+model RadioStatus {
+  id            String   @id
+  live          Boolean  @default(false)
+  title         String?  @default("Rádio Offline")
+  subtitle      String?  @default("")
+  streamUrl     String?
+  status        String   @default("OFFLINE")
+  nextProgramAt String?  @default("")
+  allowPlay     Boolean  @default(false)
+  badgeLabel    String?  @default("Offline")
+  updatedAt     DateTime @updatedAt
 }
 
 enum DiaSemana {

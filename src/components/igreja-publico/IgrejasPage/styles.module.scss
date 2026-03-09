@@ -75,6 +75,30 @@
   color: rgba(255, 255, 255, 0.75);
 }
 
+.radioNotice {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.radioNoticeTop {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.radioSubText {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.78);
+}
+
 /* =========================
    RADIO CARD (dentro do banner)
 ========================= */
@@ -96,6 +120,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  margin-bottom: 10px;
 }
 
 .title {

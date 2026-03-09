@@ -58,19 +58,12 @@ type RadioListeners = {
   online?: boolean;
 };
 
-type RadioVisualStatus =
-  | "AO_VIVO"
-  | "OFFLINE"
-  | "MANUTENCAO"
-  | "AGUARDANDO_PROGRAMACAO";
-
 const FALLBACK_IMG = "/images/igreja-a.png";
 const FALLBACK_ENDERECO = "Sem endereço";
 
 export default function IgrejasPageClient({ igrejas, initialPublico }: Props) {
   const router = useRouter();
-  const { isLive, isPlaying, togglePlay, radioConfig, canPlay } =
-    useRadioPlayer();
+  const { isLive, isPlaying, togglePlay } = useRadioPlayer();
 
   const [radioListeners, setRadioListeners] = useState<RadioListeners | null>(
     null,
@@ -136,41 +129,6 @@ export default function IgrejasPageClient({ igrejas, initialPublico }: Props) {
     (igrejas?.[0]?.publico?.endereco ?? "").trim() ||
     FALLBACK_ENDERECO;
 
-  const visualStatus = (radioConfig?.status ?? "OFFLINE") as RadioVisualStatus;
-
-  const statusLabel =
-    visualStatus === "AO_VIVO"
-      ? "AO VIVO"
-      : visualStatus === "MANUTENCAO"
-        ? "MANUTENÇÃO"
-        : visualStatus === "AGUARDANDO_PROGRAMACAO"
-          ? "AGUARDANDO"
-          : "OFFLINE";
-
-  const mainRadioText =
-    visualStatus === "AO_VIVO"
-      ? isPlaying
-        ? "Pausar Rádio"
-        : radioConfig?.title || "Ouvir Rádio"
-      : radioConfig?.title || "Rádio Offline";
-
-  const radioSubText =
-    visualStatus === "AGUARDANDO_PROGRAMACAO" && radioConfig?.nextProgramAt
-      ? `Ao ar a partir de ${radioConfig.nextProgramAt}`
-      : (radioConfig?.subtitle ?? "").trim();
-
-  const badgeText =
-    radioConfig?.badgeLabel?.trim() ||
-    (visualStatus === "AO_VIVO"
-      ? isPlaying
-        ? "Tocando"
-        : "Ao vivo"
-      : visualStatus === "MANUTENCAO"
-        ? "Manutenção"
-        : visualStatus === "AGUARDANDO_PROGRAMACAO"
-          ? "Programação"
-          : "Offline");
-
   return (
     <div className={styles.home}>
       <section className={styles.banner}>
@@ -180,43 +138,31 @@ export default function IgrejasPageClient({ igrejas, initialPublico }: Props) {
               <div className={styles.cardRadio}>
                 <header className={styles.header}>
                   <h1 className={styles.title}>📻 Rádio Presbiteriana</h1>
-                  <span
-                    className={
-                      visualStatus === "AO_VIVO" ? styles.live : styles.offline
-                    }
-                  >
-                    {statusLabel}
+                  <span className={isLive ? styles.live : styles.offline}>
+                    {isLive ? "AO VIVO" : "OFFLINE"}
                   </span>
                 </header>
 
-                {canPlay ? (
-                  <button
-                    type="button"
-                    className={styles.radioBtn}
-                    onClick={togglePlay}
-                    disabled={!canPlay}
-                  >
-                    <span className={styles.radioIcon}>
-                      {isPlaying ? "⏸" : "▶"}
-                    </span>
-                    <span className={styles.radioText}>{mainRadioText}</span>
-                    <span className={styles.badge}>
-                      {isPlaying ? "Tocando" : badgeText}
-                    </span>
-                  </button>
-                ) : (
-                  <div className={styles.radioNotice}>
-                    <div className={styles.radioNoticeTop}>
-                      <span className={styles.radioIcon}>📻</span>
-                      <span className={styles.radioText}>{mainRadioText}</span>
-                      <span className={styles.badge}>{badgeText}</span>
-                    </div>
-
-                    {radioSubText ? (
-                      <p className={styles.radioSubText}>{radioSubText}</p>
-                    ) : null}
-                  </div>
-                )}
+                <button
+                  type="button"
+                  className={styles.radioBtn}
+                  onClick={togglePlay}
+                  disabled={!isLive}
+                >
+                  <span className={styles.radioIcon}>
+                    {isPlaying ? "⏸" : isLive ? "▶" : "🔊"}
+                  </span>
+                  <span className={styles.radioText}>
+                    {!isLive
+                      ? "Rádio Offline"
+                      : isPlaying
+                        ? "Pausar Rádio"
+                        : "Ouvir Rádio"}
+                  </span>
+                  <span className={styles.badge}>
+                    {!isLive ? "Offline" : isPlaying ? "Tocando" : "Ao vivo"}
+                  </span>
+                </button>
 
                 <footer className={styles.footer}>
                   {radioListeners && (

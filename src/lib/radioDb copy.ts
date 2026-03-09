@@ -16,16 +16,6 @@ export async function ensureRadioRow() {
   await prisma.radioStatus.upsert({
     where: { id: "main" },
     update: {},
-    create: {
-      id: "main",
-      live: false,
-      title: "Rádio Offline",
-      subtitle: "",
-      streamUrl: null,
-      status: "OFFLINE",
-      nextProgramAt: "",
-      allowPlay: false,
-      badgeLabel: "Offline",
-    },
+    create: { id: "main", live: false, title: "Oração ao vivo" },
   });
 }

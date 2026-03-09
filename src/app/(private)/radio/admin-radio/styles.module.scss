@@ -1,18 +1,17 @@
 .container {
-  height: calc(100svh - 5rem - 40px);
-  overflow: hidden;
+  min-height: calc(100svh - 5rem - 40px);
+  overflow: visible;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   border-radius: 16px;
-  padding: 0;
+  padding: 58px 0 24px;
   box-sizing: border-box;
-  max-height: 80%;
 }
 
 .card {
   width: 100%;
-  max-width: 520px;
+  max-width: 820px;
   background: rgba(15, 23, 42, 0.92);
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 18px;
@@ -137,6 +136,7 @@
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.14);
+  margin-bottom: 2dvh;
 }
 
 .listeners {
@@ -147,4 +147,51 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   font-size: 0.95rem;
   line-height: 1.6;
+}
+
+.input {
+  color: #fff;
+  background: #243047;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.input option {
+  color: #000;
+  background: #fff;
+}
+
+.input::placeholder {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.configBox {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.sectionTitle {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0 16px;
+  font-size: 14px;
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 16px 12px 24px;
+  }
+
+  .card {
+    padding: 16px;
+    border-radius: 14px;
+  }
 }

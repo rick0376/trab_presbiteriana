@@ -18,23 +18,12 @@ type RadioStatus = {
   streamUrl?: string | null;
 };
 
-type RadioConfig = {
-  status: "AO_VIVO" | "OFFLINE" | "MANUTENCAO" | "AGUARDANDO_PROGRAMACAO";
-  title?: string | null;
-  subtitle?: string | null;
-  nextProgramAt?: string | null;
-  allowPlay: boolean;
-  badgeLabel?: string | null;
-};
-
 type RadioContextType = {
   isLive: boolean;
   isPlaying: boolean;
   title: string;
   streamUrl: string | null;
   playError: string;
-  radioConfig: RadioConfig | null;
-  canPlay: boolean;
   togglePlay: () => Promise<void>;
   stop: () => void;
 };
@@ -54,7 +43,6 @@ export function RadioPlayerProvider({
     streamUrl: null,
   });
 
-  const [radioConfig, setRadioConfig] = useState<RadioConfig | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playError, setPlayError] = useState("");
 
@@ -78,60 +66,25 @@ export function RadioPlayerProvider({
     } catch {}
   }, []);
 
-  const loadRadioConfig = useCallback(async () => {
-    try {
-      const r = await fetch("/api/radio/config", { cache: "no-store" });
-      if (!r.ok) return;
-
-      const j = (await r.json()) as RadioConfig;
-
-      setRadioConfig((prev) => {
-        if (
-          prev?.status !== j.status ||
-          prev?.title !== j.title ||
-          prev?.subtitle !== j.subtitle ||
-          prev?.nextProgramAt !== j.nextProgramAt ||
-          prev?.allowPlay !== j.allowPlay ||
-          prev?.badgeLabel !== j.badgeLabel
-        ) {
-          return j;
-        }
-        return prev;
-      });
-    } catch {}
-  }, []);
-
   useEffect(() => {
     loadStatus();
-    loadRadioConfig();
-
-    const t = setInterval(() => {
-      loadStatus();
-      loadRadioConfig();
-    }, 5000);
-
+    const t = setInterval(loadStatus, 5000);
     return () => clearInterval(t);
-  }, [loadStatus, loadRadioConfig]);
-
-  const canPlay =
-    !!status.live &&
-    !!status.streamUrl &&
-    !!radioConfig?.allowPlay &&
-    radioConfig?.status === "AO_VIVO";
+  }, [loadStatus]);
 
   useEffect(() => {
-    if (!canPlay) {
+    if (!status.live || !status.streamUrl) {
       if (audioRef.current) audioRef.current.pause();
       setIsPlaying(false);
       setPlayError("");
     }
-  }, [canPlay]);
+  }, [status.live, status.streamUrl]);
 
   const togglePlay = useCallback(async () => {
     setPlayError("");
 
     const a = audioRef.current;
-    if (!a || !canPlay) return;
+    if (!a || !status.live || !status.streamUrl) return;
 
     try {
       if (a.paused) {
@@ -145,7 +98,7 @@ export function RadioPlayerProvider({
       setPlayError("Toque novamente para iniciar o áudio.");
       setIsPlaying(false);
     }
-  }, [canPlay]);
+  }, [status.live, status.streamUrl]);
 
   const stop = useCallback(() => {
     const a = audioRef.current;
@@ -161,19 +114,17 @@ export function RadioPlayerProvider({
       title: status.title ?? "Rádio LHP",
       streamUrl: status.streamUrl ?? null,
       playError,
-      radioConfig,
-      canPlay,
       togglePlay,
       stop,
     }),
-    [status, isPlaying, playError, radioConfig, canPlay, togglePlay, stop],
+    [status, isPlaying, playError, togglePlay, stop],
   );
 
   return (
     <RadioPlayerContext.Provider value={value}>
       {children}
 
-      {canPlay && status.streamUrl ? (
+      {status.live && status.streamUrl ? (
         <audio
           ref={audioRef}
           src={status.streamUrl}

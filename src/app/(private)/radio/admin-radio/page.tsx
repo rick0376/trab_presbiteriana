@@ -12,6 +12,15 @@ type Status = {
   updatedAt?: string;
 };
 
+type RadioConfig = {
+  status: "AO_VIVO" | "OFFLINE" | "MANUTENCAO" | "AGUARDANDO_PROGRAMACAO";
+  title?: string | null;
+  subtitle?: string | null;
+  nextProgramAt?: string | null;
+  allowPlay: boolean;
+  badgeLabel?: string | null;
+};
+
 type Permissao = {
   id?: string;
   recurso: string;
@@ -43,6 +52,15 @@ export default function AdminRadioPage() {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
   const [streamUrl, setStreamUrl] = useState("");
+
+  const [radioConfig, setRadioConfig] = useState<RadioConfig>({
+    status: "OFFLINE",
+    title: "Rádio Offline",
+    subtitle: "",
+    nextProgramAt: "",
+    allowPlay: false,
+    badgeLabel: "Offline",
+  });
 
   const [listeners, setListeners] = useState<{
     current: number;
@@ -146,6 +164,29 @@ export default function AdminRadioPage() {
     }
   }
 
+  async function loadRadioConfig() {
+    try {
+      const r = await fetch("/api/radio/config", {
+        cache: "no-store",
+      });
+
+      const j = await r.json();
+
+      if (!r.ok) {
+        return;
+      }
+
+      setRadioConfig({
+        status: j.status ?? "OFFLINE",
+        title: j.title ?? "Rádio Offline",
+        subtitle: j.subtitle ?? "",
+        nextProgramAt: j.nextProgramAt ?? "",
+        allowPlay: !!j.allowPlay,
+        badgeLabel: j.badgeLabel ?? "Offline",
+      });
+    } catch {}
+  }
+
   async function loadListeners() {
     try {
       const r = await fetch("/api/radio/listeners", {
@@ -192,8 +233,37 @@ export default function AdminRadioPage() {
     }
   }
 
+  async function saveRadioConfig() {
+    setLoading(true);
+    setMsg("");
+
+    try {
+      const r = await fetch("/api/radio/config", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(radioConfig),
+      });
+
+      const j = await r.json();
+
+      if (!r.ok) {
+        setMsg(j?.error || "Erro ao salvar configuração");
+        return;
+      }
+
+      setMsg("Configuração da rádio salva ✅");
+    } catch {
+      setMsg("Falha de conexão ao salvar configuração");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
     load();
+    loadRadioConfig();
   }, []);
 
   useEffect(() => {
@@ -281,6 +351,107 @@ export default function AdminRadioPage() {
               </div>
             </div>
           )}
+        </div>
+
+        <div className={styles.configBox}>
+          <h2 className={styles.sectionTitle}>Configuração visual da rádio</h2>
+
+          <select
+            className={styles.input}
+            value={radioConfig.status}
+            onChange={(e) =>
+              setRadioConfig((prev) => ({
+                ...prev,
+                status: e.target.value as RadioConfig["status"],
+              }))
+            }
+            disabled={loading}
+          >
+            <option value="AO_VIVO">AO_VIVO</option>
+            <option value="OFFLINE">OFFLINE</option>
+            <option value="MANUTENCAO">MANUTENCAO</option>
+            <option value="AGUARDANDO_PROGRAMACAO">
+              AGUARDANDO_PROGRAMACAO
+            </option>
+          </select>
+
+          <input
+            className={styles.input}
+            placeholder="Título principal"
+            value={radioConfig.title ?? ""}
+            onChange={(e) =>
+              setRadioConfig((prev) => ({
+                ...prev,
+                title: e.target.value,
+              }))
+            }
+            disabled={loading}
+          />
+
+          <input
+            className={styles.input}
+            placeholder="Subtítulo / mensagem adicional"
+            value={radioConfig.subtitle ?? ""}
+            onChange={(e) =>
+              setRadioConfig((prev) => ({
+                ...prev,
+                subtitle: e.target.value,
+              }))
+            }
+            disabled={loading}
+          />
+
+          <input
+            className={styles.input}
+            placeholder="Horário da próxima programação. Ex: 19:30"
+            value={radioConfig.nextProgramAt ?? ""}
+            onChange={(e) =>
+              setRadioConfig((prev) => ({
+                ...prev,
+                nextProgramAt: e.target.value,
+              }))
+            }
+            disabled={loading}
+          />
+
+          <input
+            className={styles.input}
+            placeholder="Texto do badge. Ex: Manutenção"
+            value={radioConfig.badgeLabel ?? ""}
+            onChange={(e) =>
+              setRadioConfig((prev) => ({
+                ...prev,
+                badgeLabel: e.target.value,
+              }))
+            }
+            disabled={loading}
+          />
+
+          <label className={styles.checkboxRow}>
+            <input
+              type="checkbox"
+              checked={radioConfig.allowPlay}
+              onChange={(e) =>
+                setRadioConfig((prev) => ({
+                  ...prev,
+                  allowPlay: e.target.checked,
+                }))
+              }
+              disabled={loading}
+            />
+            <span>Liberar botão de ouvir rádio no site</span>
+          </label>
+
+          <div className={styles.row}>
+            <button
+              className={styles.btn}
+              type="button"
+              onClick={saveRadioConfig}
+              disabled={loading}
+            >
+              Salvar configuração
+            </button>
+          </div>
         </div>
 
         {msg && <div className={styles.msg}>{msg}</div>}

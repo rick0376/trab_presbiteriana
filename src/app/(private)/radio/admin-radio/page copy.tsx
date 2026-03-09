@@ -24,7 +24,7 @@ type Permissao = {
 
 type MeResponse = {
   id: string;
-  role: "SUPERADMIN" | "ADMIN" | "PASTOR" | "USER";
+  role: string;
 };
 
 const PERM_DEFAULT: Permissao = {
@@ -50,7 +50,75 @@ export default function AdminRadioPage() {
     max: number;
   } | null>(null);
 
-  // 🔄 Carrega status atual
+  const [permRadioUrl, setPermRadioUrl] = useState<Permissao | null>(null);
+  const [permRadioLive, setPermRadioLive] = useState<Permissao | null>(null);
+
+  // =========================
+  // 🔐 Buscar permissões
+  // =========================
+  useEffect(() => {
+    const fetchPerms = async () => {
+      try {
+        const r = await fetch("/api/me", { cache: "no-store" });
+
+        if (!r.ok) {
+          setPermRadioUrl(PERM_DEFAULT);
+          setPermRadioLive(PERM_DEFAULT);
+          return;
+        }
+
+        const meData: MeResponse = await r.json();
+
+        // SUPERADMIN = total
+        if (meData.role === "SUPERADMIN") {
+          const full = {
+            recurso: "",
+            ler: true,
+            criar: true,
+            editar: true,
+            deletar: true,
+            compartilhar: true,
+          };
+
+          setPermRadioUrl({ ...full, recurso: "radio_url" });
+          setPermRadioLive({ ...full, recurso: "radio_live" });
+          return;
+        }
+
+        const p = await fetch(`/api/permissoes?userId=${meData.id}`, {
+          cache: "no-store",
+        });
+
+        if (!p.ok) {
+          setPermRadioUrl(PERM_DEFAULT);
+          setPermRadioLive(PERM_DEFAULT);
+          return;
+        }
+
+        const list: Permissao[] = await p.json();
+
+        setPermRadioUrl(
+          list.find((x) => x.recurso === "radio_url") ?? PERM_DEFAULT,
+        );
+
+        setPermRadioLive(
+          list.find((x) => x.recurso === "radio_live") ?? PERM_DEFAULT,
+        );
+      } catch {
+        setPermRadioUrl(PERM_DEFAULT);
+        setPermRadioLive(PERM_DEFAULT);
+      }
+    };
+
+    fetchPerms();
+  }, []);
+
+  const canEditUrl = !!permRadioUrl?.editar;
+  const canToggleRadio = !!permRadioLive?.editar;
+
+  // =========================
+  // 🔄 Carrega status
+  // =========================
   async function load() {
     setLoading(true);
     setMsg("");
@@ -88,13 +156,13 @@ export default function AdminRadioPage() {
 
       const j = await r.json();
       setListeners(j);
-    } catch {
-      // ignora erro silenciosamente
-    }
+    } catch {}
   }
 
-  // 🔴 Liga / Desliga rádio
+  // 🔴 Liga / Desliga
   async function setLive(live: boolean) {
+    if (!canToggleRadio) return;
+
     setLoading(true);
     setMsg("");
 
@@ -115,12 +183,7 @@ export default function AdminRadioPage() {
         return;
       }
 
-      setStatus({
-        live: j.live,
-        streamUrl: j.streamUrl,
-        updatedAt: j.updatedAt,
-      });
-
+      setStatus(j);
       setMsg(live ? "Rádio ligada ✅" : "Rádio desligada ✅");
     } catch {
       setMsg("Falha de conexão");
@@ -129,34 +192,23 @@ export default function AdminRadioPage() {
     }
   }
 
-  // 🚀 Carrega ao abrir página
   useEffect(() => {
     load();
   }, []);
 
-  // 🔒 Remove scroll da página
-  useEffect(() => {
-    const prevHtml = document.documentElement.style.overflow;
-    const prevBody = document.body.style.overflow;
-
-    document.documentElement.style.overflow = "hidden";
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.documentElement.style.overflow = prevHtml;
-      document.body.style.overflow = prevBody;
-    };
-  }, []);
-
   useEffect(() => {
     loadListeners();
-
-    const interval = setInterval(() => {
-      loadListeners();
-    }, 10000); // atualiza a cada 10s
-
+    const interval = setInterval(loadListeners, 10000);
     return () => clearInterval(interval);
   }, []);
+
+  if (!permRadioUrl || !permRadioLive) {
+    return (
+      <main className={styles.container}>
+        <div className={styles.card}>Carregando permissões...</div>
+      </main>
+    );
+  }
 
   return (
     <main className={styles.container}>
@@ -173,34 +225,42 @@ export default function AdminRadioPage() {
 
         <h1 className={styles.title}>Admin Rádio</h1>
 
-        <input
-          className={styles.input}
-          placeholder="URL do áudio (stream)"
-          value={streamUrl}
-          onChange={(e) => setStreamUrl(e.target.value)}
-          disabled={loading}
-        />
+        {/* 🔐 URL */}
+        {canEditUrl && (
+          <input
+            className={styles.input}
+            placeholder="URL do áudio (stream)"
+            value={streamUrl}
+            onChange={(e) => setStreamUrl(e.target.value)}
+            disabled={loading}
+          />
+        )}
 
         <div className={styles.row}>
           <button className={styles.btn} onClick={load} disabled={loading}>
             Ver status
           </button>
 
-          <button
-            className={styles.btnGreen}
-            onClick={() => setLive(true)}
-            disabled={loading || !streamUrl}
-          >
-            Ligar
-          </button>
+          {/* 🔐 Ligar/Desligar */}
+          {canToggleRadio && (
+            <>
+              <button
+                className={styles.btnGreen}
+                onClick={() => setLive(true)}
+                disabled={loading || !streamUrl}
+              >
+                Ligar
+              </button>
 
-          <button
-            className={styles.btnRed}
-            onClick={() => setLive(false)}
-            disabled={loading}
-          >
-            Desligar
-          </button>
+              <button
+                className={styles.btnRed}
+                onClick={() => setLive(false)}
+                disabled={loading}
+              >
+                Desligar
+              </button>
+            </>
+          )}
         </div>
 
         <div className={styles.status}>

@@ -1,4 +1,5 @@
 //src/components/secretaria/membros/SecretariaPageClient.tsx
+
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
