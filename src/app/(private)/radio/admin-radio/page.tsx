@@ -359,12 +359,53 @@ export default function AdminRadioPage() {
           <select
             className={styles.input}
             value={radioConfig.status}
-            onChange={(e) =>
+            onChange={(e) => {
+              const nextStatus = e.target.value as RadioConfig["status"];
+
+              const presets: Record<
+                RadioConfig["status"],
+                Partial<RadioConfig>
+              > = {
+                AO_VIVO: {
+                  status: "AO_VIVO",
+                  title: "Ouvir Rádio",
+                  subtitle: "Transmitindo agora",
+                  nextProgramAt: "",
+                  allowPlay: true,
+                  badgeLabel: "Ao vivo",
+                },
+                OFFLINE: {
+                  status: "OFFLINE",
+                  title: "Rádio Offline",
+                  subtitle: "No momento estamos fora do ar",
+                  nextProgramAt: "",
+                  allowPlay: false,
+                  badgeLabel: "Offline",
+                },
+                MANUTENCAO: {
+                  status: "MANUTENCAO",
+                  title: "Rádio em manutenção",
+                  subtitle: "Estamos em manutenção e voltaremos em breve",
+                  nextProgramAt: "Previsão de volta 19:00 hs",
+                  allowPlay: false,
+                  badgeLabel: "Manutenção",
+                },
+                AGUARDANDO_PROGRAMACAO: {
+                  status: "AGUARDANDO_PROGRAMACAO",
+                  title: "Aguardando programação",
+                  subtitle: "Nossa programação ainda não começou",
+                  nextProgramAt: "Ao ar a partir de 19:30",
+                  allowPlay: false,
+                  badgeLabel: "Programação",
+                },
+              };
+
               setRadioConfig((prev) => ({
                 ...prev,
-                status: e.target.value as RadioConfig["status"],
-              }))
-            }
+                ...presets[nextStatus],
+                status: nextStatus,
+              }));
+            }}
             disabled={loading}
           >
             <option value="AO_VIVO">AO_VIVO</option>
