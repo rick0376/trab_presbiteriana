@@ -15,7 +15,6 @@ export default function CronogramaAnual({ slug }: { slug: string }) {
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // DEBUG VISUAL — confirma se está renderizando e recebendo slug
   if (!slug) {
     return <div style={{ color: "red" }}>Slug NÃO recebido</div>;
   }
@@ -48,7 +47,12 @@ export default function CronogramaAnual({ slug }: { slug: string }) {
   if (loading) {
     return (
       <section className={styles.wrap}>
-        <h2 className={styles.title}>📆 Cronograma anual</h2>
+        <div className={styles.header}>
+          <h2 className={styles.title}>📆 Cronograma anual</h2>
+          <p className={styles.subtitle}>
+            Acompanhe os principais eventos e datas do ano.
+          </p>
+        </div>
         <div className={styles.loading}>Carregando...</div>
       </section>
     );
@@ -57,22 +61,37 @@ export default function CronogramaAnual({ slug }: { slug: string }) {
   if (!items.length) {
     return (
       <section className={styles.wrap}>
-        <h2 className={styles.title}>📆 Cronograma anual</h2>
-        <div style={{ padding: 10 }}>Nenhum item encontrado</div>
+        <div className={styles.header}>
+          <h2 className={styles.title}>📆 Cronograma anual</h2>
+          <p className={styles.subtitle}>
+            Acompanhe os principais eventos e datas do ano.
+          </p>
+        </div>
+        <div className={styles.empty}>Nenhum item encontrado</div>
       </section>
     );
   }
 
   return (
     <section className={styles.wrap}>
-      <h2 className={styles.title}>📆 Cronograma anual</h2>
+      <div className={styles.header}>
+        <h2 className={styles.title}>📆 Cronograma anual</h2>
+        <p className={styles.subtitle}>
+          Acompanhe os principais eventos e datas do ano.
+        </p>
+      </div>
 
       <div className={styles.list}>
         {items.map((it) => (
           <div key={it.id} className={styles.item}>
-            <div className={styles.itemTitle}>{it.titulo}</div>
-            <div className={styles.itemDate}>
-              {new Date(it.data).toLocaleDateString("pt-BR")}
+            <div className={styles.left}>
+              <div className={styles.itemTitle}>{it.titulo}</div>
+            </div>
+
+            <div className={styles.right}>
+              <div className={styles.itemDate}>
+                {new Date(it.data).toLocaleDateString("pt-BR")}
+              </div>
             </div>
           </div>
         ))}
