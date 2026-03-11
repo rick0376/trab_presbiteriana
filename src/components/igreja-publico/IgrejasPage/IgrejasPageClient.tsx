@@ -232,9 +232,10 @@ export default function IgrejasPageClient({ igrejas, initialPublico }: Props) {
                       </span>
                     </div>
                   )}
-*/}
+                   */}
+
                   <div className={styles.radioLinks}>
-                    <Link href="/radio/ouvir" className={styles.adminLink}>
+                    <Link href="" className={styles.adminLink}>
                       <span className={styles.radioEmoji}>📻</span>
                       <span>Rádio Presbiteriana</span>
                     </Link>
