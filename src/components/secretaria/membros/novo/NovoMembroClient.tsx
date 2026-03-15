@@ -82,6 +82,7 @@ export default function NovoMembroClient({ userRole }: Props) {
   const [igrejas, setIgrejas] = useState<Igreja[]>([]);
   const [igrejaId, setIgrejaId] = useState("");
   const formRef = useRef<HTMLFormElement | null>(null);
+  const [codigoMembro, setCodigoMembro] = useState("");
 
   // campos
   const [nome, setNome] = useState("");
@@ -157,6 +158,36 @@ export default function NovoMembroClient({ userRole }: Props) {
     }
   }
 
+  async function loadProximoNumero(selectedIgrejaId?: string) {
+    const qs = new URLSearchParams();
+
+    const finalIgrejaId = selectedIgrejaId ?? igrejaId;
+
+    if (isSuperAdmin) {
+      if (!finalIgrejaId) {
+        setCodigoMembro("");
+        return;
+      }
+      qs.set("igrejaId", finalIgrejaId);
+    }
+
+    try {
+      const res = await fetch(`/api/membros/proximo-numero?${qs.toString()}`, {
+        cache: "no-store",
+      });
+
+      if (!res.ok) {
+        setCodigoMembro("");
+        return;
+      }
+
+      const data = await res.json();
+      setCodigoMembro(data?.codigoFormatado ?? "");
+    } catch {
+      setCodigoMembro("");
+    }
+  }
+
   function focusNextField(e: React.KeyboardEvent<HTMLFormElement>) {
     if (e.key !== "Enter") return;
 
@@ -191,6 +222,7 @@ export default function NovoMembroClient({ userRole }: Props) {
     // ✅ usuário normal: carrega cargos da igreja dele e sai
     if (!isSuperAdmin) {
       loadCargos();
+      loadProximoNumero();
       return;
     }
 
@@ -214,9 +246,11 @@ export default function NovoMembroClient({ userRole }: Props) {
 
           if (firstId) {
             loadCargos(firstId);
+            loadProximoNumero(firstId);
           } else {
             setCargos([]);
             setCargo("");
+            setCodigoMembro("");
           }
 
           return;
@@ -327,9 +361,29 @@ export default function NovoMembroClient({ userRole }: Props) {
 
       toast.success("Membro cadastrado com sucesso!", "Sucesso");
 
-      setTimeout(() => {
-        router.replace("/secretaria");
-      }, 650);
+      // limpa formulário principal
+      setNome("");
+      setRg("");
+      setCpf("");
+      setEstadoCivil("");
+      setNomeMae("");
+      setNomePai("");
+      setTelefone("");
+      setNumeroCarteirinha("");
+      setDataNascimento("");
+      setDataBatismo("");
+      setDataCriacaoCarteirinha("");
+      setDataVencCarteirinha("");
+      setObservacoes("");
+      setEndereco("");
+      setNumeroEndereco("");
+      setBairro("");
+      setCidade("");
+      setEstado("");
+      setAtivo(true);
+
+      // recarrega próximo código
+      await loadProximoNumero(isSuperAdmin ? igrejaId : undefined);
     } catch {
       setLoading(false);
       toast.error("Falha de conexão ao salvar.", "Erro");
@@ -366,6 +420,16 @@ export default function NovoMembroClient({ userRole }: Props) {
           <div className={styles.sectionTitle}>Dados principais</div>
 
           <div className={styles.grid2}>
+            <div className={styles.field}>
+              <label className={styles.label}>Código do Membro</label>
+              <input
+                className={styles.input}
+                value={codigoMembro}
+                readOnly
+                placeholder="Gerado automaticamente"
+              />
+            </div>
+
             <div className={styles.field}>
               <label className={styles.label}>
                 Nome <span className={styles.req}>*</span>
@@ -595,16 +659,6 @@ export default function NovoMembroClient({ userRole }: Props) {
           <div className={styles.sectionTitle}>Carteirinha</div>
 
           <div className={styles.grid2}>
-            <div className={styles.field}>
-              <label className={styles.label}>Nº Carteirinha</label>
-              <input
-                className={styles.input}
-                value={numeroCarteirinha}
-                onChange={(e) => setNumeroCarteirinha(e.target.value)}
-                placeholder="Número"
-              />
-            </div>
-
             <div className={styles.field}>
               <label className={styles.label}>Criação da Carteirinha</label>
               <input

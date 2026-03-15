@@ -34,7 +34,7 @@ export default function EditorEventos({
   const [data, setData] = useState("");
   const [tipo, setTipo] = useState("Evento");
   const [responsavel, setResponsavel] = useState("");
-  const [local, setLocal] = useState("");
+  const [local, setLocal] = useState("Rua Rafael Popoaski, 130 - Ipê I - MC");
   const [descricao, setDescricao] = useState("");
   const [imagem, setImagem] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);

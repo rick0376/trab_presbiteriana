@@ -144,6 +144,7 @@ model Membro {
   @@index([igrejaId, nome])
   @@index([igrejaId, cargo])
   @@index([igrejaId, dataVencCarteirinha])
+  @@unique([igrejaId, numeroSequencial])
   @@map("membros")
 }
 

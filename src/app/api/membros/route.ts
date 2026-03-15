@@ -168,43 +168,64 @@ export async function POST(req: Request) {
   }
   /* ================== CPF ================== */
 
-  const ultimo = await prisma.membro.findFirst({
-    where: { igrejaId },
-    orderBy: { numeroSequencial: "desc" },
-    select: { numeroSequencial: true },
-  });
+  let membro = null;
 
-  const proximoNumero = ultimo ? ultimo.numeroSequencial + 1 : 1;
+  for (let tentativa = 0; tentativa < 3; tentativa++) {
+    const ultimo = await prisma.membro.findFirst({
+      where: { igrejaId },
+      orderBy: { numeroSequencial: "desc" },
+      select: { numeroSequencial: true },
+    });
 
-  const membro = await prisma.membro.create({
-    data: {
-      igrejaId,
-      nome,
-      numeroSequencial: proximoNumero,
-      cargo,
-      cpf: cpfLimpo,
-      ativo: typeof body.ativo === "boolean" ? body.ativo : true,
+    const proximoNumero = ultimo ? ultimo.numeroSequencial + 1 : 1;
 
-      rg: parseText(body.rg),
-      estadoCivil: parseText(body.estadoCivil),
-      nomeMae: parseText(body.nomeMae),
-      nomePai: parseText(body.nomePai),
+    try {
+      membro = await prisma.membro.create({
+        data: {
+          igrejaId,
+          nome,
+          numeroSequencial: proximoNumero,
+          cargo,
+          cpf: cpfLimpo,
+          ativo: typeof body.ativo === "boolean" ? body.ativo : true,
 
-      endereco: parseText(body.endereco),
-      numeroEndereco: parseText(body.numeroEndereco),
-      bairro: parseText(body.bairro),
-      cidade: parseText(body.cidade),
-      estado: parseText(body.estado),
+          rg: parseText(body.rg),
+          estadoCivil: parseText(body.estadoCivil),
+          nomeMae: parseText(body.nomeMae),
+          nomePai: parseText(body.nomePai),
 
-      telefone: parseText(body.telefone),
-      numeroCarteirinha: parseText(body.numeroCarteirinha),
-      dataNascimento: parseDate(body.dataNascimento),
-      dataBatismo: parseDate(body.dataBatismo),
-      dataCriacaoCarteirinha: parseDate(body.dataCriacaoCarteirinha),
-      dataVencCarteirinha: parseDate(body.dataVencCarteirinha),
-      observacoes: parseText(body.observacoes),
-    },
-  });
+          endereco: parseText(body.endereco),
+          numeroEndereco: parseText(body.numeroEndereco),
+          bairro: parseText(body.bairro),
+          cidade: parseText(body.cidade),
+          estado: parseText(body.estado),
+
+          telefone: parseText(body.telefone),
+          numeroCarteirinha: parseText(body.numeroCarteirinha),
+          dataNascimento: parseDate(body.dataNascimento),
+          dataBatismo: parseDate(body.dataBatismo),
+          dataCriacaoCarteirinha: parseDate(body.dataCriacaoCarteirinha),
+          dataVencCarteirinha: parseDate(body.dataVencCarteirinha),
+          observacoes: parseText(body.observacoes),
+        },
+      });
+
+      break;
+    } catch (error: any) {
+      if (error?.code === "P2002") {
+        continue;
+      }
+
+      throw error;
+    }
+  }
+
+  if (!membro) {
+    return jsonError(
+      "Não foi possível gerar um novo código para o membro. Tente novamente.",
+      409,
+    );
+  }
 
   return NextResponse.json(membro, { status: 201 });
 }
