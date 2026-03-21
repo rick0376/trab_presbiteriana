@@ -1,0 +1,266 @@
+.container {
+  display: flex;
+  margin: 64px auto 0;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+}
+
+.header,
+.blocoHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #efeff1;
+}
+
+.header p,
+.subInfo {
+  margin: 6px 0 0;
+  color: #d4d9e0;
+}
+
+.novoBotao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 42px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 10px;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.bloco {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.vazio {
+  color: #64748b;
+  text-align: center;
+  padding: 24px;
+}
+
+.erro {
+  margin-top: 12px;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.filtroTurmas {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filtroTurmaBotao {
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  background: #fff;
+  color: #334155;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.filtroTurmaAtivo {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+}
+
+.listaTurmas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.turmaCard {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 16px;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.turmaCard:hover {
+  border-color: #93c5fd;
+}
+
+.turmaCardAtiva {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+}
+
+.turmaInfo h3 {
+  margin: 0 0 10px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.turmaInfo p {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: #475569;
+}
+
+.turmaSelecionadaBadge {
+  display: inline-flex;
+  margin-top: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.turmaActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 120px;
+}
+
+.editarBotao,
+.frequenciaBotao,
+.excluirBotao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 100px;
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.editarBotao {
+  background: #0f172a;
+}
+
+.frequenciaBotao {
+  background: #2563eb;
+}
+
+.excluirBotao {
+  border: 0;
+  background: #ef4444;
+  cursor: pointer;
+}
+
+.excluirBotao:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.graficoFiltros {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.graficoFiltros label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.graficoFiltros select {
+  height: 38px;
+  min-width: 120px;
+  padding: 0 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #fff;
+  color: #0f172a;
+  outline: none;
+}
+
+.headerActions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.relatorioBotao {
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  transition: 0.2s ease;
+  background: #0f172a;
+  color: #ffffff;
+}
+
+.relatorioBotao:hover {
+  background: #020617;
+}
+
+@media (max-width: 900px) {
+  .listaTurmas {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .header,
+  .blocoHeader,
+  .turmaCard {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .novoBotao,
+  .editarBotao,
+  .frequenciaBotao,
+  .excluirBotao {
+    width: 100%;
+  }
+
+  .turmaActions,
+  .graficoFiltros,
+  .filtroTurmas {
+    width: 100%;
+  }
+
+  .graficoFiltros,
+  .filtroTurmas {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

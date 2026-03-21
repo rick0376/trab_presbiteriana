@@ -1,0 +1,298 @@
+.container {
+  display: flex;
+  margin: 64px auto 0;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #053144 0%, #083a52 60%, #05293a 100%);
+  color: #fff;
+
+  h1 {
+    margin: 0 0 8px;
+    font-size: 28px;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.86);
+    line-height: 1.5;
+    font-size: 14px;
+  }
+}
+
+.heroActions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btnPDF,
+.btnWhats {
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  transition: 0.2s ease;
+  cursor: pointer;
+}
+
+.btnPDF {
+  background: #f59e0b;
+  color: #ffffff;
+}
+
+.btnPDF:hover {
+  background: #d97706;
+}
+
+.btnWhats {
+  background: #16a34a;
+  color: #ffffff;
+}
+
+.btnWhats:hover {
+  background: #15803d;
+}
+
+.primaryButton,
+.secondaryButton {
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  transition: 0.2s ease;
+}
+
+.primaryButton {
+  background: #2563eb;
+  color: #fff;
+}
+
+.primaryButton:hover {
+  background: #1d4ed8;
+}
+
+.secondaryButton {
+  background: #fff;
+  color: #0f172a;
+}
+
+.secondaryButton:hover {
+  background: #e2e8f0;
+}
+
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cardLabel {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.cardValue {
+  font-size: 28px;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.cardInfo {
+  font-size: 13px;
+  color: #475569;
+}
+
+.destaquesGrid,
+.sectionsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.panel {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.panelHeader {
+  h2 {
+    margin: 0;
+    font-size: 18px;
+    color: #0f172a;
+  }
+}
+
+.peopleList,
+.quickList,
+.todoList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.personRow {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+
+  strong {
+    display: block;
+    color: #0f172a;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+
+  span {
+    display: block;
+    color: #64748b;
+    font-size: 12px;
+  }
+}
+
+.personMeta {
+  min-width: 110px;
+  text-align: right;
+
+  b {
+    display: block;
+    color: #0f172a;
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+
+  span {
+    display: block;
+    color: #2563eb;
+    font-size: 12px;
+    font-weight: 600;
+  }
+}
+
+.quickItem {
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+}
+
+.quickItem:hover {
+  background: #eef2ff;
+}
+
+.todoItem {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  color: #334155;
+  font-size: 14px;
+}
+
+.emptyMini,
+.placeholder,
+.errorBox {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+}
+
+.emptyMini {
+  padding: 14px;
+  color: #64748b;
+  background: #f8fafc;
+}
+
+.errorBox {
+  color: #b91c1c;
+}
+
+@media (max-width: 980px) {
+  .hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .cardsGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .destaquesGrid,
+  .sectionsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .cardsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .heroActions {
+    width: 100%;
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    width: 100%;
+  }
+
+  .personRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .personMeta {
+    min-width: auto;
+    text-align: left;
+  }
+}

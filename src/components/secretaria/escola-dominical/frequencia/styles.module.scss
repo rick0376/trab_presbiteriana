@@ -1,0 +1,341 @@
+.container {
+  display: flex;
+  margin: 64px auto 0;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+}
+
+.header,
+.blocoHeader,
+.footerActions,
+.relatorioHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #efeff1;
+}
+
+.header p,
+.subInfo {
+  margin: 6px 0 0;
+  color: #d4d9e0;
+}
+
+.headerActions,
+.footerActions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.salvarTopoBotao,
+.voltarBotao,
+.btnPDF,
+.btnWhats {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.salvarTopoBotao {
+  border: 0;
+  background: #2563eb;
+  color: #fff;
+}
+
+.voltarBotao {
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #334155;
+}
+
+.btnPDF {
+  border: 0;
+  background: #0f172a;
+  color: #fff;
+}
+
+.btnWhats {
+  border: 0;
+  background: #16a34a;
+  color: #fff;
+}
+
+.salvarTopoBotao:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.filtros {
+  display: grid;
+  grid-template-columns: 180px 180px 1fr;
+  gap: 16px;
+  align-items: end;
+}
+
+.filtroItem {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filtroItem label,
+.formGroup label,
+.formGroupFull label,
+.relatorioOpcao label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.filtroItem select,
+.filtroItem input,
+.formGroup input,
+.formGroupFull input,
+.relatorioOpcao input,
+.relatorioOpcao select,
+.tabela select,
+.textarea {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #fff;
+  outline: none;
+}
+
+.filtroItem select,
+.filtroItem input,
+.formGroup input,
+.formGroupFull input,
+.relatorioOpcao input,
+.relatorioOpcao select,
+.tabela select {
+  height: 42px;
+  padding: 0 12px;
+}
+
+.filtroInfo {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  font-size: 14px;
+}
+
+.relatorioBox,
+.bloco {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.relatorioGrid {
+  display: grid;
+  grid-template-columns: 240px 240px;
+  gap: 16px;
+}
+
+.relatorioOpcao {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tabelaWrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabela th,
+.tabela td {
+  border-bottom: 1px solid #e2e8f0;
+  padding: 12px;
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.tabela th {
+  font-size: 14px;
+  color: #334155;
+}
+
+.tabela td {
+  font-size: 14px;
+  color: #0f172a;
+}
+
+.alunoCell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.alunoCell strong {
+  color: #0f172a;
+  font-size: 14px;
+}
+
+.alunoCell span {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.domingosGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.domingoCard {
+  border: 1px solid #dbeafe;
+  background: #f8fafc;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.domingoCard h3 {
+  margin: 0 0 14px;
+  color: #0f172a;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.domingoFields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.formGroup,
+.formGroupFull {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.formGroupFull {
+  grid-column: 1 / -1;
+}
+
+.textarea {
+  min-height: 120px;
+  padding: 12px;
+  resize: vertical;
+}
+
+.erro {
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.sucesso {
+  border: 1px solid #bbf7d0;
+  background: #f0fdf4;
+  color: #15803d;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.vazio {
+  text-align: center;
+  color: #64748b;
+  padding: 40px 20px;
+}
+
+.thDomingo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.thDomingo strong {
+  font-size: 13px;
+  color: #0f172a;
+}
+
+.thDomingo span {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+@media (max-width: 1100px) {
+  .filtros {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .filtroInfo {
+    grid-column: 1 / -1;
+  }
+
+  .relatorioGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .domingosGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .domingoFields {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 800px) {
+  .header,
+  .footerActions,
+  .blocoHeader,
+  .relatorioHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .headerActions,
+  .footerActions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .salvarTopoBotao,
+  .voltarBotao,
+  .btnPDF,
+  .btnWhats {
+    width: 100%;
+  }
+
+  .filtros {
+    grid-template-columns: 1fr;
+  }
+}

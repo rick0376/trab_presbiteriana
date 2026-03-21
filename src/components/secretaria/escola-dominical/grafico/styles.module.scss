@@ -1,0 +1,117 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.legendaItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #475569;
+}
+
+.cor {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+}
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.linhaMes {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  gap: 16px;
+  align-items: start;
+  padding: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #f8fafc;
+}
+
+.mesCol {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  padding-top: 4px;
+}
+
+.metricasCol {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.metricRow {
+  display: grid;
+  grid-template-columns: 90px 1fr 40px;
+  gap: 12px;
+  align-items: center;
+}
+
+.metricLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.barTrack {
+  width: 100%;
+  height: 12px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  min-width: 0;
+  border-radius: 999px;
+}
+
+.metricValor {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  text-align: right;
+}
+
+.presencas {
+  background: #2563eb;
+}
+
+.faltas {
+  background: #ef4444;
+}
+
+.visitantes {
+  background: #22c55e;
+}
+
+.vazio {
+  text-align: center;
+  color: #64748b;
+  padding: 24px;
+}
+
+@media (max-width: 700px) {
+  .linhaMes {
+    grid-template-columns: 1fr;
+  }
+
+  .metricRow {
+    grid-template-columns: 80px 1fr 32px;
+    gap: 8px;
+  }
+}

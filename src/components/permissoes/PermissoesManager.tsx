@@ -27,6 +27,8 @@ interface PermissaoAPI {
 
 type TipoPermissao = "ler" | "criar" | "editar" | "deletar" | "compartilhar";
 
+type RoleSistema = "SUPERADMIN" | "ADMIN" | "PASTOR" | "USER";
+
 interface RecursoConfig {
   value: string;
   label: string;
@@ -83,6 +85,21 @@ const RECURSOS: RecursoConfig[] = [
       compartilhar: "PDF/WHATS",
     },
   },
+
+  {
+    value: "escola_dominical",
+    label: "📘 Escola Dominical",
+    description: "Gerenciar turmas, frequência e compartilhamento da EBD",
+    tipos: ["ler", "criar", "editar", "deletar", "compartilhar"],
+    labels: {
+      ler: "Visualizar",
+      criar: "Nova turma",
+      editar: "Editar / Salvar frequência",
+      deletar: "Excluir",
+      compartilhar: "PDF / WHATS",
+    },
+  },
+
   {
     value: "cargos",
     label: "🏷️ Cargos",
@@ -175,6 +192,13 @@ const RECURSOS: RecursoConfig[] = [
   },
 ];
 
+const ROLE_LEVEL: Record<RoleSistema, number> = {
+  SUPERADMIN: 4,
+  ADMIN: 3,
+  PASTOR: 2,
+  USER: 1,
+};
+
 function emptyPerm(recurso: string): PermissaoAPI {
   return {
     id: "",
@@ -205,18 +229,50 @@ export default function PermissionsManager({
   const [loading, setLoading] = useState(false);
   const [loadingSave, setLoadingSave] = useState(false);
 
+  const [minhasPermissoes, setMinhasPermissoes] = useState<
+    Record<string, PermissaoAPI>
+  >({});
+  const [loadingMyPerms, setLoadingMyPerms] = useState(true);
+
   const disabledSelf = usuarioSelecionado === currentUserId;
 
   // ✅ regra: SUPERADMIN sempre pode salvar; outros só se tiver permissoes.editar
+  const canViewPage = useMemo(() => {
+    if (currentUserRole === "SUPERADMIN") return true;
+    const p = minhasPermissoes["permissoes"];
+    return !!p?.ler;
+  }, [currentUserRole, minhasPermissoes]);
+
   const canSave = useMemo(() => {
     if (currentUserRole === "SUPERADMIN") return true;
-    const p = permissoes["permissoes"];
+    const p = minhasPermissoes["permissoes"];
     return !!p?.editar;
-  }, [currentUserRole, permissoes]);
+  }, [currentUserRole, minhasPermissoes]);
+
+  const minhaPermissaoPorRecurso = (recurso: string) => {
+    if (currentUserRole === "SUPERADMIN") {
+      return {
+        ler: true,
+        criar: true,
+        editar: true,
+        deletar: true,
+        compartilhar: true,
+      };
+    }
+
+    return minhasPermissoes[recurso] ?? emptyPerm(recurso);
+  };
+
+  const canGrantTipo = (recurso: string, tipo: TipoPermissao) => {
+    if (currentUserRole === "SUPERADMIN") return true;
+    const p = minhaPermissaoPorRecurso(recurso);
+    return !!p[tipo];
+  };
 
   // =============================
   // Buscar usuários
   // =============================
+
   useEffect(() => {
     const fetchUsuarios = async () => {
       const res = await fetch("/api/usuarios");
@@ -227,6 +283,37 @@ export default function PermissionsManager({
 
     fetchUsuarios();
   }, []);
+
+  useEffect(() => {
+    const fetchMinhasPermissoes = async () => {
+      if (currentUserRole === "SUPERADMIN") {
+        setLoadingMyPerms(false);
+        return;
+      }
+
+      setLoadingMyPerms(true);
+
+      const res = await fetch(`/api/permissoes?userId=${currentUserId}`);
+
+      if (!res.ok) {
+        setMinhasPermissoes({});
+        setLoadingMyPerms(false);
+        return;
+      }
+
+      const data: PermissaoAPI[] = await res.json();
+
+      const map: Record<string, PermissaoAPI> = {};
+      data.forEach((p) => {
+        map[p.recurso] = p;
+      });
+
+      setMinhasPermissoes(map);
+      setLoadingMyPerms(false);
+    };
+
+    fetchMinhasPermissoes();
+  }, [currentUserId, currentUserRole]);
 
   // =============================
   // Buscar permissões do usuário selecionado
@@ -264,6 +351,7 @@ export default function PermissionsManager({
   // =============================
   const togglePermissao = (recurso: string, tipo: TipoPermissao) => {
     if (!canSave || disabledSelf) return;
+    if (!canGrantTipo(recurso, tipo)) return;
 
     setPermissoes((prev) => {
       const atual = prev[recurso] ?? emptyPerm(recurso);
@@ -283,13 +371,16 @@ export default function PermissionsManager({
   const toggleTodos = (recurso: string, tipos: TipoPermissao[]) => {
     if (!canSave || disabledSelf) return;
 
+    const tiposPermitidos = tipos.filter((t) => canGrantTipo(recurso, t));
+    if (tiposPermitidos.length === 0) return;
+
     setPermissoes((prev) => {
       const atual = prev[recurso] ?? emptyPerm(recurso);
 
-      const allOn = tipos.every((t) => !!atual[t]);
+      const allOn = tiposPermitidos.every((t) => !!atual[t]);
       const next = { ...atual };
 
-      tipos.forEach((t) => {
+      tiposPermitidos.forEach((t) => {
         (next as any)[t] = !allOn;
       });
 
@@ -346,6 +437,31 @@ export default function PermissionsManager({
 
   const usuarioInfo = usuarios.find((u) => u.id === usuarioSelecionado);
 
+  const usuariosDisponiveis = useMemo(() => {
+    if (currentUserRole === "SUPERADMIN") return usuarios;
+
+    const meuNivel = ROLE_LEVEL[currentUserRole as RoleSistema] ?? 0;
+
+    return usuarios.filter((u) => {
+      const nivelAlvo = ROLE_LEVEL[u.role as RoleSistema] ?? 0;
+      return nivelAlvo < meuNivel;
+    });
+  }, [usuarios, currentUserRole]);
+
+  if (loadingMyPerms) {
+    return <div className={styles.container}>Carregando permissões...</div>;
+  }
+
+  if (!canViewPage) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.card}>
+          ⛔ Você não tem permissão para visualizar a página de permissões.
+        </div>
+      </div>
+    );
+  }
+
   // =============================
   // Render
   // =============================
@@ -363,7 +479,7 @@ export default function PermissionsManager({
           onChange={(e) => setUsuarioSelecionado(e.target.value)}
         >
           <option value="">Escolha um usuário...</option>
-          {usuarios.map((u) => (
+          {usuariosDisponiveis.map((u) => (
             <option key={u.id} value={u.id}>
               {u.name} ({u.email}) - {u.role}
             </option>
@@ -403,7 +519,12 @@ export default function PermissionsManager({
                         type="checkbox"
                         checked={allChecked}
                         onChange={() => toggleTodos(r.value, r.tipos)}
-                        disabled={!canSave || disabledSelf}
+                        disabled={
+                          !canSave ||
+                          disabledSelf ||
+                          r.tipos.filter((t) => canGrantTipo(r.value, t))
+                            .length === 0
+                        }
                       />
                       <span>Todos</span>
                     </label>
@@ -415,7 +536,11 @@ export default function PermissionsManager({
                           type="checkbox"
                           checked={p[tipo]}
                           onChange={() => togglePermissao(r.value, tipo)}
-                          disabled={!canSave || disabledSelf}
+                          disabled={
+                            !canSave ||
+                            disabledSelf ||
+                            !canGrantTipo(r.value, tipo)
+                          }
                         />
                         <span>{r.labels?.[tipo] ?? tipo}</span>
                       </label>

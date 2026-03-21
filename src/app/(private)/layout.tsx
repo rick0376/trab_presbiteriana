@@ -1,3 +1,5 @@
+//src/app/(private)/layout.tsx
+
 import { requireUser } from "@/lib/auth";
 import PrivateShell from "@/components/layout/PrivateShell";
 import { prisma } from "@/lib/prisma";

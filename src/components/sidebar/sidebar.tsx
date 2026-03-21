@@ -19,6 +19,7 @@ import {
   Briefcase,
   BadgeDollarSign,
   Radio,
+  GraduationCap,
 } from "lucide-react";
 
 type MenuChild = {
@@ -100,6 +101,11 @@ export default function Sidebar({
           children: [
             { label: "Membros", href: "/secretaria/membros", icon: Users },
             { label: "Cargos", href: "/secretaria/cargos", icon: Briefcase },
+            {
+              label: "Escola Dominical",
+              href: "/secretaria/escola-dominical",
+              icon: GraduationCap,
+            },
             {
               label: "Financeiro",
               href: "/secretaria/financeiro",

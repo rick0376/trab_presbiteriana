@@ -59,23 +59,24 @@ model User {
 }
 
 model Igreja {
-  id                  String               @id @default(cuid())
+  id                  String                 @id @default(cuid())
   nome                String
-  slug                String               @unique
-  plano               Plano                @default(FREE)
-  adminId             String?              @unique
-  membros             Int                  @default(1)
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
+  slug                String                 @unique
+  plano               Plano                  @default(FREE)
+  adminId             String?                @unique
+  membros             Int                    @default(1)
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
   cargos              Cargo[]
   eventos             Evento[]
-  admin               User?                @relation("IgrejaAdmin", fields: [adminId], references: [id])
+  admin               User?                  @relation("IgrejaAdmin", fields: [adminId], references: [id])
   publico             IgrejaPublico?
   cronogramaAnual     CronogramaAnual[]
   membrosLista        Membro[]
   users               User[]
+  ebdTurmas           EscolaDominicalTurma[]
   backupConfig        BackupConfig?
-  backupGlobalTargets BackupGlobalConfig[] @relation("BackupGlobalTargetIgreja")
+  backupGlobalTargets BackupGlobalConfig[]   @relation("BackupGlobalTargetIgreja")
 
   @@map("igrejas")
 }
@@ -140,11 +141,15 @@ model Membro {
 
   igreja Igreja @relation(fields: [igrejaId], references: [id], onDelete: Cascade)
 
+  ebdTurmasComoProfessor EscolaDominicalTurma[]      @relation("ProfessorEbd")
+  ebdTurmasAluno         EscolaDominicalTurmaAluno[]
+  ebdFrequencias         EscolaDominicalFrequencia[]
+
+  @@unique([igrejaId, numeroSequencial])
   @@index([igrejaId])
   @@index([igrejaId, nome])
   @@index([igrejaId, cargo])
   @@index([igrejaId, dataVencCarteirinha])
-  @@unique([igrejaId, numeroSequencial])
   @@map("membros")
 }
 
@@ -263,6 +268,7 @@ model BackupGlobalConfig {
   @@index([ativo])
   @@map("backup_global_configs")
 }
+
 model RadioStatus {
   id            String   @id
   live          Boolean  @default(false)
@@ -277,16 +283,104 @@ model RadioStatus {
 }
 
 model RadioStatsHistory {
-  id         String   @id @default(cuid())
-  current     Int      @default(0)
-  peak        Int      @default(0)
-  max         Int      @default(0)
-  online      Boolean  @default(false)
-  uptime      Int?
-  createdAt   DateTime @default(now())
+  id        String   @id @default(cuid())
+  current   Int      @default(0)
+  peak      Int      @default(0)
+  max       Int      @default(0)
+  online    Boolean  @default(false)
+  uptime    Int?
+  createdAt DateTime @default(now())
 
   @@index([createdAt])
   @@map("radio_stats_history")
+}
+
+model EscolaDominicalTurma {
+  id           String   @id @default(cuid())
+  igrejaId     String
+  nome         String
+  departamento String?
+  professorId  String
+  ativa        Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  igreja    Igreja                          @relation(fields: [igrejaId], references: [id], onDelete: Cascade)
+  professor Membro                          @relation("ProfessorEbd", fields: [professorId], references: [id])
+  alunos    EscolaDominicalTurmaAluno[]
+  registros EscolaDominicalRegistroMensal[]
+
+  @@unique([igrejaId, nome])
+  @@index([igrejaId])
+  @@index([professorId])
+  @@map("ebd_turmas")
+}
+
+model EscolaDominicalTurmaAluno {
+  id        String   @id @default(cuid())
+  turmaId   String
+  membroId  String
+  createdAt DateTime @default(now())
+
+  turma  EscolaDominicalTurma @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+  membro Membro               @relation(fields: [membroId], references: [id], onDelete: Cascade)
+
+  @@unique([turmaId, membroId])
+  @@index([membroId])
+  @@map("ebd_turma_alunos")
+}
+
+model EscolaDominicalRegistroMensal {
+  id          String   @id @default(cuid())
+  turmaId     String
+  mes         Int
+  ano         Int
+  observacoes String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  turma       EscolaDominicalTurma        @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+  frequencias EscolaDominicalFrequencia[]
+  domingos    EscolaDominicalDomingo[]
+
+  @@unique([turmaId, mes, ano])
+  @@index([mes, ano])
+  @@map("ebd_registros_mensais")
+}
+
+model EscolaDominicalDomingo {
+  id               String   @id @default(cuid())
+  registroMensalId String
+  domingoNumero    Int
+  visitantes       Int      @default(0)
+  oferta           Decimal? @db.Decimal(10, 2)
+  revistasLivros   Int      @default(0)
+  observacao       String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  registroMensal EscolaDominicalRegistroMensal @relation(fields: [registroMensalId], references: [id], onDelete: Cascade)
+
+  @@unique([registroMensalId, domingoNumero])
+  @@map("ebd_domingos")
+}
+
+model EscolaDominicalFrequencia {
+  id               String    @id @default(cuid())
+  registroMensalId String
+  membroId         String
+  domingoNumero    Int
+  status           EbdStatus @default(FALTA)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  registroMensal EscolaDominicalRegistroMensal @relation(fields: [registroMensalId], references: [id], onDelete: Cascade)
+  membro         Membro                        @relation(fields: [membroId], references: [id], onDelete: Cascade)
+
+  @@unique([registroMensalId, membroId, domingoNumero])
+  @@index([membroId])
+  @@index([domingoNumero])
+  @@map("ebd_frequencias")
 }
 
 enum DiaSemana {
@@ -310,4 +404,9 @@ enum Plano {
   FREE
   PRO
   PREMIUM
+}
+
+enum EbdStatus {
+  PRESENTE
+  FALTA
 }
