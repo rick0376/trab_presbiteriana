@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import { jsPDF } from "jspdf";
 import { FileText, MessageCircle } from "lucide-react";
 import ResumoEbd from "../resumo/ResumoEbd";
+import FrequenciaTabelaDesktop from "./desktop/FrequenciaTabelaDesktop";
+import FrequenciaChamadaMobile from "./mobile/FrequenciaChamadaMobile";
 import styles from "./styles.module.scss";
 
 type Props = {
@@ -369,6 +371,8 @@ export default function FrequenciaEbd({
     domingoNumero: number,
     status: EbdStatus,
   ) {
+    if (!isDomingoLiberado(domingoNumero)) return;
+
     setFrequencias((estadoAtual) => ({
       ...estadoAtual,
       [`${membroId}-${domingoNumero}`]: status,
@@ -403,6 +407,17 @@ export default function FrequenciaEbd({
     return (
       domingosDoMes.find((item) => item.domingoNumero === domingoNumero) || null
     );
+  }
+
+  function isDomingoLiberado(domingoNumero: number) {
+    const meta = getDomingoMeta(domingoNumero);
+    if (!meta) return false;
+
+    const dataDomingo = new Date(`${meta.dataISO}T12:00:00`);
+    const hojeLimite = new Date();
+    hojeLimite.setHours(23, 59, 59, 999);
+
+    return dataDomingo.getTime() <= hojeLimite.getTime();
   }
 
   const resumo = useMemo(() => {
@@ -874,6 +889,19 @@ ${relatorio.domingos
               {salvando ? "Salvando..." : "Salvar frequência"}
             </button>
           )}
+          <button
+            type="button"
+            className={styles.btnRapido}
+            onClick={() =>
+              router.push(
+                `/secretaria/escola-dominical/chamada-rapida?turmaId=${turmaId}&igrejaId=${igrejaId}&igrejaNome=${encodeURIComponent(
+                  igrejaNome || "",
+                )}&mes=${mes}&ano=${ano}`,
+              )
+            }
+          >
+            Chamada rápida
+          </button>
         </div>
       </div>
 
@@ -950,66 +978,32 @@ ${relatorio.domingos
         percentualPresenca={resumo.percentualPresenca}
       />
 
-      <div className={styles.bloco}>
-        <div className={styles.blocoHeader}>
-          <h2>Frequência mensal</h2>
-        </div>
+      <div className={styles.desktopOnly}>
+        <FrequenciaTabelaDesktop
+          alunos={alunos}
+          domingosDoMes={domingosDoMes}
+          frequencias={frequencias}
+          alterarStatus={alterarStatus}
+          canEdit={canEdit}
+          isDomingoLiberado={isDomingoLiberado}
+        />
+      </div>
 
-        <div className={styles.tabelaWrapper}>
-          <table className={styles.tabela}>
-            <thead>
-              <tr>
-                <th>Aluno</th>
-                {domingosDoMes.map((domingo) => (
-                  <th key={domingo.domingoNumero}>
-                    <div className={styles.thDomingo}>
-                      <strong>{domingo.domingoNumero}º Domingo</strong>
-                      <span>{domingo.label}</span>
-                    </div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-
-            <tbody>
-              {alunos.map((aluno) => (
-                <tr key={aluno.id}>
-                  <td>
-                    <div className={styles.alunoCell}>
-                      <strong>{aluno.nome}</strong>
-                      <span>
-                        Nº {aluno.numeroSequencial || "-"}
-                        {aluno.cargo ? ` • ${aluno.cargo}` : ""}
-                      </span>
-                    </div>
-                  </td>
-
-                  {domingosDoMes.map((domingo) => (
-                    <td key={`${aluno.id}-${domingo.domingoNumero}`}>
-                      <select
-                        disabled={!canEdit}
-                        value={
-                          frequencias[`${aluno.id}-${domingo.domingoNumero}`] ||
-                          "FALTA"
-                        }
-                        onChange={(e) =>
-                          alterarStatus(
-                            aluno.id,
-                            domingo.domingoNumero,
-                            e.target.value as EbdStatus,
-                          )
-                        }
-                      >
-                        <option value="PRESENTE">P</option>
-                        <option value="FALTA">F</option>
-                      </select>
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <div className={styles.mobileOnly}>
+        <FrequenciaChamadaMobile
+          alunos={alunos}
+          domingosDoMes={domingosDoMes}
+          domingoSelecionadoNumero={domingoSelecionadoNumero}
+          setDomingoSelecionadoNumero={setDomingoSelecionadoNumero}
+          frequencias={frequencias}
+          alterarStatus={alterarStatus}
+          canEdit={canEdit}
+          salvando={salvando}
+          salvarFrequencia={salvarFrequencia}
+          erro={erro}
+          sucesso={sucesso}
+          isDomingoLiberado={isDomingoLiberado}
+        />
       </div>
 
       <div className={styles.bloco}>
@@ -1109,28 +1103,34 @@ ${relatorio.domingos
         />
       </div>
 
-      {!!erro && <div className={styles.erro}>{erro}</div>}
-      {!!sucesso && <div className={styles.sucesso}>{sucesso}</div>}
+      <div className={styles.desktopOnly}>
+        {!!erro && <div className={styles.erro}>{erro}</div>}
+        {!!sucesso && <div className={styles.sucesso}>{sucesso}</div>}
+      </div>
 
-      <div className={styles.footerActions}>
-        <button
-          type="button"
-          className={styles.voltarBotao}
-          onClick={() => router.push("/secretaria/escola-dominical/gestaoEbd")}
-        >
-          Voltar
-        </button>
-
-        {canEdit && (
+      <div className={styles.desktopOnly}>
+        <div className={styles.footerActions}>
           <button
             type="button"
-            className={styles.salvarTopoBotao}
-            onClick={salvarFrequencia}
-            disabled={salvando}
+            className={styles.voltarBotao}
+            onClick={() =>
+              router.push("/secretaria/escola-dominical/gestaoEbd")
+            }
           >
-            {salvando ? "Salvando..." : "Salvar frequência"}
+            Voltar
           </button>
-        )}
+
+          {canEdit && (
+            <button
+              type="button"
+              className={styles.salvarTopoBotao}
+              onClick={salvarFrequencia}
+              disabled={salvando}
+            >
+              {salvando ? "Salvando..." : "Salvar frequência"}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -1,0 +1,203 @@
+.mobileBox {
+  width: 100%;
+}
+
+.bloco {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 14px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  border: 1px solid #dbe4ee;
+}
+
+.blocoHeader {
+  margin-bottom: 14px;
+
+  h2 {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #243046;
+  }
+}
+
+.mobileTopBar {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.filtroItem {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  label {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #475569;
+  }
+
+  select {
+    width: 100%;
+    min-height: 46px;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    background: #fff;
+    padding: 0 12px;
+    font-size: 0.95rem;
+    color: #1e293b;
+    outline: none;
+  }
+}
+
+.mobileResumoDia {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 38px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1e3a8a;
+    font-size: 0.9rem;
+    font-weight: 800;
+  }
+}
+
+.mobileCards {
+  display: grid;
+  gap: 12px;
+}
+
+.alunoCardMobile {
+  background: #f8fbff;
+  border: 1px solid #d9e2ec;
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.alunoCardHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+
+  strong {
+    font-size: 1rem;
+    color: #1f2a3d;
+    font-weight: 800;
+    line-height: 1.3;
+  }
+
+  span {
+    font-size: 0.86rem;
+    color: #667085;
+    line-height: 1.3;
+  }
+}
+
+.alunoCardActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.btnStatus {
+  min-height: 50px;
+  border-radius: 14px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  font-weight: 800;
+  font-size: 0.98rem;
+  color: #243046;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.btnStatus:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btnPresenteAtivo {
+  background: #16a34a;
+  color: #ffffff;
+  border-color: #16a34a;
+  box-shadow: 0 6px 16px rgba(22, 163, 74, 0.22);
+}
+
+.btnFaltaAtivo {
+  background: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.22);
+}
+
+.salvarArea {
+  position: sticky;
+  bottom: 0;
+  background: #ffffff;
+  padding-top: 14px;
+  margin-top: 16px;
+}
+
+.salvarBotaoMobile {
+  width: 100%;
+  min-height: 52px;
+  border: none;
+  border-radius: 14px;
+  background: #1d4ed8;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(29, 78, 216, 0.22);
+}
+
+.salvarBotaoMobile:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.erroBox {
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.sucessoBox {
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #15803d;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.avisoBloqueio {
+  padding: 12px;
+  border-radius: 12px;
+  background: #fff7ed;
+  border: 1px solid #fdba74;
+  color: #c2410c;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+@media (max-width: 420px) {
+  .alunoCardActions {
+    grid-template-columns: 1fr;
+  }
+}
