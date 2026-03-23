@@ -70,6 +70,21 @@
   background: #15803d;
 }
 
+.btnRapido {
+  min-height: 42px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 12px;
+  background: #0f766e;
+  color: #fff;
+  font-weight: 800;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
 .primaryButton,
 .secondaryButton {
   height: 42px;

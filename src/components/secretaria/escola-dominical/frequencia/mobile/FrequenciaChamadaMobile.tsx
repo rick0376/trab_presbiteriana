@@ -108,7 +108,8 @@ export default function FrequenciaChamadaMobile({
                 <div className={styles.alunoCardHeader}>
                   <strong>{aluno.nome}</strong>
                   <span>
-                    Nº {aluno.numeroSequencial || "-"}
+                    IPR -{" "}
+                    {String(aluno.numeroSequencial).padStart(4, "0") || "-"}
                     {aluno.cargo ? ` • ${aluno.cargo}` : ""}
                   </span>
                 </div>

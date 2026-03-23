@@ -414,6 +414,7 @@ export default function ChamadaRapidaEbd({
       setSalvando(false);
     }
   }
+  const igrejaNomeLimpo = (igrejaNome || "").replace(/^"+|"+$/g, "");
 
   if (loadingPerms) {
     return (
@@ -444,21 +445,22 @@ export default function ChamadaRapidaEbd({
   return (
     <div className={styles.container}>
       <div className={styles.topo}>
-        <div>
-          <h1>Chamada rápida</h1>
-          <p>
-            {igrejaNome || "-"} • {turma?.nome || "-"} • Professor:{" "}
-            {turma?.professor?.nome || "-"}
-          </p>
-        </div>
+        <div className={styles.top}>
+          <button
+            type="button"
+            className={styles.voltarBotao}
+            onClick={() => router.back()}
+          >
+            ← Voltar
+          </button>
 
-        <button
-          type="button"
-          className={styles.voltarBotao}
-          onClick={() => router.back()}
-        >
-          Voltar
-        </button>
+          <h1 className={styles.titulo}>Chamada rápida</h1>
+        </div>
+        <div>
+          <p> • {igrejaNomeLimpo || ""}</p>
+          <p>• {turma?.nome || "-"}</p>
+          <p>• Professor(a): {turma?.professor?.nome || "-"}</p>
+        </div>
       </div>
 
       <div className={styles.filtros}>

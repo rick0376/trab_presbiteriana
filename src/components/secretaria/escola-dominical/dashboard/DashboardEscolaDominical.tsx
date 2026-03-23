@@ -10,6 +10,7 @@ import styles from "./styles.module.scss";
 
 type Props = {
   igrejaId: string;
+  igrejaNome: string;
 };
 
 type Turma = {
@@ -234,7 +235,10 @@ function ordenarPorProximoAniversario(lista: PessoaEbd[]) {
   });
 }
 
-export default function DashboardEscolaDominical({ igrejaId }: Props) {
+export default function DashboardEscolaDominical({
+  igrejaId,
+  igrejaNome,
+}: Props) {
   const anoAtual = new Date().getFullYear();
 
   const [loadingPerms, setLoadingPerms] = useState(true);
@@ -455,6 +459,10 @@ export default function DashboardEscolaDominical({ igrejaId }: Props) {
       ),
     );
   }, [pessoasEbd]);
+
+  const turmaChamadaRapida = useMemo(() => {
+    return turmas.find((item) => item.ativa) || turmas[0] || null;
+  }, [turmas]);
 
   function gerarTextoWhats() {
     const hojeLabel = new Date().toLocaleDateString("pt-BR", {
@@ -836,6 +844,15 @@ ${linhasProfessores}`;
               className={styles.secondaryButton}
             >
               Nova turma
+            </Link>
+          )}
+
+          {turmaChamadaRapida && (
+            <Link
+              href={`/secretaria/escola-dominical/chamada-rapida?turmaId=${turmaChamadaRapida.id}&igrejaId=${igrejaId}&igrejaNome=${encodeURIComponent(igrejaNome || "")}`}
+              className={styles.btnRapido}
+            >
+              Chamada rápida
             </Link>
           )}
         </div>
