@@ -1,6 +1,9 @@
+//src/app/(public)/login/page.tsx
+
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import styles from "./styles.module.scss";
 import { Eye, EyeOff } from "lucide-react";
@@ -8,7 +11,7 @@ import { Eye, EyeOff } from "lucide-react";
 export default function Login() {
   //const [email, setEmail] = useState("admin@lhp.com");
   //const [senha, setSenha] = useState("123456");
-
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [showSenha, setShowSenha] = useState(false);
@@ -45,7 +48,8 @@ export default function Login() {
       }
 
       // ✅ ok
-      window.location.replace("/dashboard");
+      //window.location.replace("/dashboard");
+      router.push("/dashboard");
     } catch {
       openModal("Erro de conexão. Tente novamente.");
     } finally {
