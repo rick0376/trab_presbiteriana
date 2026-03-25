@@ -805,7 +805,7 @@ ${linhasProfessores}`;
     <div className={styles.container}>
       <div className={styles.hero}>
         <div>
-          <h1>Dashboard da Escola Dominical</h1>
+          <h1>Escola Dominical</h1>
           <p>
             Painel geral da EBD com visão rápida de turmas, alunos, professores,
             frequência e aniversários.
@@ -859,7 +859,7 @@ ${linhasProfessores}`;
       </div>
 
       <div className={styles.cardsGrid}>
-        <div className={styles.card}>
+        <div className={`${styles.card} ${styles.card01}`}>
           <span className={styles.cardLabel}>Turmas</span>
           <strong className={styles.cardValue}>{turmas.length}</strong>
           <small className={styles.cardInfo}>
@@ -867,31 +867,31 @@ ${linhasProfessores}`;
           </small>
         </div>
 
-        <div className={styles.card}>
+        <div className={`${styles.card} ${styles.card02}`}>
           <span className={styles.cardLabel}>Alunos</span>
           <strong className={styles.cardValue}>{alunos.length}</strong>
           <small className={styles.cardInfo}>Alunos vinculados à EBD</small>
         </div>
 
-        <div className={styles.card}>
+        <div className={`${styles.card} ${styles.card03}`}>
           <span className={styles.cardLabel}>Professores</span>
           <strong className={styles.cardValue}>{professores.length}</strong>
           <small className={styles.cardInfo}>Professores das turmas</small>
         </div>
 
-        <div className={styles.card}>
+        <div className={`${styles.card} ${styles.card04}`}>
           <span className={styles.cardLabel}>Presenças</span>
           <strong className={styles.cardValue}>{resumo.cards.presencas}</strong>
           <small className={styles.cardInfo}>Total consolidado</small>
         </div>
 
-        <div className={styles.card}>
+        <div className={`${styles.card} ${styles.card05}`}>
           <span className={styles.cardLabel}>Faltas</span>
           <strong className={styles.cardValue}>{resumo.cards.faltas}</strong>
           <small className={styles.cardInfo}>Total consolidado</small>
         </div>
 
-        <div className={styles.card}>
+        <div className={`${styles.card} ${styles.card06}`}>
           <span className={styles.cardLabel}>% Presença</span>
           <strong className={styles.cardValue}>
             {resumo.cards.percentualPresenca.toFixed(1)}%

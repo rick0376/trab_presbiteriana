@@ -4,14 +4,51 @@
   padding: 26px;
   display: grid;
   gap: 16px;
+
   border-radius: 22px;
-  background: linear-gradient(135deg, #0b4f6c 0%, #083a52 60%, #05293a 100%);
   border: 1px solid rgba(255, 255, 255, 0.12);
+
+  background: linear-gradient(135deg, #0b4f6c 0%, #083f58 55%, #052c3e 100%);
+
   box-shadow:
     0 22px 48px rgba(0, 0, 0, 0.35),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
+
+  position: relative;
+  overflow: hidden;
 }
 
+.container::before {
+  content: "";
+  position: absolute;
+  inset: -90px -120px auto auto;
+  width: 280px;
+  height: 280px;
+  border-radius: 999px;
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.14),
+    rgba(255, 255, 255, 0) 62%
+  );
+  transform: rotate(10deg);
+  pointer-events: none;
+}
+
+.container::after {
+  content: "";
+  position: absolute;
+  left: -120px;
+  bottom: -140px;
+  width: 300px;
+  height: 300px;
+  border-radius: 999px;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(56, 189, 248, 0.08),
+    rgba(56, 189, 248, 0) 70%
+  );
+  pointer-events: none;
+}
 .topo {
   display: flex;
   align-items: flex-start;
