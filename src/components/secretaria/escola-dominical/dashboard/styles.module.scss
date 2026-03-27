@@ -182,6 +182,27 @@
   }
 }
 
+.btnSorteio {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 700;
+  background: #f59e0b;
+  color: #ffffff;
+  border: 1px solid #d97706;
+  transition: 0.2s ease;
+}
+
+.btnSorteio:hover {
+  background: #d97706;
+  border-color: #b45309;
+}
+
 .cardsGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

@@ -4,6 +4,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { Gift } from "lucide-react";
 import ResumoEbd from "../resumo/ResumoEbd";
 import GraficoEbd from "../grafico/GraficoEbd";
 import styles from "./styles.module.scss";
@@ -446,6 +447,15 @@ export default function EscolaDominicalPageClient({ igrejaId }: Props) {
                       onClick={(e) => e.stopPropagation()}
                     >
                       Frequência
+                    </Link>
+
+                    <Link
+                      href={`/secretaria/escola-dominical/sorteio?turmaId=${turma.id}`}
+                      className={styles.sorteioBotao}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Gift size={16} />
+                      Sorteio
                     </Link>
 
                     {canEdit && (

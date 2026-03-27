@@ -134,6 +134,27 @@
   }
 }
 
+.sorteioBotao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #fcd34d;
+  background: #fef3c7;
+  color: #92400e;
+  font-weight: 700;
+  text-decoration: none;
+  transition: 0.2s ease;
+}
+
+.sorteioBotao:hover {
+  background: #fde68a;
+  border-color: #f59e0b;
+}
+
 /* ========================================
    BLOCOS
 ======================================== */

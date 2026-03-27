@@ -5,7 +5,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { jsPDF } from "jspdf";
-import { FileText, MessageCircle } from "lucide-react";
+import { FileText, MessageCircle, Gift } from "lucide-react";
 import styles from "./styles.module.scss";
 
 type Props = {
@@ -879,6 +879,14 @@ ${linhasProfessores}`;
             className={styles.primaryButton}
           >
             Abrir gestão da EBD
+          </Link>
+
+          <Link
+            href="/secretaria/escola-dominical/sorteio"
+            className={styles.btnSorteio}
+          >
+            <Gift size={16} />
+            Sorteio EBD
           </Link>
 
           {canCreate && (
