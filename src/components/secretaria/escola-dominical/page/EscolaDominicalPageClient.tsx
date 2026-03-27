@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import ResumoEbd from "../resumo/ResumoEbd";
 import GraficoEbd from "../grafico/GraficoEbd";
@@ -30,6 +30,14 @@ type Turma = {
   };
 };
 
+type ResumoGraficoItem = {
+  mes: number;
+  label: string;
+  presencas: number;
+  faltas: number;
+  visitantes: number;
+};
+
 type ResumoResponse = {
   cards: {
     matriculados: number;
@@ -37,13 +45,7 @@ type ResumoResponse = {
     faltas: number;
     percentualPresenca: number;
   };
-  grafico: {
-    mes: number;
-    label: string;
-    presencas: number;
-    faltas: number;
-    visitantes: number;
-  }[];
+  grafico: ResumoGraficoItem[];
   ano: number;
   filtroTurmaId?: string | null;
 };
@@ -63,8 +65,10 @@ type MeResponse = {
   role: "SUPERADMIN" | "ADMIN" | "PASTOR" | "USER";
 };
 
+const RECURSO_EBD = "escola_dominical";
+
 const PERM_DEFAULT_EBD: Permissao = {
-  recurso: "escola_dominical",
+  recurso: RECURSO_EBD,
   ler: false,
   criar: false,
   editar: false,
@@ -72,8 +76,51 @@ const PERM_DEFAULT_EBD: Permissao = {
   compartilhar: false,
 };
 
+const criarResumoInicial = (ano: number): ResumoResponse => ({
+  cards: {
+    matriculados: 0,
+    presencas: 0,
+    faltas: 0,
+    percentualPresenca: 0,
+  },
+  grafico: [],
+  ano,
+  filtroTurmaId: null,
+});
+
+function getErrorMessage(error: unknown, fallback: string) {
+  if (error instanceof Error && error.message) return error.message;
+  return fallback;
+}
+
+async function getJsonOrThrow<T>(
+  input: RequestInfo | URL,
+  init?: RequestInit,
+): Promise<T> {
+  const response = await fetch(input, init);
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(data?.error || "Ocorreu um erro na requisição.");
+  }
+
+  return data as T;
+}
+
+function getPermissaoTotal(): Permissao {
+  return {
+    recurso: RECURSO_EBD,
+    ler: true,
+    criar: true,
+    editar: true,
+    deletar: true,
+    compartilhar: true,
+  };
+}
+
 export default function EscolaDominicalPageClient({ igrejaId }: Props) {
   const anoAtual = new Date().getFullYear();
+
   const [anoSelecionado, setAnoSelecionado] = useState(anoAtual);
   const [turmaSelecionadaId, setTurmaSelecionadaId] = useState("");
 
@@ -81,22 +128,16 @@ export default function EscolaDominicalPageClient({ igrejaId }: Props) {
   const [loadingPerms, setLoadingPerms] = useState(true);
 
   const [turmas, setTurmas] = useState<Turma[]>([]);
-  const [resumo, setResumo] = useState<ResumoResponse>({
-    cards: {
-      matriculados: 0,
-      presencas: 0,
-      faltas: 0,
-      percentualPresenca: 0,
-    },
-    grafico: [],
-    ano: anoAtual,
-    filtroTurmaId: null,
-  });
+  const [resumo, setResumo] = useState<ResumoResponse>(
+    criarResumoInicial(anoAtual),
+  );
 
   const [carregandoTurmas, setCarregandoTurmas] = useState(true);
   const [carregandoResumo, setCarregandoResumo] = useState(true);
+
   const [erroTurmas, setErroTurmas] = useState("");
   const [erroResumo, setErroResumo] = useState("");
+
   const [excluindoId, setExcluindoId] = useState("");
 
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -107,129 +148,18 @@ export default function EscolaDominicalPageClient({ igrejaId }: Props) {
   const [alertTitle, setAlertTitle] = useState("");
   const [alertMsg, setAlertMsg] = useState("");
 
-  function showAlert(title: string, message: string) {
-    setAlertTitle(title);
-    setAlertMsg(message);
-    setAlertOpen(true);
-  }
-
-  async function carregarTurmas() {
-    try {
-      setCarregandoTurmas(true);
-      setErroTurmas("");
-
-      const response = await fetch(
-        `/api/secretaria/escola-dominical/turmas?igrejaId=${igrejaId}`,
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data?.error || "Erro ao carregar turmas.");
-      }
-
-      setTurmas(data);
-    } catch (error: any) {
-      setErroTurmas(error.message || "Erro ao carregar turmas.");
-    } finally {
-      setCarregandoTurmas(false);
-    }
-  }
-
-  async function carregarResumo() {
-    try {
-      setCarregandoResumo(true);
-      setErroResumo("");
-
-      const qs = new URLSearchParams();
-      qs.set("igrejaId", igrejaId);
-      qs.set("ano", String(anoSelecionado));
-
-      if (turmaSelecionadaId) {
-        qs.set("turmaId", turmaSelecionadaId);
-      }
-
-      const response = await fetch(
-        `/api/secretaria/escola-dominical/resumo?${qs.toString()}`,
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data?.error || "Erro ao carregar resumo.");
-      }
-
-      setResumo(data);
-    } catch (error: any) {
-      setErroResumo(error.message || "Erro ao carregar resumo.");
-    } finally {
-      setCarregandoResumo(false);
-    }
-  }
-
-  useEffect(() => {
-    const fetchMeAndPerms = async () => {
-      try {
-        setLoadingPerms(true);
-
-        const r = await fetch("/api/me", { cache: "no-store" });
-
-        if (!r.ok) {
-          setPermissaoEbd(PERM_DEFAULT_EBD);
-          return;
-        }
-
-        const meData: MeResponse = await r.json();
-
-        if (meData.role === "SUPERADMIN") {
-          setPermissaoEbd({
-            recurso: "escola_dominical",
-            ler: true,
-            criar: true,
-            editar: true,
-            deletar: true,
-            compartilhar: true,
-          });
-          return;
-        }
-
-        const p = await fetch(`/api/permissoes?userId=${meData.id}`, {
-          cache: "no-store",
-        });
-
-        if (!p.ok) {
-          setPermissaoEbd(PERM_DEFAULT_EBD);
-          return;
-        }
-
-        const list: Permissao[] = await p.json();
-        const perm = list.find((x) => x.recurso === "escola_dominical");
-
-        setPermissaoEbd(perm ?? PERM_DEFAULT_EBD);
-      } catch {
-        setPermissaoEbd(PERM_DEFAULT_EBD);
-      } finally {
-        setLoadingPerms(false);
-      }
-    };
-
-    fetchMeAndPerms();
-  }, []);
-
   const canView = !!permissaoEbd?.ler;
   const canCreate = !!permissaoEbd?.criar;
   const canEdit = !!permissaoEbd?.editar;
   const canDelete = !!permissaoEbd?.deletar;
 
-  useEffect(() => {
-    if (!igrejaId) return;
-    carregarTurmas();
-  }, [igrejaId]);
+  const anosDisponiveis = useMemo(() => {
+    return Array.from({ length: 7 }, (_, index) => anoAtual - 3 + index);
+  }, [anoAtual]);
 
-  useEffect(() => {
-    if (!igrejaId) return;
-    carregarResumo();
-  }, [igrejaId, anoSelecionado, turmaSelecionadaId]);
+  const turmaSelecionada = useMemo(() => {
+    return turmas.find((item) => item.id === turmaSelecionadaId) || null;
+  }, [turmas, turmaSelecionadaId]);
 
   const totalMatriculados = useMemo(() => {
     if (resumo.cards.matriculados > 0) return resumo.cards.matriculados;
@@ -242,47 +172,147 @@ export default function EscolaDominicalPageClient({ igrejaId }: Props) {
     return turmaAtual?._count.alunos || 0;
   }, [turmas, resumo.cards.matriculados, turmaSelecionadaId]);
 
-  const anosDisponiveis = useMemo(() => {
-    return Array.from({ length: 7 }, (_, index) => anoAtual - 3 + index);
-  }, [anoAtual]);
+  function showAlert(title: string, message: string) {
+    setAlertTitle(title);
+    setAlertMsg(message);
+    setAlertOpen(true);
+  }
 
-  const turmaSelecionada = useMemo(() => {
-    return turmas.find((item) => item.id === turmaSelecionadaId) || null;
-  }, [turmas, turmaSelecionadaId]);
+  function limparConfirmacao() {
+    setConfirmOpen(false);
+    setConfirmId("");
+    setConfirmNome("");
+  }
 
-  async function excluirTurma(turmaId: string, nomeTurma: string) {
+  function abrirConfirmacaoExclusao(turma: Turma) {
+    setConfirmId(turma.id);
+    setConfirmNome(turma.nome);
+    setConfirmOpen(true);
+  }
+
+  const carregarTurmas = useCallback(async () => {
+    if (!igrejaId) return;
+
+    try {
+      setCarregandoTurmas(true);
+      setErroTurmas("");
+
+      const data = await getJsonOrThrow<Turma[]>(
+        `/api/secretaria/escola-dominical/turmas?igrejaId=${igrejaId}`,
+      );
+
+      setTurmas(Array.isArray(data) ? data : []);
+    } catch (error) {
+      setErroTurmas(getErrorMessage(error, "Erro ao carregar turmas."));
+    } finally {
+      setCarregandoTurmas(false);
+    }
+  }, [igrejaId]);
+
+  const carregarResumo = useCallback(
+    async (turmaIdOverride?: string | null) => {
+      if (!igrejaId) return;
+
+      try {
+        setCarregandoResumo(true);
+        setErroResumo("");
+
+        const turmaIdFinal =
+          turmaIdOverride !== undefined ? turmaIdOverride : turmaSelecionadaId;
+
+        const qs = new URLSearchParams();
+        qs.set("igrejaId", igrejaId);
+        qs.set("ano", String(anoSelecionado));
+
+        if (turmaIdFinal) {
+          qs.set("turmaId", turmaIdFinal);
+        }
+
+        const data = await getJsonOrThrow<ResumoResponse>(
+          `/api/secretaria/escola-dominical/resumo?${qs.toString()}`,
+        );
+
+        setResumo(data);
+      } catch (error) {
+        setErroResumo(getErrorMessage(error, "Erro ao carregar resumo."));
+      } finally {
+        setCarregandoResumo(false);
+      }
+    },
+    [igrejaId, anoSelecionado, turmaSelecionadaId],
+  );
+
+  const carregarPermissoes = useCallback(async () => {
+    try {
+      setLoadingPerms(true);
+
+      const meData = await getJsonOrThrow<MeResponse>("/api/me", {
+        cache: "no-store",
+      }).catch(() => null);
+
+      if (!meData) {
+        setPermissaoEbd(PERM_DEFAULT_EBD);
+        return;
+      }
+
+      if (meData.role === "SUPERADMIN") {
+        setPermissaoEbd(getPermissaoTotal());
+        return;
+      }
+
+      const permissoes = await getJsonOrThrow<Permissao[]>(
+        `/api/permissoes?userId=${meData.id}`,
+        { cache: "no-store" },
+      ).catch(() => []);
+
+      const permissaoEncontrada = permissoes.find(
+        (item) => item.recurso === RECURSO_EBD,
+      );
+
+      setPermissaoEbd(permissaoEncontrada ?? PERM_DEFAULT_EBD);
+    } catch {
+      setPermissaoEbd(PERM_DEFAULT_EBD);
+    } finally {
+      setLoadingPerms(false);
+    }
+  }, []);
+
+  async function excluirTurma(turmaId: string) {
     try {
       setExcluindoId(turmaId);
 
-      const response = await fetch(
+      await getJsonOrThrow(
         `/api/secretaria/escola-dominical/turmas/${turmaId}?igrejaId=${igrejaId}`,
-        {
-          method: "DELETE",
-        },
+        { method: "DELETE" },
       );
 
-      const data = await response.json();
+      const turmaExcluidaEraSelecionada = turmaSelecionadaId === turmaId;
+      const novoFiltro = turmaExcluidaEraSelecionada ? "" : turmaSelecionadaId;
 
-      if (!response.ok) {
-        throw new Error(data?.error || "Erro ao excluir turma.");
-      }
-
-      if (turmaSelecionadaId === turmaId) {
+      if (turmaExcluidaEraSelecionada) {
         setTurmaSelecionadaId("");
       }
 
-      await carregarTurmas();
-      await carregarResumo();
-    } catch (error: any) {
-      showAlert("Erro", error.message || "Erro ao excluir turma.");
+      await Promise.all([carregarTurmas(), carregarResumo(novoFiltro)]);
+    } catch (error) {
+      showAlert("Erro", getErrorMessage(error, "Erro ao excluir turma."));
     } finally {
       setExcluindoId("");
     }
   }
 
-  // =========================
-  // Sem permissão de visualizar
-  // =========================
+  useEffect(() => {
+    carregarPermissoes();
+  }, [carregarPermissoes]);
+
+  useEffect(() => {
+    carregarTurmas();
+  }, [carregarTurmas]);
+
+  useEffect(() => {
+    carregarResumo();
+  }, [carregarResumo]);
+
   if (loadingPerms) {
     return (
       <div className={styles.container}>
@@ -307,7 +337,7 @@ export default function EscolaDominicalPageClient({ igrejaId }: Props) {
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
+      <section className={styles.header}>
         <div>
           <h1>Escola Dominical</h1>
           <p>Gerencie turmas, alunos, frequência e relatórios.</p>
@@ -330,7 +360,7 @@ export default function EscolaDominicalPageClient({ igrejaId }: Props) {
             </Link>
           )}
         </div>
-      </div>
+      </section>
 
       <ResumoEbd
         matriculados={totalMatriculados}
@@ -339,9 +369,16 @@ export default function EscolaDominicalPageClient({ igrejaId }: Props) {
         percentualPresenca={resumo.cards.percentualPresenca}
       />
 
-      <div className={styles.bloco}>
+      <section className={styles.bloco}>
         <div className={styles.blocoHeader}>
-          <h2>Turmas cadastradas</h2>
+          <div>
+            <h2>Turmas cadastradas</h2>
+            <p className={styles.subInfo}>
+              {turmas.length === 1
+                ? "1 turma encontrada"
+                : `${turmas.length} turmas encontradas`}
+            </p>
+          </div>
 
           <div className={styles.filtroTurmas}>
             <button
@@ -365,32 +402,37 @@ export default function EscolaDominicalPageClient({ igrejaId }: Props) {
         ) : (
           <div className={styles.listaTurmas}>
             {turmas.map((turma) => {
-              const ativa = turmaSelecionadaId === turma.id;
+              const estaSelecionada = turmaSelecionadaId === turma.id;
+              const estaExcluindo = excluindoId === turma.id;
 
               return (
-                <div
+                <article
                   key={turma.id}
                   className={`${styles.turmaCard} ${
-                    ativa ? styles.turmaCardAtiva : ""
+                    estaSelecionada ? styles.turmaCardAtiva : ""
                   }`}
                   onClick={() => setTurmaSelecionadaId(turma.id)}
                 >
                   <div className={styles.turmaInfo}>
                     <h3>{turma.nome}</h3>
+
                     <p>
                       <strong>Professor:</strong> {turma.professor?.nome || "-"}
                     </p>
+
                     <p>
                       <strong>Departamento:</strong> {turma.departamento || "-"}
                     </p>
+
                     <p>
                       <strong>Alunos:</strong> {turma._count.alunos}
                     </p>
+
                     <p>
                       <strong>Registros:</strong> {turma._count.registros}
                     </p>
 
-                    {ativa && (
+                    {estaSelecionada && (
                       <span className={styles.turmaSelecionadaBadge}>
                         Filtrando cards e gráfico
                       </span>
@@ -422,24 +464,22 @@ export default function EscolaDominicalPageClient({ igrejaId }: Props) {
                         className={styles.excluirBotao}
                         onClick={(e) => {
                           e.stopPropagation();
-                          setConfirmId(turma.id);
-                          setConfirmNome(turma.nome);
-                          setConfirmOpen(true);
+                          abrirConfirmacaoExclusao(turma);
                         }}
-                        disabled={excluindoId === turma.id}
+                        disabled={estaExcluindo}
                       >
-                        {excluindoId === turma.id ? "Excluindo..." : "Excluir"}
+                        {estaExcluindo ? "Excluindo..." : "Excluir"}
                       </button>
                     )}
                   </div>
-                </div>
+                </article>
               );
             })}
           </div>
         )}
-      </div>
+      </section>
 
-      <div className={styles.bloco}>
+      <section className={styles.bloco}>
         <div className={styles.blocoHeader}>
           <div>
             <h2>Gráfico geral</h2>
@@ -472,27 +512,21 @@ export default function EscolaDominicalPageClient({ igrejaId }: Props) {
         ) : (
           <GraficoEbd data={resumo.grafico} />
         )}
-      </div>
+      </section>
 
       <ConfirmModal
         open={confirmOpen}
         title="Excluir turma?"
         message={`Tem certeza que deseja excluir a turma "${confirmNome}"? Esta ação não pode ser desfeita.`}
-        onCancel={() => {
-          setConfirmOpen(false);
-          setConfirmId("");
-          setConfirmNome("");
-        }}
+        onCancel={limparConfirmacao}
         onConfirm={async () => {
-          setConfirmOpen(false);
-
           const idToDelete = confirmId;
-          const nomeToDelete = confirmNome;
 
-          await excluirTurma(idToDelete, nomeToDelete);
+          limparConfirmacao();
 
-          setConfirmId("");
-          setConfirmNome("");
+          if (!idToDelete) return;
+
+          await excluirTurma(idToDelete);
         }}
       />
 

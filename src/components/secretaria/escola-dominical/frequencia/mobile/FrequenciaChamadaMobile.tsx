@@ -1,25 +1,21 @@
 //src/components/secretaria/escola-dominical/frequencia/mobile/FrequenciaChamadaMobile.tsx
 
 "use client";
-
+import { useMemo } from "react";
 import styles from "./styles.module.scss";
-
 type EbdStatus = "PRESENTE" | "FALTA";
-
 type Aluno = {
   id: string;
   nome: string;
   cargo?: string | null;
   numeroSequencial?: number | null;
 };
-
 type DomingoDoMes = {
   domingoNumero: number;
   dataISO: string;
   label: string;
   labelCurta: string;
 };
-
 type Props = {
   alunos: Aluno[];
   domingosDoMes: DomingoDoMes[];
@@ -38,7 +34,10 @@ type Props = {
   erro?: string;
   sucesso?: string;
 };
-
+function formatarNumeroSequencial(valor?: number | null) {
+  if (typeof valor !== "number" || Number.isNaN(valor)) return "-";
+  return String(valor).padStart(4, "0");
+}
 export default function FrequenciaChamadaMobile({
   alunos,
   domingosDoMes,
@@ -53,115 +52,157 @@ export default function FrequenciaChamadaMobile({
   sucesso,
   isDomingoLiberado,
 }: Props) {
-  const domingoNumero = Number(domingoSelecionadoNumero);
-  const domingoLiberado = isDomingoLiberado(domingoNumero);
-
-  const presencas = alunos.filter(
-    (aluno) => frequencias[`${aluno.id}-${domingoNumero}`] === "PRESENTE",
-  ).length;
-
-  const faltas = alunos.length - presencas;
-
+  const domingoNumero = useMemo(() => {
+    const numero = Number(domingoSelecionadoNumero);
+    return Number.isFinite(numero) ? numero : 0;
+  }, [domingoSelecionadoNumero]);
+  const domingoSelecionado = useMemo(() => {
+    return (
+      domingosDoMes.find((item) => item.domingoNumero === domingoNumero) || null
+    );
+  }, [domingosDoMes, domingoNumero]);
+  const domingoLiberado = useMemo(() => {
+    if (!domingoNumero) return false;
+    return isDomingoLiberado(domingoNumero);
+  }, [domingoNumero, isDomingoLiberado]);
+  const alunosComStatus = useMemo(() => {
+    return alunos.map((aluno) => {
+      const chave = `${aluno.id}-${domingoNumero}`;
+      const statusAtual = frequencias[chave] || "FALTA";
+      return {
+        ...aluno,
+        statusAtual,
+        numeroSequencialFormatado: formatarNumeroSequencial(
+          aluno.numeroSequencial,
+        ),
+      };
+    });
+  }, [alunos, frequencias, domingoNumero]);
+  const presencas = useMemo(() => {
+    return alunosComStatus.filter((aluno) => aluno.statusAtual === "PRESENTE")
+      .length;
+  }, [alunosComStatus]);
+  const faltas = useMemo(() => {
+    return alunosComStatus.length - presencas;
+  }, [alunosComStatus.length, presencas]);
   return (
     <div className={styles.mobileBox}>
-      <div className={styles.bloco}>
+      {" "}
+      <section className={styles.bloco}>
+        {" "}
         <div className={styles.blocoHeader}>
-          <h2>Chamada rápida</h2>
-        </div>
-
+          {" "}
+          <div>
+            {" "}
+            <h2>Chamada rápida</h2>{" "}
+            <p>
+              {" "}
+              {domingoSelecionado
+                ? `${domingoSelecionado.label} • ${domingoSelecionado.domingoNumero}º domingo`
+                : "Selecione o domingo do mês"}{" "}
+            </p>{" "}
+          </div>{" "}
+        </div>{" "}
         <div className={styles.mobileTopBar}>
+          {" "}
           <div className={styles.filtroItem}>
-            <label>Domingo do mês</label>
+            {" "}
+            <label>Domingo do mês</label>{" "}
             <select
               value={domingoSelecionadoNumero}
               onChange={(e) => setDomingoSelecionadoNumero(e.target.value)}
             >
+              {" "}
               {domingosDoMes.map((domingo) => (
                 <option
                   key={domingo.domingoNumero}
                   value={domingo.domingoNumero}
                 >
-                  {domingo.label} • {domingo.domingoNumero}º domingo
+                  {" "}
+                  {domingo.label} • {domingo.domingoNumero}º domingo{" "}
                 </option>
-              ))}
-            </select>
-          </div>
-
+              ))}{" "}
+            </select>{" "}
+          </div>{" "}
           <div className={styles.mobileResumoDia}>
-            <span>Presentes: {presencas}</span>
-            <span>Faltas: {faltas}</span>
-          </div>
+            {" "}
+            <div className={styles.resumoChip}>
+              {" "}
+              <span className={styles.resumoLabel}>Presentes</span>{" "}
+              <strong className={styles.resumoValor}>{presencas}</strong>{" "}
+            </div>{" "}
+            <div className={styles.resumoChip}>
+              {" "}
+              <span className={styles.resumoLabel}>Faltas</span>{" "}
+              <strong className={styles.resumoValor}>{faltas}</strong>{" "}
+            </div>{" "}
+          </div>{" "}
           {!domingoLiberado && (
             <div className={styles.avisoBloqueio}>
-              Este domingo ainda não pode receber presença ou falta.
+              {" "}
+              Este domingo ainda não pode receber presença ou falta.{" "}
             </div>
-          )}
-        </div>
-
+          )}{" "}
+        </div>{" "}
         <div className={styles.mobileCards}>
-          {alunos.map((aluno) => {
-            const chave = `${aluno.id}-${domingoNumero}`;
-            const statusAtual = frequencias[chave] || "FALTA";
-
-            return (
-              <div key={aluno.id} className={styles.alunoCardMobile}>
-                <div className={styles.alunoCardHeader}>
-                  <strong>{aluno.nome}</strong>
-                  <span>
-                    IPR -{" "}
-                    {String(aluno.numeroSequencial).padStart(4, "0") || "-"}
-                    {aluno.cargo ? ` • ${aluno.cargo}` : ""}
-                  </span>
-                </div>
-
-                <div className={styles.alunoCardActions}>
-                  <button
-                    type="button"
-                    disabled={!canEdit || !domingoLiberado}
-                    className={`${styles.btnStatus} ${
-                      statusAtual === "PRESENTE" ? styles.btnPresenteAtivo : ""
-                    }`}
-                    onClick={() =>
-                      alterarStatus(aluno.id, domingoNumero, "PRESENTE")
-                    }
-                  >
-                    ✓ Presente
-                  </button>
-
-                  <button
-                    type="button"
-                    disabled={!canEdit || !domingoLiberado}
-                    className={`${styles.btnStatus} ${
-                      statusAtual === "FALTA" ? styles.btnFaltaAtivo : ""
-                    }`}
-                    onClick={() =>
-                      alterarStatus(aluno.id, domingoNumero, "FALTA")
-                    }
-                  >
-                    ✕ Falta
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {!!erro && <div className={styles.erroBox}>{erro}</div>}
-        {!!sucesso && <div className={styles.sucessoBox}>{sucesso}</div>}
-
+          {" "}
+          {alunosComStatus.map((aluno) => (
+            <article key={aluno.id} className={styles.alunoCardMobile}>
+              {" "}
+              <div className={styles.alunoCardHeader}>
+                {" "}
+                <strong>{aluno.nome}</strong>{" "}
+                <span>
+                  {" "}
+                  IPR - {aluno.numeroSequencialFormatado}{" "}
+                  {aluno.cargo ? ` • ${aluno.cargo}` : ""}{" "}
+                </span>{" "}
+              </div>{" "}
+              <div className={styles.alunoCardActions}>
+                {" "}
+                <button
+                  type="button"
+                  disabled={!canEdit || !domingoLiberado}
+                  className={`${styles.btnStatus} ${aluno.statusAtual === "PRESENTE" ? styles.btnPresenteAtivo : ""}`}
+                  onClick={() =>
+                    alterarStatus(aluno.id, domingoNumero, "PRESENTE")
+                  }
+                >
+                  {" "}
+                  ✓ Presente{" "}
+                </button>{" "}
+                <button
+                  type="button"
+                  disabled={!canEdit || !domingoLiberado}
+                  className={`${styles.btnStatus} ${aluno.statusAtual === "FALTA" ? styles.btnFaltaAtivo : ""}`}
+                  onClick={() =>
+                    alterarStatus(aluno.id, domingoNumero, "FALTA")
+                  }
+                >
+                  {" "}
+                  ✕ Falta{" "}
+                </button>{" "}
+              </div>{" "}
+            </article>
+          ))}{" "}
+        </div>{" "}
+        {!!erro && <div className={styles.erroBox}>{erro}</div>}{" "}
+        {!!sucesso && <div className={styles.sucessoBox}>{sucesso}</div>}{" "}
         {canEdit && (
           <div className={styles.salvarArea}>
+            {" "}
             <button
               type="button"
               className={styles.salvarBotaoMobile}
               onClick={salvarFrequencia}
               disabled={salvando}
             >
-              {salvando ? "Salvando..." : "Salvar frequência"}
-            </button>
+              {" "}
+              {salvando ? "Salvando..." : "Salvar frequência"}{" "}
+            </button>{" "}
           </div>
-        )}
-      </div>
+        )}{" "}
+      </section>{" "}
     </div>
   );
 }

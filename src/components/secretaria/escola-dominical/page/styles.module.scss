@@ -1,266 +1,600 @@
 .container {
   display: flex;
-  margin: 64px auto 0;
+  margin: 64px auto 32px;
+  max-width: 1240px;
+  padding: 0 16px;
   flex-direction: column;
   gap: 20px;
-  padding: 20px;
 }
 
-.header,
-.blocoHeader {
+/* ========================================
+   HERO / HEADER
+======================================== */
+.header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 16px;
-}
-
-.header h1 {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 700;
-  color: #efeff1;
-}
-
-.header p,
-.subInfo {
-  margin: 6px 0 0;
-  color: #d4d9e0;
-}
-
-.novoBotao {
-  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  height: 42px;
-  padding: 0 16px;
-  border: 0;
-  border-radius: 10px;
-  background: #2563eb;
-  color: #fff;
-  font-weight: 600;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.bloco {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  padding: 18px;
-}
-
-.vazio {
-  color: #64748b;
-  text-align: center;
-  padding: 24px;
-}
-
-.erro {
-  margin-top: 12px;
-  border: 1px solid #fecaca;
-  background: #fef2f2;
-  color: #b91c1c;
-  border-radius: 10px;
-  padding: 12px 14px;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.filtroTurmas {
-  display: flex;
-  gap: 10px;
+  gap: 18px;
   flex-wrap: wrap;
-}
 
-.filtroTurmaBotao {
-  height: 36px;
-  padding: 0 14px;
-  border: 1px solid #cbd5e1;
-  border-radius: 999px;
-  background: #fff;
-  color: #334155;
-  font-weight: 600;
-  cursor: pointer;
-}
+  padding: 26px 24px;
+  border-radius: 22px;
+  border: 1px solid rgba(125, 211, 252, 0.14);
 
-.filtroTurmaAtivo {
-  background: #2563eb;
-  border-color: #2563eb;
+  background: linear-gradient(135deg, #0c5675 0%, #0a4761 58%, #073347 100%);
   color: #fff;
+
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+  position: relative;
+  overflow: hidden;
+
+  h1 {
+    margin: 0 0 8px;
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1.1;
+    position: relative;
+    z-index: 1;
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    margin: 0;
+    max-width: 620px;
+    color: rgba(255, 255, 255, 0.88);
+    line-height: 1.55;
+    font-size: 14px;
+    position: relative;
+    z-index: 1;
+  }
 }
 
-.listaTurmas {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-}
-
-.turmaCard {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  padding: 16px;
-  background: #f8fafc;
-  cursor: pointer;
-  transition: 0.2s ease;
-}
-
-.turmaCard:hover {
-  border-color: #93c5fd;
-}
-
-.turmaCardAtiva {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
-}
-
-.turmaInfo h3 {
-  margin: 0 0 10px;
-  font-size: 18px;
-  font-weight: 700;
-  color: #0f172a;
-}
-
-.turmaInfo p {
-  margin: 0 0 8px;
-  font-size: 14px;
-  color: #475569;
-}
-
-.turmaSelecionadaBadge {
-  display: inline-flex;
-  margin-top: 8px;
-  padding: 6px 10px;
+.header::before {
+  content: "";
+  position: absolute;
+  inset: -60px -80px auto auto;
+  width: 240px;
+  height: 240px;
   border-radius: 999px;
-  background: #dbeafe;
-  color: #1d4ed8;
-  font-size: 12px;
-  font-weight: 700;
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0) 62%
+  );
+  transform: rotate(12deg);
+  pointer-events: none;
 }
 
-.turmaActions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  min-width: 120px;
-}
-
-.editarBotao,
-.frequenciaBotao,
-.excluirBotao {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 100px;
-  height: 38px;
-  padding: 0 14px;
-  border-radius: 10px;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.editarBotao {
-  background: #0f172a;
-}
-
-.frequenciaBotao {
-  background: #2563eb;
-}
-
-.excluirBotao {
-  border: 0;
-  background: #ef4444;
-  cursor: pointer;
-}
-
-.excluirBotao:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.graficoFiltros {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.graficoFiltros label {
-  font-size: 14px;
-  font-weight: 600;
-  color: #334155;
-}
-
-.graficoFiltros select {
-  height: 38px;
-  min-width: 120px;
-  padding: 0 12px;
-  border: 1px solid #cbd5e1;
-  border-radius: 10px;
-  background: #fff;
-  color: #0f172a;
-  outline: none;
+.header::after {
+  content: "";
+  position: absolute;
+  left: -90px;
+  bottom: -130px;
+  width: 260px;
+  height: 260px;
+  border-radius: 999px;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(56, 189, 248, 0.12),
+    rgba(56, 189, 248, 0) 68%
+  );
+  pointer-events: none;
 }
 
 .headerActions {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
 }
 
-.relatorioBotao {
+.relatorioBotao,
+.novoBotao {
   height: 42px;
   padding: 0 16px;
-  border-radius: 10px;
+  border-radius: 12px;
+  border: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 14px;
-  transition: 0.2s ease;
-  background: #0f172a;
-  color: #ffffff;
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease,
+    opacity 0.18s ease;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.14);
 }
 
-.relatorioBotao:hover {
-  background: #020617;
-}
+.relatorioBotao {
+  background: #ffffff;
+  color: #0f172a;
 
-@media (max-width: 900px) {
-  .listaTurmas {
-    grid-template-columns: 1fr;
+  &:hover {
+    background: #e2e8f0;
+    transform: translateY(-1px);
   }
 }
 
-@media (max-width: 640px) {
-  .header,
-  .blocoHeader,
+.novoBotao {
+  background: #f59e0b;
+  color: #ffffff;
+
+  &:hover {
+    background: #d97706;
+    transform: translateY(-1px);
+  }
+}
+
+/* ========================================
+   BLOCOS
+======================================== */
+.bloco {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  border-radius: 22px;
+  padding: 20px;
+  border: 1px solid rgba(100, 116, 139, 0.22);
+
+  background: linear-gradient(135deg, #e7edf3 0%, #d7e1ea 55%, #bcc9d6 130%);
+
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.68);
+
+  position: relative;
+  overflow: hidden;
+}
+
+.bloco::before {
+  content: "";
+  position: absolute;
+  inset: -44px -64px auto auto;
+  width: 190px;
+  height: 190px;
+  border-radius: 999px;
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.82),
+    rgba(255, 255, 255, 0) 62%
+  );
+  transform: rotate(12deg);
+  pointer-events: none;
+}
+
+.blocoHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 16px;
+  position: relative;
+  z-index: 1;
+
+  h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.01em;
+  }
+}
+
+.subInfo {
+  margin-top: 4px;
+  font-size: 13px;
+  color: #475569;
+  font-weight: 500;
+}
+
+/* ========================================
+   ESTADOS
+======================================== */
+.vazio,
+.erro {
+  position: relative;
+  z-index: 1;
+}
+
+.vazio {
+  background: rgba(255, 255, 255, 0.88);
+  border-radius: 18px;
+  padding: 22px 18px;
+  border: 1px solid #dbe4ee;
+  color: #64748b;
+  font-size: 14px;
+  text-align: center;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.erro {
+  background: #fff7f7;
+  border-radius: 18px;
+  padding: 16px 18px;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  font-size: 14px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* ========================================
+   FILTRO DE TURMAS
+======================================== */
+.filtroTurmas {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.filtroTurmaBotao {
+  min-height: 36px;
+  padding: 0 15px;
+  border-radius: 999px;
+  border: 1px solid #cbd5e1;
+  background: rgba(255, 255, 255, 0.92);
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+
+  &:hover {
+    background: #eef4ff;
+    border-color: #93c5fd;
+    transform: translateY(-1px);
+  }
+}
+
+.filtroTurmaAtivo {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.24);
+}
+
+/* ========================================
+   LISTA DE TURMAS
+======================================== */
+.listaTurmas {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.turmaCard {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 18px;
+
+  border-radius: 20px;
+  padding: 18px 18px 18px 22px;
+  border: 1px solid rgba(37, 99, 235, 0.14);
+
+  background: linear-gradient(135deg, #ffffff 0%, #f8fbff 55%, #edf5ff 130%);
+
+  box-shadow:
+    0 16px 32px rgba(15, 23, 42, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.82);
+
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.turmaCard::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 6px;
+  background: linear-gradient(180deg, #38bdf8 0%, #2563eb 100%);
+  opacity: 0.95;
+}
+
+.turmaCard::after {
+  content: "";
+  position: absolute;
+  inset: -44px -64px auto auto;
+  width: 180px;
+  height: 180px;
+  border-radius: 999px;
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.96),
+    rgba(255, 255, 255, 0) 62%
+  );
+  transform: rotate(12deg);
+  pointer-events: none;
+}
+
+.turmaCard:hover {
+  transform: translateY(-2px);
+  border-color: rgba(37, 99, 235, 0.28);
+  box-shadow:
+    0 22px 38px rgba(15, 23, 42, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.84);
+}
+
+.turmaCardAtiva {
+  border-color: rgba(37, 99, 235, 0.34);
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 55%, #93c5fd 130%);
+  box-shadow:
+    0 24px 42px rgba(37, 99, 235, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.78);
+}
+
+.turmaCardAtiva::before {
+  width: 8px;
+  background: linear-gradient(180deg, #0ea5e9 0%, #1d4ed8 100%);
+}
+
+.turmaInfo {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+
+  h3 {
+    margin: 0 0 10px;
+    font-size: 19px;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.01em;
+  }
+
+  p {
+    margin: 0 0 6px;
+    font-size: 13px;
+    color: #334155;
+    line-height: 1.5;
+
+    strong {
+      color: #0f172a;
+      font-weight: 800;
+    }
+  }
+}
+
+.turmaSelecionadaBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12px;
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-shadow: 0 12px 24px rgba(15, 118, 110, 0.24);
+}
+
+/* ========================================
+   AÇÕES
+======================================== */
+.turmaActions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 160px;
+  position: relative;
+  z-index: 1;
+  align-self: center;
+}
+
+.frequenciaBotao,
+.editarBotao,
+.excluirBotao {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 13px;
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease,
+    opacity 0.18s ease;
+  cursor: pointer;
+  box-shadow: 0 10px 18px rgba(15, 23, 42, 0.1);
+}
+
+.frequenciaBotao {
+  background: #2563eb;
+  color: #ffffff;
+
+  &:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+  }
+}
+
+.editarBotao {
+  background: #0f172a;
+  color: #ffffff;
+
+  &:hover {
+    background: #020617;
+    transform: translateY(-1px);
+  }
+}
+
+.excluirBotao {
+  background: #dc2626;
+  color: #ffffff;
+
+  &:hover {
+    background: #b91c1c;
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+/* ========================================
+   FILTROS DO GRÁFICO
+======================================== */
+.graficoFiltros {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+
+  label {
+    font-size: 13px;
+    font-weight: 800;
+    color: #0f172a;
+  }
+
+  select {
+    min-width: 124px;
+    height: 40px;
+    border-radius: 12px;
+    border: 1px solid #cbd5e1;
+    padding: 0 12px;
+    background: rgba(255, 255, 255, 0.95);
+    color: #0f172a;
+    font-size: 13px;
+    font-weight: 700;
+    outline: none;
+    transition:
+      border-color 0.18s ease,
+      box-shadow 0.18s ease,
+      background 0.18s ease;
+
+    &:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+      background: #ffffff;
+    }
+  }
+}
+
+/* ========================================
+   RESPONSIVO
+======================================== */
+@media (max-width: 980px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
   .turmaCard {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .novoBotao,
-  .editarBotao,
+  .turmaActions {
+    width: 100%;
+    min-width: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-self: stretch;
+  }
+
   .frequenciaBotao,
+  .editarBotao,
+  .excluirBotao {
+    flex: 1;
+    min-width: 140px;
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 0 12px;
+    gap: 16px;
+  }
+
+  .header {
+    padding: 22px 18px;
+
+    h1 {
+      font-size: 24px;
+    }
+  }
+
+  .headerActions {
+    width: 100%;
+  }
+
+  .relatorioBotao,
+  .novoBotao {
+    width: 100%;
+  }
+
+  .bloco {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .blocoHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .graficoFiltros {
+    width: 100%;
+
+    select {
+      width: 100%;
+    }
+  }
+
+  .turmaCard {
+    padding: 16px 16px 16px 18px;
+    border-radius: 18px;
+  }
+
+  .turmaInfo {
+    h3 {
+      font-size: 17px;
+    }
+  }
+
+  .turmaActions {
+    flex-direction: column;
+  }
+
+  .frequenciaBotao,
+  .editarBotao,
   .excluirBotao {
     width: 100%;
-  }
-
-  .turmaActions,
-  .graficoFiltros,
-  .filtroTurmas {
-    width: 100%;
-  }
-
-  .graficoFiltros,
-  .filtroTurmas {
-    flex-direction: column;
-    align-items: stretch;
+    min-width: 100%;
   }
 }

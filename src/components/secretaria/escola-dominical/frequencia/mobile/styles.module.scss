@@ -1,309 +1,278 @@
 .mobileBox {
-  width: 100%;
+  display: block;
 }
-
 .bloco {
-  background: #e0e8eb;
-  border-radius: 18px;
-  padding: 14px;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-  border: 1px solid #dbe4ee;
-}
-
-.blocoHeader {
-  margin-bottom: 14px;
-
-  h2 {
-    margin: 0;
-    font-size: 1.35rem;
-    font-weight: 800;
-    color: #243046;
-  }
-}
-
-/* =====================================================
-   CARD: CHAMADA (azul/violeta vibrante)
-===================================================== */
-.mobileTopBar {
-  border-radius: 18px;
-  padding: 16px;
-  background: linear-gradient(135deg, #dbeafe 0%, #c7d2fe 55%, #a78bfa 130%);
-  border: 1px solid rgba(79, 70, 229, 0.22);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-radius: 22px;
+  padding: 18px;
+  border: 1px solid rgba(100, 116, 139, 0.22);
+  background: linear-gradient(135deg, #e7edf3 0%, #d7e1ea 55%, #bcc9d6 130%);
   box-shadow:
-    0 18px 36px rgba(0, 0, 0, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+    0 20px 40px rgba(0, 0, 0, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.68);
   position: relative;
   overflow: hidden;
-  margin-bottom: 10px;
 }
-
-.mobileTopBar::before {
+.bloco::before {
   content: "";
   position: absolute;
-  inset: -40px -60px auto auto;
-  width: 180px;
-  height: 180px;
+  inset: -44px -64px auto auto;
+  width: 190px;
+  height: 190px;
   border-radius: 999px;
-
   background: radial-gradient(
     circle at 30% 30%,
-    rgba(255, 255, 255, 0.85),
+    rgba(255, 255, 255, 0.82),
     rgba(255, 255, 255, 0) 62%
   );
   transform: rotate(12deg);
   pointer-events: none;
 }
-
-/* =====================================================
-   CARD: FIM (azul/violeta vibrante)
-===================================================== */
-
+.blocoHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+  h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.01em;
+  }
+  p {
+    margin: 4px 0 0;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+}
+.mobileTopBar {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  z-index: 1;
+}
 .filtroItem {
   display: flex;
   flex-direction: column;
-  margin-bottom: 10px;
-  gap: 6px;
-
+  gap: 8px;
   label {
-    font-size: 0.9rem;
+    font-size: 13px;
     font-weight: 700;
-    color: #1e293b;
+    color: #334155;
   }
-
   select {
     width: 100%;
-    min-height: 46px;
+    min-height: 44px;
     border: 1px solid #cbd5e1;
     border-radius: 12px;
-    background: #fff;
+    background: rgba(255, 255, 255, 0.92);
+    color: #0f172a;
     padding: 0 12px;
-    font-size: 0.95rem;
-    color: #1e293b;
+    font-size: 14px;
+    font-weight: 600;
     outline: none;
+    transition:
+      border-color 0.18s ease,
+      box-shadow 0.18s ease,
+      background 0.18s ease;
+    &:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+      background: #ffffff;
+    }
   }
 }
-
 .mobileResumoDia {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-
-  span {
-    display: inline-flex;
-    align-items: center;
-    min-height: 38px;
-    padding: 0 12px;
-    border-radius: 999px;
-    background: #eff6ff;
-    color: #1f2a3d;
-    font-size: 0.9rem;
-    font-weight: 800;
-  }
-}
-
-.mobileCards {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
-
-/* =====================================================
-   CARD: ALUNOS/MEMBROS (verde/limão vibrante)
-===================================================== */
-
-.alunoCardMobile {
-  border-radius: 18px;
-  padding: 16px;
-
-  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 55%, #fca5a5 130%);
-  border-color: rgba(220, 38, 38, 0.22);
-
-  box-shadow:
-    0 18px 36px rgba(0, 0, 0, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.65);
-
-  position: relative;
-  overflow: hidden;
-}
-
-.alunoCardMobile::before {
-  content: "";
-  position: absolute;
-  inset: -40px -60px auto auto;
-  width: 180px;
-  height: 180px;
-  border-radius: 999px;
-
-  background: radial-gradient(
-    circle at 30% 30%,
-    rgba(255, 255, 255, 0.85),
-    rgba(255, 255, 255, 0) 62%
-  );
-
-  transform: rotate(12deg);
-  pointer-events: none;
-}
-
-/* =====================================================
-   FIM ALUNOS/MEMBROS (verde/limão vibrante)
-===================================================== */
-
-/* =====================================================
-   CARD: ANIVERSARIANTES DO DIA (rosa/vinho)
-===================================================== */
-/*
-.alunoCardMobile {
-  border-radius: 18px;
-  padding: 16px;
-
-  background: linear-gradient(135deg, #ffe4e6 0%, #fecdd3 55%, #fda4af 130%);
-  border: 1px solid rgba(225, 29, 72, 0.22);
-
-  box-shadow:
-    0 18px 36px rgba(0, 0, 0, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.55);
-
-  position: relative;
-  overflow: hidden;
-}
-
-.alunoCardMobile::before {
-  content: "";
-  position: absolute;
-  inset: -40px -60px auto auto;
-  width: 180px;
-  height: 180px;
-  border-radius: 999px;
-
-  background: radial-gradient(
-    circle at 30% 30%,
-    rgba(255, 255, 255, 0.65),
-    rgba(255, 255, 255, 0) 60%
-  );
-
-  transform: rotate(12deg);
-  pointer-events: none;
-}
-*/
-/* =====================================================
-   FIM ALUNOS/MEMBROS (rosa/vinho)
-===================================================== */
-
-.alunoCardHeader {
+.resumoChip {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  margin-bottom: 12px;
-
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid #dbe4ee;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    0 10px 20px rgba(15, 23, 42, 0.04);
+}
+.resumoLabel {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+.resumoValor {
+  font-size: 24px;
+  line-height: 1;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.03em;
+}
+.avisoBloqueio {
+  border: 1px solid #fde68a;
+  background: #fffbeb;
+  color: #92400e;
+  border-radius: 16px;
+  padding: 14px;
+  font-size: 14px;
+  line-height: 1.45;
+  font-weight: 600;
+}
+.mobileCards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+.alunoCardMobile {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(37, 99, 235, 0.14);
+  background: linear-gradient(135deg, #ffffff 0%, #f8fbff 55%, #bac5d3 130%);
+  box-shadow:
+    0 16px 32px rgba(15, 23, 42, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.82);
+  position: relative;
+  overflow: hidden;
+}
+.alunoCardMobile::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 6px;
+  background: linear-gradient(180deg, #38bdf8 0%, #2563eb 100%);
+}
+.alunoCardHeader {
+  position: relative;
+  z-index: 1;
   strong {
-    font-size: 1rem;
-    color: #1f2a3d;
+    display: block;
+    color: #0f172a;
+    font-size: 15px;
     font-weight: 800;
-    line-height: 1.3;
+    margin-bottom: 4px;
   }
-
   span {
-    font-size: 0.86rem;
-    color: #1f2a3d;
-    line-height: 1.3;
+    display: block;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.45;
   }
 }
-
 .alunoCardActions {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
+  position: relative;
+  z-index: 1;
 }
-
 .btnStatus {
-  min-height: 50px;
-  border-radius: 14px;
+  min-height: 44px;
+  border-radius: 12px;
   border: 1px solid #cbd5e1;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.9);
+  color: #334155;
+  font-size: 14px;
   font-weight: 800;
-  font-size: 0.98rem;
-  color: #243046;
   cursor: pointer;
-  transition: 0.15s ease;
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease,
+    opacity 0.18s ease;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    0 8px 16px rgba(15, 23, 42, 0.04);
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
 }
-
-.btnStatus:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
 .btnPresenteAtivo {
-  background: #16a34a;
-  color: #ffffff;
-  border-color: #16a34a;
-  box-shadow: 0 6px 16px rgba(22, 163, 74, 0.22);
+  border-color: rgba(22, 163, 74, 0.22);
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 55%, #86efac 130%);
+  color: #166534;
 }
-
 .btnFaltaAtivo {
-  background: #ef4444;
-  color: #ffffff;
-  border-color: #ef4444;
-  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.22);
+  border-color: rgba(220, 38, 38, 0.22);
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 55%, #fca5a5 130%);
+  color: #991b1b;
 }
-
+.erroBox,
+.sucessoBox {
+  position: relative;
+  z-index: 1;
+  border-radius: 16px;
+  padding: 14px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+.erroBox {
+  border: 1px solid #fecaca;
+  background: #fff7f7;
+  color: #b91c1c;
+}
+.sucessoBox {
+  border: 1px solid #bbf7d0;
+  background: #f0fdf4;
+  color: #15803d;
+}
 .salvarArea {
-  position: sticky;
-  bottom: 0;
-  background: #ffffff;
-  padding-top: 14px;
-  margin-top: 16px;
+  position: relative;
+  z-index: 1;
 }
-
 .salvarBotaoMobile {
   width: 100%;
-  min-height: 52px;
-  border: none;
+  min-height: 46px;
+  border: 0;
   border-radius: 14px;
-  background: #1d4ed8;
+  background: #2563eb;
   color: #ffffff;
-  font-size: 1rem;
+  font-size: 14px;
   font-weight: 800;
   cursor: pointer;
-  box-shadow: 0 8px 20px rgba(29, 78, 216, 0.22);
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease,
+    opacity 0.18s ease;
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.18);
+  &:hover:not(:disabled) {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+  }
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none;
+  }
 }
-
-.salvarBotaoMobile:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.erroBox {
-  margin-top: 14px;
-  padding: 12px;
-  border-radius: 12px;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #b91c1c;
-  font-size: 0.92rem;
-  font-weight: 700;
-}
-
-.sucessoBox {
-  margin-top: 14px;
-  padding: 12px;
-  border-radius: 12px;
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  color: #15803d;
-  font-size: 0.92rem;
-  font-weight: 700;
-}
-
-.avisoBloqueio {
-  padding: 12px;
-  border-radius: 12px;
-  background: #fff7ed;
-  border: 1px solid #fdba74;
-  color: #c2410c;
-  font-size: 0.92rem;
-  font-weight: 700;
-}
-
-@media (max-width: 420px) {
+@media (max-width: 480px) {
+  .bloco {
+    padding: 16px;
+    border-radius: 18px;
+  }
+  .mobileResumoDia {
+    grid-template-columns: 1fr;
+  }
   .alunoCardActions {
     grid-template-columns: 1fr;
   }

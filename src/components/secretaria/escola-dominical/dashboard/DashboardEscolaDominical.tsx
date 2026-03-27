@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { jsPDF } from "jspdf";
 import { FileText, MessageCircle } from "lucide-react";
@@ -77,8 +77,10 @@ type MeResponse = {
   role: "SUPERADMIN" | "ADMIN" | "PASTOR" | "USER";
 };
 
+const RECURSO_EBD = "escola_dominical";
+
 const PERM_DEFAULT_EBD: Permissao = {
-  recurso: "escola_dominical",
+  recurso: RECURSO_EBD,
   ler: false,
   criar: false,
   editar: false,
@@ -86,11 +88,54 @@ const PERM_DEFAULT_EBD: Permissao = {
   compartilhar: false,
 };
 
+const criarResumoInicial = (ano: number): ResumoResponse => ({
+  cards: {
+    matriculados: 0,
+    presencas: 0,
+    faltas: 0,
+    percentualPresenca: 0,
+  },
+  grafico: [],
+  ano,
+  filtroTurmaId: null,
+});
+
+function getErrorMessage(error: unknown, fallback: string) {
+  if (error instanceof Error && error.message) return error.message;
+  return fallback;
+}
+
+async function getJsonOrThrow<T>(
+  input: RequestInfo | URL,
+  init?: RequestInit,
+): Promise<T> {
+  const response = await fetch(input, init);
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(data?.error || "Ocorreu um erro na requisição.");
+  }
+
+  return data as T;
+}
+
+function getPermissaoTotal(): Permissao {
+  return {
+    recurso: RECURSO_EBD,
+    ler: true,
+    criar: true,
+    editar: true,
+    deletar: true,
+    compartilhar: true,
+  };
+}
+
 function normalizarData(data?: string | Date | null) {
   if (!data) return null;
 
   if (data instanceof Date) {
     if (Number.isNaN(data.getTime())) return null;
+
     return new Date(
       data.getFullYear(),
       data.getMonth(),
@@ -106,7 +151,6 @@ function normalizarData(data?: string | Date | null) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(texto)) return null;
 
   const [ano, mes, dia] = texto.split("-").map(Number);
-
   const dt = new Date(ano, mes - 1, dia, 12, 0, 0);
 
   if (Number.isNaN(dt.getTime())) return null;
@@ -172,6 +216,7 @@ function ehAniversarioNosProximos7Dias(data?: string | Date | null) {
     0,
     0,
   );
+
   const fim = new Date(inicio);
   fim.setDate(fim.getDate() + 6);
   fim.setHours(23, 59, 59, 999);
@@ -210,7 +255,7 @@ function ordenarPorProximoAniversario(lista: PessoaEbd[]) {
     if (!dataA) return 1;
     if (!dataB) return -1;
 
-    let proxA = new Date(
+    const proxA = new Date(
       hoje.getFullYear(),
       dataA.getMonth(),
       dataA.getDate(),
@@ -219,7 +264,7 @@ function ordenarPorProximoAniversario(lista: PessoaEbd[]) {
       0,
     );
 
-    let proxB = new Date(
+    const proxB = new Date(
       hoje.getFullYear(),
       dataB.getMonth(),
       dataB.getDate(),
@@ -233,6 +278,10 @@ function ordenarPorProximoAniversario(lista: PessoaEbd[]) {
 
     return proxA.getTime() - proxB.getTime();
   });
+}
+
+function formatarNumero(valor: number) {
+  return new Intl.NumberFormat("pt-BR").format(valor);
 }
 
 export default function DashboardEscolaDominical({
@@ -250,70 +299,94 @@ export default function DashboardEscolaDominical({
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [professores, setProfessores] = useState<Professor[]>([]);
-  const [resumo, setResumo] = useState<ResumoResponse>({
-    cards: {
-      matriculados: 0,
-      presencas: 0,
-      faltas: 0,
-      percentualPresenca: 0,
-    },
-    grafico: [],
-    ano: anoAtual,
-    filtroTurmaId: null,
-  });
-
-  useEffect(() => {
-    const fetchMeAndPerms = async () => {
-      try {
-        setLoadingPerms(true);
-
-        const r = await fetch("/api/me", { cache: "no-store" });
-
-        if (!r.ok) {
-          setPermissaoEbd(PERM_DEFAULT_EBD);
-          return;
-        }
-
-        const meData: MeResponse = await r.json();
-
-        if (meData.role === "SUPERADMIN") {
-          setPermissaoEbd({
-            recurso: "escola_dominical",
-            ler: true,
-            criar: true,
-            editar: true,
-            deletar: true,
-            compartilhar: true,
-          });
-          return;
-        }
-
-        const p = await fetch(`/api/permissoes?userId=${meData.id}`, {
-          cache: "no-store",
-        });
-
-        if (!p.ok) {
-          setPermissaoEbd(PERM_DEFAULT_EBD);
-          return;
-        }
-
-        const list: Permissao[] = await p.json();
-        const perm = list.find((x) => x.recurso === "escola_dominical");
-
-        setPermissaoEbd(perm ?? PERM_DEFAULT_EBD);
-      } catch {
-        setPermissaoEbd(PERM_DEFAULT_EBD);
-      } finally {
-        setLoadingPerms(false);
-      }
-    };
-
-    fetchMeAndPerms();
-  }, []);
+  const [resumo, setResumo] = useState<ResumoResponse>(
+    criarResumoInicial(anoAtual),
+  );
 
   const canView = !!permissaoEbd?.ler;
   const canCreate = !!permissaoEbd?.criar;
   const canShare = !!permissaoEbd?.compartilhar;
+
+  const carregarPermissoes = useCallback(async () => {
+    try {
+      setLoadingPerms(true);
+
+      const meData = await getJsonOrThrow<MeResponse>("/api/me", {
+        cache: "no-store",
+      }).catch(() => null);
+
+      if (!meData) {
+        setPermissaoEbd(PERM_DEFAULT_EBD);
+        return;
+      }
+
+      if (meData.role === "SUPERADMIN") {
+        setPermissaoEbd(getPermissaoTotal());
+        return;
+      }
+
+      const permissoes = await getJsonOrThrow<Permissao[]>(
+        `/api/permissoes?userId=${meData.id}`,
+        { cache: "no-store" },
+      ).catch(() => []);
+
+      const permissaoEncontrada = permissoes.find(
+        (item) => item.recurso === RECURSO_EBD,
+      );
+
+      setPermissaoEbd(permissaoEncontrada ?? PERM_DEFAULT_EBD);
+    } catch {
+      setPermissaoEbd(PERM_DEFAULT_EBD);
+    } finally {
+      setLoadingPerms(false);
+    }
+  }, []);
+
+  const carregarDashboard = useCallback(async () => {
+    if (!igrejaId || !canView) return;
+
+    try {
+      setLoading(true);
+      setErro("");
+
+      const qsResumo = new URLSearchParams();
+      qsResumo.set("igrejaId", igrejaId);
+      qsResumo.set("ano", String(anoAtual));
+
+      const [turmasData, alunosData, professoresData, resumoData] =
+        await Promise.all([
+          getJsonOrThrow<Turma[]>(
+            `/api/secretaria/escola-dominical/turmas?igrejaId=${igrejaId}`,
+            { cache: "no-store" },
+          ),
+          getJsonOrThrow<Aluno[]>(
+            `/api/secretaria/escola-dominical/dashboard/alunos?igrejaId=${igrejaId}`,
+            { cache: "no-store" },
+          ),
+          getJsonOrThrow<Professor[]>(
+            `/api/secretaria/escola-dominical/dashboard/professores?igrejaId=${igrejaId}`,
+            { cache: "no-store" },
+          ),
+          getJsonOrThrow<ResumoResponse>(
+            `/api/secretaria/escola-dominical/resumo?${qsResumo.toString()}`,
+            { cache: "no-store" },
+          ),
+        ]);
+
+      setTurmas(Array.isArray(turmasData) ? turmasData : []);
+      setAlunos(Array.isArray(alunosData) ? alunosData : []);
+      setProfessores(Array.isArray(professoresData) ? professoresData : []);
+      setResumo(resumoData);
+    } catch (error) {
+      setErro(getErrorMessage(error, "Erro ao carregar dashboard da EBD."));
+    } finally {
+      setLoading(false);
+    }
+  }, [igrejaId, anoAtual, canView]);
+
+  useEffect(() => {
+    carregarPermissoes();
+  }, [carregarPermissoes]);
 
   useEffect(() => {
     if (!igrejaId) return;
@@ -324,82 +397,12 @@ export default function DashboardEscolaDominical({
       setTurmas([]);
       setAlunos([]);
       setProfessores([]);
+      setResumo(criarResumoInicial(anoAtual));
       return;
     }
 
-    async function carregarDashboard() {
-      try {
-        setLoading(true);
-        setErro("");
-
-        const qsResumo = new URLSearchParams();
-        qsResumo.set("igrejaId", igrejaId);
-        qsResumo.set("ano", String(anoAtual));
-
-        const [turmasRes, alunosRes, professoresRes, resumoRes] =
-          await Promise.all([
-            fetch(
-              `/api/secretaria/escola-dominical/turmas?igrejaId=${igrejaId}`,
-              {
-                cache: "no-store",
-              },
-            ),
-            fetch(
-              `/api/secretaria/escola-dominical/dashboard/alunos?igrejaId=${igrejaId}`,
-              {
-                cache: "no-store",
-              },
-            ),
-            fetch(
-              `/api/secretaria/escola-dominical/dashboard/professores?igrejaId=${igrejaId}`,
-              {
-                cache: "no-store",
-              },
-            ),
-            fetch(
-              `/api/secretaria/escola-dominical/resumo?${qsResumo.toString()}`,
-              {
-                cache: "no-store",
-              },
-            ),
-          ]);
-
-        const turmasData = await turmasRes.json();
-        const alunosData = await alunosRes.json();
-        const professoresData = await professoresRes.json();
-        const resumoData = await resumoRes.json();
-
-        if (!turmasRes.ok) {
-          throw new Error(turmasData?.error || "Erro ao carregar turmas.");
-        }
-
-        if (!alunosRes.ok) {
-          throw new Error(alunosData?.error || "Erro ao carregar alunos.");
-        }
-
-        if (!professoresRes.ok) {
-          throw new Error(
-            professoresData?.error || "Erro ao carregar professores.",
-          );
-        }
-
-        if (!resumoRes.ok) {
-          throw new Error(resumoData?.error || "Erro ao carregar resumo.");
-        }
-
-        setTurmas(Array.isArray(turmasData) ? turmasData : []);
-        setAlunos(Array.isArray(alunosData) ? alunosData : []);
-        setProfessores(Array.isArray(professoresData) ? professoresData : []);
-        setResumo(resumoData);
-      } catch (error: any) {
-        setErro(error.message || "Erro ao carregar dashboard da EBD.");
-      } finally {
-        setLoading(false);
-      }
-    }
-
     carregarDashboard();
-  }, [igrejaId, anoAtual, permissaoEbd, canView]);
+  }, [igrejaId, permissaoEbd, canView, carregarDashboard, anoAtual]);
 
   const turmasAtivas = useMemo(() => {
     return turmas.filter((item) => item.ativa).length;
@@ -463,6 +466,47 @@ export default function DashboardEscolaDominical({
   const turmaChamadaRapida = useMemo(() => {
     return turmas.find((item) => item.ativa) || turmas[0] || null;
   }, [turmas]);
+
+  const cardsResumo = useMemo(() => {
+    return [
+      {
+        titulo: "Turmas",
+        valor: formatarNumero(turmas.length),
+        info: `${turmasAtivas} turma(s) ativa(s)`,
+        classe: styles.card01,
+      },
+      {
+        titulo: "Alunos",
+        valor: formatarNumero(alunos.length),
+        info: "Alunos vinculados à EBD",
+        classe: styles.card02,
+      },
+      {
+        titulo: "Professores",
+        valor: formatarNumero(professores.length),
+        info: "Professores das turmas",
+        classe: styles.card03,
+      },
+      {
+        titulo: "Presenças",
+        valor: formatarNumero(resumo.cards.presencas),
+        info: "Total consolidado",
+        classe: styles.card04,
+      },
+      {
+        titulo: "Faltas",
+        valor: formatarNumero(resumo.cards.faltas),
+        info: "Total consolidado",
+        classe: styles.card05,
+      },
+      {
+        titulo: "% Presença",
+        valor: `${resumo.cards.percentualPresenca.toFixed(1)}%`,
+        info: "Percentual geral",
+        classe: styles.card06,
+      },
+    ];
+  }, [turmas.length, turmasAtivas, alunos.length, professores.length, resumo]);
 
   function gerarTextoWhats() {
     const hojeLabel = new Date().toLocaleDateString("pt-BR", {
@@ -642,7 +686,6 @@ ${linhasProfessores}`;
         doc.setTextColor(100, 100, 100);
 
         doc.text(nomeCliente, margin, footerY);
-
         doc.text(`Página ${i} de ${totalPages}`, pageWidth - margin, footerY, {
           align: "right",
         });
@@ -763,7 +806,6 @@ ${linhasProfessores}`;
     }
 
     printFooter();
-
     doc.save("dashboard-escola-dominical.pdf");
   }
 
@@ -803,8 +845,9 @@ ${linhasProfessores}`;
 
   return (
     <div className={styles.container}>
-      <div className={styles.hero}>
-        <div>
+      <section className={styles.hero}>
+        <div className={styles.heroContent}>
+          <span className={styles.heroTag}>Painel Geral da EBD</span>
           <h1>Escola Dominical</h1>
           <p>
             Painel geral da EBD com visão rápida de turmas, alunos, professores,
@@ -856,54 +899,26 @@ ${linhasProfessores}`;
             </Link>
           )}
         </div>
-      </div>
+      </section>
 
-      <div className={styles.cardsGrid}>
-        <div className={`${styles.card} ${styles.card01}`}>
-          <span className={styles.cardLabel}>Turmas</span>
-          <strong className={styles.cardValue}>{turmas.length}</strong>
-          <small className={styles.cardInfo}>
-            {turmasAtivas} turma(s) ativa(s)
-          </small>
-        </div>
+      <section className={styles.cardsGrid}>
+        {cardsResumo.map((card) => (
+          <article
+            key={card.titulo}
+            className={`${styles.card} ${card.classe}`}
+          >
+            <span className={styles.cardLabel}>{card.titulo}</span>
+            <strong className={styles.cardValue}>{card.valor}</strong>
+            <small className={styles.cardInfo}>{card.info}</small>
+          </article>
+        ))}
+      </section>
 
-        <div className={`${styles.card} ${styles.card02}`}>
-          <span className={styles.cardLabel}>Alunos</span>
-          <strong className={styles.cardValue}>{alunos.length}</strong>
-          <small className={styles.cardInfo}>Alunos vinculados à EBD</small>
-        </div>
-
-        <div className={`${styles.card} ${styles.card03}`}>
-          <span className={styles.cardLabel}>Professores</span>
-          <strong className={styles.cardValue}>{professores.length}</strong>
-          <small className={styles.cardInfo}>Professores das turmas</small>
-        </div>
-
-        <div className={`${styles.card} ${styles.card04}`}>
-          <span className={styles.cardLabel}>Presenças</span>
-          <strong className={styles.cardValue}>{resumo.cards.presencas}</strong>
-          <small className={styles.cardInfo}>Total consolidado</small>
-        </div>
-
-        <div className={`${styles.card} ${styles.card05}`}>
-          <span className={styles.cardLabel}>Faltas</span>
-          <strong className={styles.cardValue}>{resumo.cards.faltas}</strong>
-          <small className={styles.cardInfo}>Total consolidado</small>
-        </div>
-
-        <div className={`${styles.card} ${styles.card06}`}>
-          <span className={styles.cardLabel}>% Presença</span>
-          <strong className={styles.cardValue}>
-            {resumo.cards.percentualPresenca.toFixed(1)}%
-          </strong>
-          <small className={styles.cardInfo}>Percentual geral</small>
-        </div>
-      </div>
-
-      <div className={styles.destaquesGrid}>
+      <section className={styles.destaquesGrid}>
         <div className={styles.panel}>
           <div className={styles.panelHeader}>
             <h2>Destaque do dia</h2>
+            <p>Aniversariantes de hoje</p>
           </div>
 
           {aniversariantesHoje.length === 0 ? (
@@ -912,7 +927,7 @@ ${linhasProfessores}`;
             <div className={styles.peopleList}>
               {aniversariantesHoje.map((item) => (
                 <div key={`hoje-${item.id}`} className={styles.personRow}>
-                  <div>
+                  <div className={styles.personInfo}>
                     <strong>{item.nome}</strong>
                     <span>
                       {item.tipoLabel}
@@ -935,6 +950,7 @@ ${linhasProfessores}`;
         <div className={styles.panel}>
           <div className={styles.panelHeader}>
             <h2>Destaque da semana</h2>
+            <p>Próximos 7 dias</p>
           </div>
 
           {aniversariantesSemana.length === 0 ? (
@@ -945,7 +961,7 @@ ${linhasProfessores}`;
             <div className={styles.peopleList}>
               {aniversariantesSemana.map((item) => (
                 <div key={`semana-${item.id}`} className={styles.personRow}>
-                  <div>
+                  <div className={styles.personInfo}>
                     <strong>{item.nome}</strong>
                     <span>
                       {item.tipoLabel}
@@ -964,12 +980,13 @@ ${linhasProfessores}`;
             </div>
           )}
         </div>
-      </div>
+      </section>
 
-      <div className={styles.sectionsGrid}>
+      <section className={styles.sectionsGrid}>
         <div className={styles.panel}>
           <div className={styles.panelHeader}>
             <h2>Alunos da EBD</h2>
+            <p>Lista consolidada</p>
           </div>
 
           {alunos.length === 0 ? (
@@ -978,7 +995,7 @@ ${linhasProfessores}`;
             <div className={styles.peopleList}>
               {alunos.map((aluno) => (
                 <div key={aluno.id} className={styles.personRow}>
-                  <div>
+                  <div className={styles.personInfo}>
                     <strong>{aluno.nome}</strong>
                     <span>
                       Nº {aluno.numeroSequencial || "-"}
@@ -1001,6 +1018,7 @@ ${linhasProfessores}`;
         <div className={styles.panel}>
           <div className={styles.panelHeader}>
             <h2>Professores da EBD</h2>
+            <p>Equipe das turmas</p>
           </div>
 
           {professores.length === 0 ? (
@@ -1009,7 +1027,7 @@ ${linhasProfessores}`;
             <div className={styles.peopleList}>
               {professores.map((professor) => (
                 <div key={professor.id} className={styles.personRow}>
-                  <div>
+                  <div className={styles.personInfo}>
                     <strong>{professor.nome}</strong>
                     <span>{professor.cargo || "Professor"}</span>
                   </div>
@@ -1025,12 +1043,13 @@ ${linhasProfessores}`;
             </div>
           )}
         </div>
-      </div>
+      </section>
 
-      <div className={styles.sectionsGrid}>
+      <section className={styles.sectionsGrid}>
         <div className={styles.panel}>
           <div className={styles.panelHeader}>
             <h2>Acesso rápido</h2>
+            <p>Atalhos do módulo</p>
           </div>
 
           <div className={styles.quickList}>
@@ -1062,6 +1081,7 @@ ${linhasProfessores}`;
         <div className={styles.panel}>
           <div className={styles.panelHeader}>
             <h2>Resumo do módulo</h2>
+            <p>Visão funcional</p>
           </div>
 
           <div className={styles.todoList}>
@@ -1074,7 +1094,7 @@ ${linhasProfessores}`;
             <div className={styles.todoItem}>Acesso à gestão e relatórios</div>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
