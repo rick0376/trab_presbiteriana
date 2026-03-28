@@ -4,11 +4,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { jsPDF } from "jspdf";
-import { FileText, MessageCircle } from "lucide-react";
+import { FileText, MessageCircle, Save, Zap } from "lucide-react";
 import ResumoEbd from "../resumo/ResumoEbd";
 import FrequenciaTabelaDesktop from "./desktop/FrequenciaTabelaDesktop";
 import FrequenciaChamadaMobile from "./mobile/FrequenciaChamadaMobile";
 import styles from "./styles.module.scss";
+import { FaWhatsapp } from "react-icons/fa";
 type Props = { turmaId: string; igrejaId: string; igrejaNome: string };
 type EbdStatus = "PRESENTE" | "FALTA";
 type TipoRelatorio = "mensal" | "domingo";
@@ -651,73 +652,37 @@ export default function FrequenciaEbd({
   if (loadingPerms) {
     return (
       <div className={styles.container}>
-        {" "}
         <div className={styles.bloco}>
-          {" "}
-          <div className={styles.vazio}>Carregando permissões...</div>{" "}
-        </div>{" "}
+          <div className={styles.vazio}>Carregando permissões...</div>
+        </div>
       </div>
     );
   }
   if (!canView) {
     return (
       <div className={styles.container}>
-        {" "}
         <div className={styles.bloco}>
-          {" "}
           <div className={styles.vazio}>
-            {" "}
             ⛔ Você não tem permissão para visualizar a frequência da Escola
-            Dominical.{" "}
-          </div>{" "}
-        </div>{" "}
+            Dominical.
+          </div>
+        </div>
       </div>
     );
   }
   if (carregando) {
     return (
       <div className={styles.container}>
-        {" "}
         <div className={styles.bloco}>
-          {" "}
-          <div className={styles.vazio}>Carregando frequência...</div>{" "}
-        </div>{" "}
+          <div className={styles.vazio}>Carregando frequência...</div>
+        </div>
       </div>
     );
   }
   return (
     <div className={styles.container}>
-      {" "}
-      <section className={styles.header}>
-        {" "}
-        <div className={styles.headerContent}>
-          {" "}
-          <span className={styles.headerTag}>Controle de Frequência</span>{" "}
-          <h1>Frequência da EBD</h1>{" "}
-          <p>
-            {" "}
-            {turma?.nome || "-"} • Professor:{" "}
-            {turma?.professor?.nome || "-"}{" "}
-          </p>{" "}
-        </div>{" "}
-        <div className={styles.headerActions}>
-          {" "}
-          {canShare && (
-            <button type="button" className={styles.btnPDF} onClick={gerarPDF}>
-              {" "}
-              <FileText size={16} /> PDF{" "}
-            </button>
-          )}{" "}
-          {canShare && (
-            <button
-              type="button"
-              className={styles.btnWhats}
-              onClick={compartilharWhats}
-            >
-              {" "}
-              <MessageCircle size={16} /> Whats{" "}
-            </button>
-          )}{" "}
+      <section className={styles.hero}>
+        <div className={styles.heroContent}>
           <button
             type="button"
             className={styles.voltarBotao}
@@ -725,20 +690,17 @@ export default function FrequenciaEbd({
               router.push("/secretaria/escola-dominical/gestaoEbd")
             }
           >
-            {" "}
-            Voltar{" "}
-          </button>{" "}
-          {canEdit && (
-            <button
-              type="button"
-              className={styles.salvarTopoBotao}
-              onClick={salvarFrequencia}
-              disabled={salvando}
-            >
-              {" "}
-              {salvando ? "Salvando..." : "Salvar frequência"}{" "}
-            </button>
-          )}{" "}
+            ← Voltar
+          </button>
+          <span className={styles.heroTag}>Controle de Frequência</span>
+
+          <h1>Frequência da EBD</h1>
+          <p>
+            {turma?.nome || "-"} • Professor:
+            {turma?.professor?.nome || "-"}
+          </p>
+        </div>
+        <div className={styles.heroActions}>
           <button
             type="button"
             className={styles.btnRapido}
@@ -748,18 +710,42 @@ export default function FrequenciaEbd({
               )
             }
           >
-            {" "}
-            Chamada rápida{" "}
-          </button>{" "}
-        </div>{" "}
-      </section>{" "}
+            <Zap size={22} />
+            <span className={styles.buttonText}>Chamada</span>
+          </button>
+          {canShare && (
+            <button type="button" className={styles.btnPDF} onClick={gerarPDF}>
+              <FileText size={22} />
+              <span className={styles.buttonText}>PDF</span>
+            </button>
+          )}
+          {canShare && (
+            <button
+              type="button"
+              className={styles.btnWhats}
+              onClick={compartilharWhats}
+            >
+              <FaWhatsapp size={22} />
+              <span className={styles.buttonText}>Whats</span>
+            </button>
+          )}
+          {canEdit && (
+            <button
+              type="button"
+              className={styles.salvarTopoBotao}
+              onClick={salvarFrequencia}
+              disabled={salvando}
+            >
+              <Save size={22} />
+              {salvando ? "Salvando..." : "Salvar frequência"}{" "}
+            </button>
+          )}
+        </div>
+      </section>
       <section className={styles.filtros}>
-        {" "}
         <div className={styles.filtroItem}>
-          {" "}
-          <label>Mês</label>{" "}
+          <label>Mês</label>
           <select value={mes} onChange={(e) => setMes(Number(e.target.value))}>
-            {" "}
             {MESES.map((item) => (
               <option key={item.valor} value={item.valor}>
                 {" "}
@@ -870,12 +856,10 @@ export default function FrequenciaEbd({
           erro={erro}
           sucesso={sucesso}
           isDomingoLiberado={isDomingoLiberado}
-        />{" "}
-      </div>{" "}
+        />
+      </div>
       <section className={styles.bloco}>
-        {" "}
         <div className={styles.blocoHeader}>
-          {" "}
           <h2>Resumo dos domingos</h2>{" "}
         </div>{" "}
         <div className={styles.domingosGrid}>
@@ -961,14 +945,12 @@ export default function FrequenciaEbd({
                 </div>{" "}
               </article>
             );
-          })}{" "}
-        </div>{" "}
-      </section>{" "}
+          })}
+        </div>
+      </section>
       <section className={styles.bloco}>
-        {" "}
         <div className={styles.blocoHeader}>
-          {" "}
-          <h2>Observações do mês</h2>{" "}
+          <h2>Observações do mês</h2>
         </div>{" "}
         <textarea
           disabled={!canEdit}
@@ -976,17 +958,15 @@ export default function FrequenciaEbd({
           value={observacoes}
           onChange={(e) => setObservacoes(e.target.value)}
           placeholder="Digite observações deste mês"
-        />{" "}
-      </section>{" "}
+        />
+      </section>
       <div className={styles.desktopOnly}>
         {" "}
-        {!!erro && <div className={styles.erro}>{erro}</div>}{" "}
-        {!!sucesso && <div className={styles.sucesso}>{sucesso}</div>}{" "}
-      </div>{" "}
+        {!!erro && <div className={styles.erro}>{erro}</div>}
+        {!!sucesso && <div className={styles.sucesso}>{sucesso}</div>}
+      </div>
       <div className={styles.desktopOnly}>
-        {" "}
         <div className={styles.footerActions}>
-          {" "}
           <button
             type="button"
             className={styles.voltarBotao}
@@ -994,9 +974,8 @@ export default function FrequenciaEbd({
               router.push("/secretaria/escola-dominical/gestaoEbd")
             }
           >
-            {" "}
-            Voltar{" "}
-          </button>{" "}
+            ← Voltar
+          </button>
           {canEdit && (
             <button
               type="button"
@@ -1004,12 +983,12 @@ export default function FrequenciaEbd({
               onClick={salvarFrequencia}
               disabled={salvando}
             >
-              {" "}
-              {salvando ? "Salvando..." : "Salvar frequência"}{" "}
+              <Save size={22} />
+              {salvando ? "Salvando..." : "Salvar frequência"}
             </button>
-          )}{" "}
-        </div>{" "}
-      </div>{" "}
+          )}
+        </div>
+      </div>
     </div>
   );
 }

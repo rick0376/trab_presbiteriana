@@ -3,6 +3,7 @@
 "use client";
 import { useMemo } from "react";
 import styles from "./styles.module.scss";
+import { Save } from "lucide-react";
 type EbdStatus = "PRESENTE" | "FALTA";
 type Aluno = {
   id: string;
@@ -190,16 +191,15 @@ export default function FrequenciaChamadaMobile({
         {!!sucesso && <div className={styles.sucessoBox}>{sucesso}</div>}{" "}
         {canEdit && (
           <div className={styles.salvarArea}>
-            {" "}
             <button
               type="button"
-              className={styles.salvarBotaoMobile}
+              className={styles.salvarTopoBotao}
               onClick={salvarFrequencia}
               disabled={salvando}
             >
-              {" "}
-              {salvando ? "Salvando..." : "Salvar frequência"}{" "}
-            </button>{" "}
+              <Save size={22} />
+              {salvando ? "Salvando..." : "Salvar frequência"}
+            </button>
           </div>
         )}{" "}
       </section>{" "}
