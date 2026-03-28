@@ -109,8 +109,10 @@
 .btnPDF,
 .btnWhats,
 .btnRapido,
+.btnSorteio,
 .primaryButton,
 .secondaryButton {
+  width: 150px;
   min-height: 42px;
   padding: 0 16px;
   border-radius: 12px;
@@ -183,24 +185,13 @@
 }
 
 .btnSorteio {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 42px;
-  padding: 10px 16px;
-  border-radius: 12px;
-  text-decoration: none;
-  font-weight: 700;
   background: #f59e0b;
   color: #ffffff;
-  border: 1px solid #d97706;
-  transition: 0.2s ease;
-}
 
-.btnSorteio:hover {
-  background: #d97706;
-  border-color: #b45309;
+  &:hover {
+    background: #d97706;
+    transform: translateY(-1px);
+  }
 }
 
 .cardsGrid {
@@ -606,10 +597,16 @@
   .btnPDF,
   .btnWhats,
   .btnRapido,
+  .btnSorteio,
   .primaryButton,
   .secondaryButton {
-    width: 100%;
+    width: 160px;
   }
+
+  /*.buttonText {
+    display: none;
+  }
+  */
 
   .panel {
     padding: 16px;
@@ -624,5 +621,27 @@
   .personMeta {
     min-width: auto;
     text-align: left;
+  }
+}
+
+@media (max-width: 560px) {
+  .btnPDF,
+  .btnWhats,
+  .btnRapido,
+  .btnSorteio,
+  .primaryButton,
+  .secondaryButton {
+    width: 45%;
+  }
+}
+
+@media (max-width: 457px) {
+  .btnPDF,
+  .btnWhats,
+  .btnRapido,
+  .btnSorteio,
+  .primaryButton,
+  .secondaryButton {
+    width: 100%;
   }
 }

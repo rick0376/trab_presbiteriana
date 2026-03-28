@@ -5,7 +5,15 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { jsPDF } from "jspdf";
-import { FileText, MessageCircle, Gift } from "lucide-react";
+import {
+  FileText,
+  MessageCircle,
+  Gift,
+  BookOpen,
+  Plus,
+  Zap,
+} from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
 import styles from "./styles.module.scss";
 
 type Props = {
@@ -856,10 +864,46 @@ ${linhasProfessores}`;
         </div>
 
         <div className={styles.heroActions}>
+          <Link
+            href="/secretaria/escola-dominical/gestaoEbd"
+            className={styles.primaryButton}
+          >
+            <BookOpen size={22} />
+            <span className={styles.buttonText}>Gestão</span>
+          </Link>
+
+          {canCreate && (
+            <Link
+              href="/secretaria/escola-dominical/novo"
+              className={styles.secondaryButton}
+            >
+              <Plus size={22} />
+              <span className={styles.buttonText}>Nova turma</span>
+            </Link>
+          )}
+
+          {turmaChamadaRapida && (
+            <Link
+              href={`/secretaria/escola-dominical/chamada-rapida?turmaId=${turmaChamadaRapida.id}&igrejaId=${igrejaId}&igrejaNome=${encodeURIComponent(igrejaNome || "")}`}
+              className={styles.btnRapido}
+            >
+              <Zap size={22} />
+              <span className={styles.buttonText}>Chamada</span>
+            </Link>
+          )}
+
+          <Link
+            href="/secretaria/escola-dominical/sorteio"
+            className={styles.btnSorteio}
+          >
+            <Gift size={22} />
+            <span className={styles.buttonText}>Sorteio</span>
+          </Link>
+
           {canShare && (
             <button type="button" className={styles.btnPDF} onClick={gerarPDF}>
-              <FileText size={16} />
-              PDF
+              <FileText size={22} />
+              <span className={styles.buttonText}>PDF</span>
             </button>
           )}
 
@@ -869,42 +913,9 @@ ${linhasProfessores}`;
               className={styles.btnWhats}
               onClick={compartilharWhats}
             >
-              <MessageCircle size={16} />
-              Whats
+              <FaWhatsapp size={22} />
+              <span className={styles.buttonText}>Whats</span>
             </button>
-          )}
-
-          <Link
-            href="/secretaria/escola-dominical/gestaoEbd"
-            className={styles.primaryButton}
-          >
-            Abrir gestão da EBD
-          </Link>
-
-          <Link
-            href="/secretaria/escola-dominical/sorteio"
-            className={styles.btnSorteio}
-          >
-            <Gift size={16} />
-            Sorteio EBD
-          </Link>
-
-          {canCreate && (
-            <Link
-              href="/secretaria/escola-dominical/novo"
-              className={styles.secondaryButton}
-            >
-              Nova turma
-            </Link>
-          )}
-
-          {turmaChamadaRapida && (
-            <Link
-              href={`/secretaria/escola-dominical/chamada-rapida?turmaId=${turmaChamadaRapida.id}&igrejaId=${igrejaId}&igrejaNome=${encodeURIComponent(igrejaNome || "")}`}
-              className={styles.btnRapido}
-            >
-              Chamada rápida
-            </Link>
           )}
         </div>
       </section>
