@@ -3,21 +3,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-const MESES_LABEL = [
-  "Janeiro",
-  "Fevereiro",
-  "Março",
-  "Abril",
-  "Maio",
-  "Junho",
-  "Julho",
-  "Agosto",
-  "Setembro",
-  "Outubro",
-  "Novembro",
-  "Dezembro",
-];
-
 function monthKey(valor: string) {
   const [ano, mes] = valor.split("-").map(Number);
   return ano * 100 + mes;
@@ -27,7 +12,22 @@ function formatarPeriodo(inicio: string, fim: string) {
   const [anoInicio, mesInicio] = inicio.split("-").map(Number);
   const [anoFim, mesFim] = fim.split("-").map(Number);
 
-  return `${MESES_LABEL[mesInicio - 1]}/${anoInicio} até ${MESES_LABEL[mesFim - 1]}/${anoFim}`;
+  const meses = [
+    "Janeiro",
+    "Fevereiro",
+    "Março",
+    "Abril",
+    "Maio",
+    "Junho",
+    "Julho",
+    "Agosto",
+    "Setembro",
+    "Outubro",
+    "Novembro",
+    "Dezembro",
+  ];
+
+  return `${meses[mesInicio - 1]}/${anoInicio} até ${meses[mesFim - 1]}/${anoFim}`;
 }
 
 function contarDomingosDoMes(ano: number, mes: number) {
@@ -46,8 +46,7 @@ function listarMesesDoPeriodo(inicio: string, fim: string) {
   const [anoInicio, mesInicio] = inicio.split("-").map(Number);
   const [anoFim, mesFim] = fim.split("-").map(Number);
 
-  const meses: { ano: number; mes: number; chave: number; label: string }[] =
-    [];
+  const meses: { ano: number; mes: number; chave: number }[] = [];
 
   let ano = anoInicio;
   let mes = mesInicio;
@@ -57,7 +56,6 @@ function listarMesesDoPeriodo(inicio: string, fim: string) {
       ano,
       mes,
       chave: ano * 100 + mes,
-      label: `${MESES_LABEL[mes - 1]}/${ano}`,
     });
 
     mes += 1;
@@ -176,12 +174,6 @@ export async function GET(request: Request) {
               status: true,
             },
           },
-          domingos: {
-            select: {
-              domingoNumero: true,
-              oferta: true,
-            },
-          },
         },
         orderBy: [{ ano: "asc" }, { mes: "asc" }],
       }),
@@ -267,56 +259,6 @@ export async function GET(request: Request) {
         ? (totalPresencas / totalLancamentosPossiveis) * 100
         : 0;
 
-    const mapaOfertasPorMes = new Map<
-      number,
-      {
-        ano: number;
-        mes: number;
-        label: string;
-        totalAulas: number;
-        ofertaTotal: number;
-        ofertaMediaPorAula: number;
-      }
-    >();
-
-    mesesDoPeriodo.forEach((item) => {
-      mapaOfertasPorMes.set(item.chave, {
-        ano: item.ano,
-        mes: item.mes,
-        label: item.label,
-        totalAulas: contarDomingosDoMes(item.ano, item.mes),
-        ofertaTotal: 0,
-        ofertaMediaPorAula: 0,
-      });
-    });
-
-    registrosFiltrados.forEach((registro) => {
-      const chave = registro.ano * 100 + registro.mes;
-      const bucket = mapaOfertasPorMes.get(chave);
-      if (!bucket) return;
-
-      registro.domingos.forEach((domingo) => {
-        bucket.ofertaTotal += Number(domingo.oferta || 0);
-      });
-    });
-
-    const ofertasPorMes = Array.from(mapaOfertasPorMes.values()).map((item) => {
-      const ofertaMediaPorAula =
-        item.totalAulas > 0 ? item.ofertaTotal / item.totalAulas : 0;
-
-      return {
-        ...item,
-        ofertaMediaPorAula,
-      };
-    });
-
-    const ofertaTotal = ofertasPorMes.reduce(
-      (acc, item) => acc + item.ofertaTotal,
-      0,
-    );
-
-    const ofertaMediaPorAula = totalAulas > 0 ? ofertaTotal / totalAulas : 0;
-
     return NextResponse.json({
       turma,
       periodo: {
@@ -330,11 +272,8 @@ export async function GET(request: Request) {
         presencas: totalPresencas,
         faltas: totalFaltas,
         percentualPresenca: percentualPresencaGeral,
-        ofertaTotal,
-        ofertaMediaPorAula,
       },
       alunos,
-      ofertasPorMes,
     });
   } catch {
     return NextResponse.json(

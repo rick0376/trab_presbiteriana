@@ -6,16 +6,13 @@ import Link from "next/link";
 import { jsPDF } from "jspdf";
 import { FileText, MessageCircle } from "lucide-react";
 import styles from "./styles.module.scss";
-
 type Props = { igrejaId: string };
-
 type Turma = {
   id: string;
   nome: string;
   departamento?: string | null;
   ativa: boolean;
 };
-
 type RelatorioAluno = {
   membroId: string;
   nome: string;
@@ -26,16 +23,6 @@ type RelatorioAluno = {
   faltas: number;
   percentualPresenca: number;
 };
-
-type RelatorioOfertaMes = {
-  ano: number;
-  mes: number;
-  label: string;
-  totalAulas: number;
-  ofertaTotal: number;
-  ofertaMediaPorAula: number;
-};
-
 type RelatorioResponse = {
   turma: {
     id: string;
@@ -50,13 +37,9 @@ type RelatorioResponse = {
     presencas: number;
     faltas: number;
     percentualPresenca: number;
-    ofertaTotal: number;
-    ofertaMediaPorAula: number;
   };
   alunos: RelatorioAluno[];
-  ofertasPorMes: RelatorioOfertaMes[];
 };
-
 type Permissao = {
   id?: string;
   recurso: string;
@@ -66,14 +49,11 @@ type Permissao = {
   deletar: boolean;
   compartilhar: boolean;
 };
-
 type MeResponse = {
   id: string;
   role: "SUPERADMIN" | "ADMIN" | "PASTOR" | "USER";
 };
-
 const RECURSO_EBD = "escola_dominical";
-
 const PERM_DEFAULT_EBD: Permissao = {
   recurso: RECURSO_EBD,
   ler: false,
@@ -82,44 +62,30 @@ const PERM_DEFAULT_EBD: Permissao = {
   deletar: false,
   compartilhar: false,
 };
-
 function getMesAtual() {
   const hoje = new Date();
   const ano = hoje.getFullYear();
   const mes = String(hoje.getMonth() + 1).padStart(2, "0");
   return `${ano}-${mes}`;
 }
-
 function formatarNumero(valor: number) {
   return new Intl.NumberFormat("pt-BR").format(valor);
 }
-
-function formatarMoedaBR(valor: number) {
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(valor || 0);
-}
-
 function getErrorMessage(error: unknown, fallback: string) {
   if (error instanceof Error && error.message) return error.message;
   return fallback;
 }
-
 async function getJsonOrThrow<T>(
   input: RequestInfo | URL,
   init?: RequestInit,
 ): Promise<T> {
   const response = await fetch(input, init);
   const data = await response.json().catch(() => null);
-
   if (!response.ok) {
     throw new Error(data?.error || "Ocorreu um erro na requisição.");
   }
-
   return data as T;
 }
-
 function getPermissaoTotal(): Permissao {
   return {
     recurso: RECURSO_EBD,
@@ -130,32 +96,25 @@ function getPermissaoTotal(): Permissao {
     compartilhar: true,
   };
 }
-
 export default function RelatorioPeriodoEbd({ igrejaId }: Props) {
   const mesAtual = getMesAtual();
-
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [turmaId, setTurmaId] = useState("");
   const [inicio, setInicio] = useState(mesAtual);
   const [fim, setFim] = useState(mesAtual);
-
   const [permissaoEbd, setPermissaoEbd] = useState<Permissao | null>(null);
   const [loadingPerms, setLoadingPerms] = useState(true);
   const [loadingTurmas, setLoadingTurmas] = useState(true);
   const [loadingRelatorio, setLoadingRelatorio] = useState(false);
   const [erro, setErro] = useState("");
   const [relatorio, setRelatorio] = useState<RelatorioResponse | null>(null);
-
   const canView = !!permissaoEbd?.ler;
   const canShare = !!permissaoEbd?.compartilhar;
-
   const turmaSelecionada = useMemo(() => {
     return turmas.find((item) => item.id === turmaId) || null;
   }, [turmas, turmaId]);
-
   const cardsResumo = useMemo(() => {
     if (!relatorio) return [];
-
     return [
       {
         titulo: "Total de aulas",
@@ -182,46 +141,29 @@ export default function RelatorioPeriodoEbd({ igrejaId }: Props) {
         valor: `${relatorio.cards.percentualPresenca.toFixed(1)}%`,
         classe: styles.card05,
       },
-      {
-        titulo: "Oferta total",
-        valor: formatarMoedaBR(relatorio.cards.ofertaTotal),
-        classe: styles.card06,
-      },
-      {
-        titulo: "Média por aula",
-        valor: formatarMoedaBR(relatorio.cards.ofertaMediaPorAula),
-        classe: styles.card07,
-      },
     ];
   }, [relatorio]);
-
   const carregarPermissoes = useCallback(async () => {
     try {
       setLoadingPerms(true);
-
       const meData = await getJsonOrThrow<MeResponse>("/api/me", {
         cache: "no-store",
       }).catch(() => null);
-
       if (!meData) {
         setPermissaoEbd(PERM_DEFAULT_EBD);
         return;
       }
-
       if (meData.role === "SUPERADMIN") {
         setPermissaoEbd(getPermissaoTotal());
         return;
       }
-
       const permissoes = await getJsonOrThrow<Permissao[]>(
         `/api/permissoes?userId=${meData.id}`,
         { cache: "no-store" },
       ).catch(() => []);
-
       const permissaoEncontrada = permissoes.find(
         (item) => item.recurso === RECURSO_EBD,
       );
-
       setPermissaoEbd(permissaoEncontrada ?? PERM_DEFAULT_EBD);
     } catch {
       setPermissaoEbd(PERM_DEFAULT_EBD);
@@ -229,22 +171,17 @@ export default function RelatorioPeriodoEbd({ igrejaId }: Props) {
       setLoadingPerms(false);
     }
   }, []);
-
   const carregarTurmas = useCallback(async () => {
     if (!igrejaId || !canView) return;
-
     try {
       setLoadingTurmas(true);
       setErro("");
-
       const data = await getJsonOrThrow<Turma[]>(
         `/api/secretaria/escola-dominical/turmas?igrejaId=${igrejaId}`,
         { cache: "no-store" },
       );
-
       const lista = Array.isArray(data) ? data : [];
       setTurmas(lista);
-
       if (lista.length > 0) {
         setTurmaId((current) => current || lista[0].id);
       }
@@ -254,31 +191,25 @@ export default function RelatorioPeriodoEbd({ igrejaId }: Props) {
       setLoadingTurmas(false);
     }
   }, [igrejaId, canView]);
-
   const carregarRelatorio = useCallback(async () => {
     if (!igrejaId || !turmaId || !inicio || !fim || !canView) return;
-
     try {
       if (inicio > fim) {
         setErro("O período inicial não pode ser maior que o final.");
         setRelatorio(null);
         return;
       }
-
       setLoadingRelatorio(true);
       setErro("");
-
       const qs = new URLSearchParams();
       qs.set("igrejaId", igrejaId);
       qs.set("turmaId", turmaId);
       qs.set("inicio", inicio);
       qs.set("fim", fim);
-
       const data = await getJsonOrThrow<RelatorioResponse>(
         `/api/secretaria/escola-dominical/relatorio-periodo?${qs.toString()}`,
         { cache: "no-store" },
       );
-
       setRelatorio(data);
     } catch (error) {
       setErro(getErrorMessage(error, "Erro ao carregar relatório."));
@@ -287,25 +218,20 @@ export default function RelatorioPeriodoEbd({ igrejaId }: Props) {
       setLoadingRelatorio(false);
     }
   }, [igrejaId, turmaId, inicio, fim, canView]);
-
   useEffect(() => {
     carregarPermissoes();
   }, [carregarPermissoes]);
-
   useEffect(() => {
     if (!igrejaId) return;
     if (!permissaoEbd) return;
-
     if (!canView) {
       setTurmas([]);
       setRelatorio(null);
       setLoadingTurmas(false);
       return;
     }
-
     carregarTurmas();
   }, [igrejaId, permissaoEbd, canView, carregarTurmas]);
-
   useEffect(() => {
     if (!igrejaId || !turmaId || !inicio || !fim) return;
     if (!permissaoEbd || !canView) return;
@@ -319,10 +245,8 @@ export default function RelatorioPeriodoEbd({ igrejaId }: Props) {
     canView,
     carregarRelatorio,
   ]);
-
   function gerarTextoWhats() {
     if (!relatorio) return "";
-
     const dt = new Date();
     const dataBR = dt.toLocaleDateString("pt-BR", {
       timeZone: "America/Sao_Paulo",
@@ -332,33 +256,19 @@ export default function RelatorioPeriodoEbd({ igrejaId }: Props) {
       hour: "2-digit",
       minute: "2-digit",
     });
-
     let texto = `📘 *RELATÓRIO POR PERÍODO - EBD*\n`;
     texto += `⛪ Turma: ${relatorio.turma.nome}\n`;
     texto += `🏷 Departamento: ${relatorio.turma.departamento || "-"}\n`;
     texto += `👩‍🏫 Professor: ${relatorio.turma.professor?.nome || "-"}\n`;
     texto += `🗓 Período: ${relatorio.periodo.label}\n`;
     texto += `📅 Gerado em: ${dataBR} ${horaBR}\n\n`;
-
     texto += `📊 *RESUMO GERAL*\n`;
     texto += `• Total de aulas: ${relatorio.cards.totalAulas}\n`;
     texto += `• Total de alunos: ${relatorio.cards.totalAlunos}\n`;
     texto += `• Presenças: ${relatorio.cards.presencas}\n`;
     texto += `• Faltas: ${relatorio.cards.faltas}\n`;
-    texto += `• % Presença: ${relatorio.cards.percentualPresenca.toFixed(1)}%\n`;
-    texto += `• Oferta total: ${formatarMoedaBR(relatorio.cards.ofertaTotal)}\n`;
-    texto += `• Média por aula: ${formatarMoedaBR(relatorio.cards.ofertaMediaPorAula)}\n\n`;
-
-    texto += `💰 *OFERTAS POR MÊS*\n`;
-    if (relatorio.ofertasPorMes.length === 0) {
-      texto += `• Nenhum lançamento de oferta no período.\n`;
-    } else {
-      relatorio.ofertasPorMes.forEach((item) => {
-        texto += `• ${item.label} | Aulas: ${item.totalAulas} | Oferta: ${formatarMoedaBR(item.ofertaTotal)} | Média: ${formatarMoedaBR(item.ofertaMediaPorAula)}\n`;
-      });
-    }
-
-    texto += `\n👥 *ALUNOS DA TURMA*\n`;
+    texto += `• % Presença: ${relatorio.cards.percentualPresenca.toFixed(1)}%\n\n`;
+    texto += `👥 *ALUNOS DA TURMA*\n`;
     if (relatorio.alunos.length === 0) {
       texto += `• Nenhum aluno encontrado.\n`;
     } else {
@@ -370,31 +280,24 @@ export default function RelatorioPeriodoEbd({ igrejaId }: Props) {
         texto += ` | ${aluno.percentualPresenca.toFixed(1)}%\n`;
       });
     }
-
     return texto;
   }
-
   function compartilharWhats() {
     if (!relatorio || !canShare) return;
-
     const texto = gerarTextoWhats();
-
     window.open(
       `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`,
       "_blank",
     );
   }
-
   async function gerarPDF() {
     if (!relatorio || !canShare) return;
-
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
     const margin = 8;
     let y = 48;
     const nomeCliente = relatorio.turma.nome || "Escola Dominical";
-
     const getLogoBase64 = async () => {
       try {
         const origin =
@@ -402,11 +305,8 @@ export default function RelatorioPeriodoEbd({ igrejaId }: Props) {
         const resp = await fetch(`${origin}/images/logo.png`, {
           cache: "no-store",
         });
-
         if (!resp.ok) return "";
-
         const blob = await resp.blob();
-
         return await new Promise<string>((resolve) => {
           const reader = new FileReader();
           reader.onloadend = () =>
@@ -418,29 +318,23 @@ export default function RelatorioPeriodoEbd({ igrejaId }: Props) {
         return "";
       }
     };
-
     const logoDataUri = await getLogoBase64();
-
     const printHeader = () => {
       doc.setFillColor(25, 35, 55);
       doc.rect(0, 0, pageWidth, 40, "F");
-
       doc.setFillColor(218, 165, 32);
       doc.rect(0, 35, pageWidth, 5, "F");
-
       if (logoDataUri) {
         try {
           doc.addImage(logoDataUri, "PNG", 10, 7, 18, 18);
         } catch {}
       }
-
       doc.setFont("helvetica", "bold");
       doc.setFontSize(18);
       doc.setTextColor(255, 255, 255);
       doc.text("RELATÓRIO POR PERÍODO - EBD", pageWidth / 2, 18, {
         align: "center",
       });
-
       const dt = new Date();
       const dataBR = dt.toLocaleDateString("pt-BR", {
         timeZone: "America/Sao_Paulo",
@@ -450,18 +344,15 @@ export default function RelatorioPeriodoEbd({ igrejaId }: Props) {
         hour: "2-digit",
         minute: "2-digit",
       });
-
       doc.setFont("helvetica", "normal");
       doc.setFontSize(10);
       doc.text(`Gerado em: ${dataBR} ${horaBR}`, pageWidth / 2, 28, {
         align: "center",
       });
     };
-
     const printFooter = () => {
       const totalPages = doc.getNumberOfPages();
       const footerY = pageHeight - 10;
-
       for (let i = 1; i <= totalPages; i++) {
         doc.setPage(i);
         doc.setDrawColor(200, 200, 200);
@@ -475,7 +366,6 @@ export default function RelatorioPeriodoEbd({ igrejaId }: Props) {
         });
       }
     };
-
     const checkPageBreak = (heightNeeded: number) => {
       if (y + heightNeeded > pageHeight - 20) {
         doc.addPage();
@@ -483,11 +373,9 @@ export default function RelatorioPeriodoEbd({ igrejaId }: Props) {
         printHeader();
       }
     };
-
     const labelX = margin;
     const valueX = 60;
     const valueMaxWidth = pageWidth - margin - valueX;
-
     const addSection = (titulo: string) => {
       checkPageBreak(10);
       doc.setFont("helvetica", "bold");
@@ -496,62 +384,35 @@ export default function RelatorioPeriodoEbd({ igrejaId }: Props) {
       doc.text(titulo, labelX, y);
       y += 6;
     };
-
     const addField = (label: string, value: string) => {
       const safeValue = value && value.trim() ? value.trim() : "-";
-
       doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
       const lines = doc.splitTextToSize(safeValue, valueMaxWidth);
       const height = Math.max(lines.length * 4, 4);
-
       checkPageBreak(height + 3);
-
       doc.setFont("helvetica", "bold");
       doc.setFontSize(9);
       doc.setTextColor(70, 70, 70);
       doc.text(label, labelX, y);
-
       doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
       doc.setTextColor(0, 0, 0);
       doc.text(lines, valueX, y);
-
       y += height + 3;
     };
-
     printHeader();
-
     addSection("Dados da turma");
     addField("TURMA", relatorio.turma.nome || "-");
     addField("DEPARTAMENTO", relatorio.turma.departamento || "-");
     addField("PROFESSOR", relatorio.turma.professor?.nome || "-");
     addField("PERÍODO", relatorio.periodo.label || "-");
-
     addSection("Resumo geral");
     addField("TOTAL DE AULAS", String(relatorio.cards.totalAulas));
     addField("TOTAL DE ALUNOS", String(relatorio.cards.totalAlunos));
     addField("PRESENÇAS", String(relatorio.cards.presencas));
     addField("FALTAS", String(relatorio.cards.faltas));
     addField("% PRESENÇA", `${relatorio.cards.percentualPresenca.toFixed(1)}%`);
-    addField("OFERTA TOTAL", formatarMoedaBR(relatorio.cards.ofertaTotal));
-    addField(
-      "MÉDIA DE OFERTA POR AULA",
-      formatarMoedaBR(relatorio.cards.ofertaMediaPorAula),
-    );
-
-    addSection("Ofertas por mês");
-    if (relatorio.ofertasPorMes.length === 0) {
-      addField("OFERTAS", "Nenhum lançamento de oferta encontrado no período.");
-    } else {
-      relatorio.ofertasPorMes.forEach((item, index) => {
-        addField(
-          `MÊS ${index + 1}`,
-          `${item.label} | Total aulas: ${item.totalAulas} | Oferta total: ${formatarMoedaBR(item.ofertaTotal)} | Média por aula: ${formatarMoedaBR(item.ofertaMediaPorAula)}`,
-        );
-      });
-    }
-
     addSection("Alunos da turma");
     if (relatorio.alunos.length === 0) {
       addField("ALUNOS", "Nenhum aluno encontrado nesta turma.");
@@ -563,46 +424,48 @@ export default function RelatorioPeriodoEbd({ igrejaId }: Props) {
         );
       });
     }
-
     printFooter();
-
     doc.save(
       `relatorio-periodo-ebd-${(relatorio.turma.nome || "turma").replace(/\s+/g, "-").toLowerCase()}-${relatorio.periodo.inicio}-${relatorio.periodo.fim}.pdf`,
     );
   }
-
   if (loadingPerms) {
     return (
       <div className={styles.container}>
-        <div className={styles.placeholder}>Carregando permissões...</div>
+        {" "}
+        <div className={styles.placeholder}>Carregando permissões...</div>{" "}
       </div>
     );
   }
-
   if (!canView) {
     return (
       <div className={styles.container}>
+        {" "}
         <div className={styles.errorBox}>
+          {" "}
           ⛔ Você não tem permissão para visualizar o relatório por período da
-          Escola Dominical.
-        </div>
+          Escola Dominical.{" "}
+        </div>{" "}
       </div>
     );
   }
-
   return (
     <div className={styles.container}>
+      {" "}
       <section className={styles.header}>
+        {" "}
         <div className={styles.headerContent}>
-          <span className={styles.headerTag}>Relatório Analítico</span>
-          <h1>Relatório por período da EBD</h1>
+          {" "}
+          <span className={styles.headerTag}>Relatório Analítico</span>{" "}
+          <h1>Relatório por período da EBD</h1>{" "}
           <p>
+            {" "}
             Selecione uma turma e um intervalo de meses para ver presenças,
-            faltas, percentual por aluno e total das ofertas do período.
-          </p>
-        </div>
-
+            faltas e percentual por aluno.{" "}
+          </p>{" "}
+        </div>{" "}
         <div className={styles.headerActions}>
+          {" "}
           {canShare && (
             <button
               type="button"
@@ -610,10 +473,10 @@ export default function RelatorioPeriodoEbd({ igrejaId }: Props) {
               onClick={gerarPDF}
               disabled={!relatorio || loadingRelatorio}
             >
-              <FileText size={16} /> PDF
+              {" "}
+              <FileText size={16} /> PDF{" "}
             </button>
-          )}
-
+          )}{" "}
           {canShare && (
             <button
               type="button"
@@ -621,190 +484,162 @@ export default function RelatorioPeriodoEbd({ igrejaId }: Props) {
               onClick={compartilharWhats}
               disabled={!relatorio || loadingRelatorio}
             >
-              <MessageCircle size={16} /> Whats
+              {" "}
+              <MessageCircle size={16} /> Whats{" "}
             </button>
-          )}
-
+          )}{" "}
           <Link
             href="/secretaria/escola-dominical"
             className={styles.secondaryButton}
           >
-            Dashboard EBD
-          </Link>
-
+            {" "}
+            Dashboard EBD{" "}
+          </Link>{" "}
           <Link
             href="/secretaria/escola-dominical/gestaoEbd"
             className={styles.primaryButton}
           >
-            Gestão da EBD
-          </Link>
-        </div>
-      </section>
-
+            {" "}
+            Gestão da EBD{" "}
+          </Link>{" "}
+        </div>{" "}
+      </section>{" "}
       <section className={styles.filtersBox}>
+        {" "}
         <div className={styles.filterItem}>
-          <label>Turma</label>
+          {" "}
+          <label>Turma</label>{" "}
           <select
             value={turmaId}
             onChange={(e) => setTurmaId(e.target.value)}
             disabled={loadingTurmas || turmas.length === 0}
           >
+            {" "}
             <option value="">
-              {loadingTurmas ? "Carregando turmas..." : "Selecione"}
-            </option>
+              {" "}
+              {loadingTurmas ? "Carregando turmas..." : "Selecione"}{" "}
+            </option>{" "}
             {turmas.map((turma) => (
               <option key={turma.id} value={turma.id}>
-                {turma.nome}
-                {turma.departamento ? ` • ${turma.departamento}` : ""}
+                {" "}
+                {turma.nome}{" "}
+                {turma.departamento ? ` • ${turma.departamento}` : ""}{" "}
               </option>
-            ))}
-          </select>
-        </div>
-
+            ))}{" "}
+          </select>{" "}
+        </div>{" "}
         <div className={styles.filterItem}>
-          <label>Mês inicial</label>
+          {" "}
+          <label>Mês inicial</label>{" "}
           <input
             type="month"
             value={inicio}
             onChange={(e) => setInicio(e.target.value)}
-          />
-        </div>
-
+          />{" "}
+        </div>{" "}
         <div className={styles.filterItem}>
-          <label>Mês final</label>
+          {" "}
+          <label>Mês final</label>{" "}
           <input
             type="month"
             value={fim}
             onChange={(e) => setFim(e.target.value)}
-          />
-        </div>
-
+          />{" "}
+        </div>{" "}
         <div className={styles.filterInfo}>
-          <strong>Turma atual:</strong> {turmaSelecionada?.nome || "-"}
-        </div>
-      </section>
-
-      {!!erro && <div className={styles.errorBox}>{erro}</div>}
-
+          {" "}
+          <strong>Turma atual:</strong> {turmaSelecionada?.nome || "-"}{" "}
+        </div>{" "}
+      </section>{" "}
+      {!!erro && <div className={styles.errorBox}>{erro}</div>}{" "}
       {loadingRelatorio ? (
         <div className={styles.placeholder}>Carregando relatório...</div>
       ) : !relatorio ? (
         <div className={styles.placeholder}>
-          Selecione o período e a turma para visualizar.
+          {" "}
+          Selecione o período e a turma para visualizar.{" "}
         </div>
       ) : (
         <>
+          {" "}
           <section className={styles.summaryBox}>
+            {" "}
             <div className={styles.summaryTop}>
+              {" "}
               <div>
-                <h2>{relatorio.turma.nome}</h2>
+                {" "}
+                <h2>{relatorio.turma.nome}</h2>{" "}
                 <p>
+                  {" "}
                   {relatorio.turma.departamento || "-"} • Professor:{" "}
-                  {relatorio.turma.professor?.nome || "-"}
-                </p>
-              </div>
-
+                  {relatorio.turma.professor?.nome || "-"}{" "}
+                </p>{" "}
+              </div>{" "}
               <div className={styles.periodBadge}>
                 {relatorio.periodo.label}
-              </div>
-            </div>
-
+              </div>{" "}
+            </div>{" "}
             <div className={styles.cardsGrid}>
+              {" "}
               {cardsResumo.map((card) => (
                 <article
                   key={card.titulo}
                   className={`${styles.card} ${card.classe}`}
                 >
-                  <span>{card.titulo}</span>
-                  <strong>{card.valor}</strong>
+                  {" "}
+                  <span>{card.titulo}</span> <strong>{card.valor}</strong>{" "}
                 </article>
-              ))}
-            </div>
-          </section>
-
+              ))}{" "}
+            </div>{" "}
+          </section>{" "}
           <section className={styles.tableBox}>
+            {" "}
             <div className={styles.tableHeader}>
+              {" "}
               <div>
-                <h2>Ofertas por mês</h2>
-                <p>Total de ofertas e média por aula dentro do período</p>
-              </div>
-            </div>
-
-            {relatorio.ofertasPorMes.length === 0 ? (
-              <div className={styles.placeholder}>
-                Nenhum lançamento de oferta encontrado no período.
-              </div>
-            ) : (
-              <div className={styles.tableWrapper}>
-                <table className={styles.table}>
-                  <thead>
-                    <tr>
-                      <th>Mês</th>
-                      <th>Total aulas</th>
-                      <th>Oferta total</th>
-                      <th>Média por aula</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {relatorio.ofertasPorMes.map((item) => (
-                      <tr key={`${item.ano}-${item.mes}`}>
-                        <td>{item.label}</td>
-                        <td>{item.totalAulas}</td>
-                        <td>{formatarMoedaBR(item.ofertaTotal)}</td>
-                        <td>{formatarMoedaBR(item.ofertaMediaPorAula)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </section>
-
-          <section className={styles.tableBox}>
-            <div className={styles.tableHeader}>
-              <div>
-                <h2>Equipe da turma no período</h2>
-                <p>Resumo individual de frequência</p>
-              </div>
-            </div>
-
+                {" "}
+                <h2>Equipe da turma no período</h2>{" "}
+                <p>Resumo individual de frequência</p>{" "}
+              </div>{" "}
+            </div>{" "}
             {relatorio.alunos.length === 0 ? (
               <div className={styles.placeholder}>
-                Nenhum aluno encontrado nesta turma.
+                {" "}
+                Nenhum aluno encontrado nesta turma.{" "}
               </div>
             ) : (
               <div className={styles.tableWrapper}>
+                {" "}
                 <table className={styles.table}>
+                  {" "}
                   <thead>
+                    {" "}
                     <tr>
-                      <th>Nº</th>
-                      <th>Aluno</th>
-                      <th>Cargo</th>
-                      <th>Total aulas</th>
-                      <th>Presenças</th>
-                      <th>Faltas</th>
-                      <th>% presença</th>
-                    </tr>
-                  </thead>
+                      {" "}
+                      <th>Nº</th> <th>Aluno</th> <th>Cargo</th>{" "}
+                      <th>Total aulas</th> <th>Presenças</th> <th>Faltas</th>{" "}
+                      <th>% presença</th>{" "}
+                    </tr>{" "}
+                  </thead>{" "}
                   <tbody>
+                    {" "}
                     {relatorio.alunos.map((aluno) => (
                       <tr key={aluno.membroId}>
-                        <td>{aluno.numeroSequencial || "-"}</td>
-                        <td>{aluno.nome}</td>
-                        <td>{aluno.cargo || "-"}</td>
-                        <td>{aluno.totalAulas}</td>
-                        <td>{aluno.presencas}</td>
-                        <td>{aluno.faltas}</td>
-                        <td>{aluno.percentualPresenca.toFixed(1)}%</td>
+                        {" "}
+                        <td>{aluno.numeroSequencial || "-"}</td>{" "}
+                        <td>{aluno.nome}</td> <td>{aluno.cargo || "-"}</td>{" "}
+                        <td>{aluno.totalAulas}</td> <td>{aluno.presencas}</td>{" "}
+                        <td>{aluno.faltas}</td>{" "}
+                        <td>{aluno.percentualPresenca.toFixed(1)}%</td>{" "}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    ))}{" "}
+                  </tbody>{" "}
+                </table>{" "}
               </div>
-            )}
-          </section>
+            )}{" "}
+          </section>{" "}
         </>
-      )}
+      )}{" "}
     </div>
   );
 }
