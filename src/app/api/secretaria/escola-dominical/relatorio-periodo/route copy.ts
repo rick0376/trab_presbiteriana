@@ -30,54 +30,13 @@ function formatarPeriodo(inicio: string, fim: string) {
   return `${MESES_LABEL[mesInicio - 1]}/${anoInicio} até ${MESES_LABEL[mesFim - 1]}/${anoFim}`;
 }
 
-function getHojeLimiteSaoPaulo() {
-  const partes = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Sao_Paulo",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(new Date());
-
-  const ano = Number(partes.find((p) => p.type === "year")?.value || 0);
-  const mes = Number(partes.find((p) => p.type === "month")?.value || 0);
-  const dia = Number(partes.find((p) => p.type === "day")?.value || 0);
-
-  return new Date(ano, mes - 1, dia, 23, 59, 59, 999);
-}
-
-function getDataDomingo(ano: number, mes: number, domingoNumero: number) {
-  const ultimoDia = new Date(ano, mes, 0).getDate();
-  let contador = 0;
-
-  for (let dia = 1; dia <= ultimoDia; dia++) {
-    const data = new Date(ano, mes - 1, dia, 12, 0, 0);
-
-    if (data.getDay() === 0) {
-      contador += 1;
-
-      if (contador === domingoNumero) {
-        return data;
-      }
-    }
-  }
-
-  return null;
-}
-
-function contarDomingosValidosDoMes(
-  ano: number,
-  mes: number,
-  hojeLimite: Date,
-) {
+function contarDomingosDoMes(ano: number, mes: number) {
   const ultimoDia = new Date(ano, mes, 0).getDate();
   let total = 0;
 
   for (let dia = 1; dia <= ultimoDia; dia++) {
     const data = new Date(ano, mes - 1, dia, 12, 0, 0);
-
-    if (data.getDay() === 0 && data.getTime() <= hojeLimite.getTime()) {
-      total += 1;
-    }
+    if (data.getDay() === 0) total += 1;
   }
 
   return total;
@@ -156,9 +115,11 @@ export async function GET(request: Request) {
       );
     }
 
-    const hojeLimite = getHojeLimiteSaoPaulo();
     const mesesDoPeriodo = listarMesesDoPeriodo(inicio, fim);
-    const chavesMeses = new Set(mesesDoPeriodo.map((item) => item.chave));
+
+    const totalAulas = mesesDoPeriodo.reduce((acc, item) => {
+      return acc + contarDomingosDoMes(item.ano, item.mes);
+    }, 0);
 
     const [turma, vinculos, registros] = await Promise.all([
       prisma.escolaDominicalTurma.findFirst({
@@ -212,7 +173,6 @@ export async function GET(request: Request) {
           frequencias: {
             select: {
               membroId: true,
-              domingoNumero: true,
               status: true,
             },
           },
@@ -220,7 +180,6 @@ export async function GET(request: Request) {
             select: {
               domingoNumero: true,
               oferta: true,
-              isFolgaGeral: true,
             },
           },
         },
@@ -235,44 +194,12 @@ export async function GET(request: Request) {
       );
     }
 
+    const chavesMeses = new Set(mesesDoPeriodo.map((item) => item.chave));
+
     const registrosFiltrados = registros.filter((registro) => {
       const chave = registro.ano * 100 + registro.mes;
       return chavesMeses.has(chave);
     });
-
-    const aulasComputaveisPorMes = new Map<number, number>();
-
-    mesesDoPeriodo.forEach((item) => {
-      aulasComputaveisPorMes.set(
-        item.chave,
-        contarDomingosValidosDoMes(item.ano, item.mes, hojeLimite),
-      );
-    });
-
-    registrosFiltrados.forEach((registro) => {
-      const chave = registro.ano * 100 + registro.mes;
-
-      const totalAulasMes = registro.domingos.reduce((acc, domingo) => {
-        const dataDomingo = getDataDomingo(
-          registro.ano,
-          registro.mes,
-          domingo.domingoNumero,
-        );
-
-        if (!dataDomingo) return acc;
-        if (dataDomingo.getTime() > hojeLimite.getTime()) return acc;
-        if (domingo.isFolgaGeral) return acc;
-
-        return acc + 1;
-      }, 0);
-
-      aulasComputaveisPorMes.set(chave, totalAulasMes);
-    });
-
-    const totalAulas = Array.from(aulasComputaveisPorMes.values()).reduce(
-      (acc, valor) => acc + valor,
-      0,
-    );
 
     const mapaAlunos = new Map<
       string,
@@ -304,25 +231,9 @@ export async function GET(request: Request) {
     });
 
     registrosFiltrados.forEach((registro) => {
-      const domingosFolga = new Set(
-        registro.domingos
-          .filter((domingo) => domingo.isFolgaGeral)
-          .map((domingo) => domingo.domingoNumero),
-      );
-
       registro.frequencias.forEach((freq) => {
         const aluno = mapaAlunos.get(freq.membroId);
         if (!aluno) return;
-
-        const dataDomingo = getDataDomingo(
-          registro.ano,
-          registro.mes,
-          freq.domingoNumero,
-        );
-
-        if (!dataDomingo) return;
-        if (dataDomingo.getTime() > hojeLimite.getTime()) return;
-        if (domingosFolga.has(freq.domingoNumero)) return;
 
         if (freq.status === "PRESENTE") {
           aluno.presencas += 1;
@@ -348,7 +259,6 @@ export async function GET(request: Request) {
       (acc, item) => acc + item.presencas,
       0,
     );
-
     const totalFaltas = alunos.reduce((acc, item) => acc + item.faltas, 0);
 
     const totalLancamentosPossiveis = totalAulas * alunos.length;
@@ -374,7 +284,7 @@ export async function GET(request: Request) {
         ano: item.ano,
         mes: item.mes,
         label: item.label,
-        totalAulas: aulasComputaveisPorMes.get(item.chave) || 0,
+        totalAulas: contarDomingosDoMes(item.ano, item.mes),
         ofertaTotal: 0,
         ofertaMediaPorAula: 0,
       });
@@ -386,16 +296,6 @@ export async function GET(request: Request) {
       if (!bucket) return;
 
       registro.domingos.forEach((domingo) => {
-        const dataDomingo = getDataDomingo(
-          registro.ano,
-          registro.mes,
-          domingo.domingoNumero,
-        );
-
-        if (!dataDomingo) return;
-        if (dataDomingo.getTime() > hojeLimite.getTime()) return;
-        if (domingo.isFolgaGeral) return;
-
         bucket.ofertaTotal += Number(domingo.oferta || 0);
       });
     });

@@ -356,6 +356,8 @@ model EscolaDominicalDomingo {
   oferta           Decimal? @db.Decimal(10, 2)
   revistasLivros   Int      @default(0)
   observacao       String?
+  isFolgaGeral     Boolean @default(false)
+  motivoFolga      String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 

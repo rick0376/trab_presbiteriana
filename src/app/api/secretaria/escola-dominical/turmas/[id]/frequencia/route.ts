@@ -23,6 +23,8 @@ type DomingoPayload = {
   oferta?: number | string | null;
   revistasLivros?: number;
   observacao?: string | null;
+  isFolgaGeral?: boolean;
+  motivoFolga?: string | null;
 };
 
 type BodyPayload = {
@@ -133,6 +135,8 @@ export async function GET(request: Request, context: Params) {
             oferta: true,
             revistasLivros: true,
             observacao: true,
+            isFolgaGeral: true,
+            motivoFolga: true,
           },
           orderBy: {
             domingoNumero: "asc",
@@ -230,20 +234,6 @@ export async function PUT(request: Request, context: Params) {
 
     const domingosRecebidos = Array.isArray(body.domingos) ? body.domingos : [];
 
-    const frequencias = frequenciasRecebidas
-      .filter((item) => {
-        return (
-          membroIdsPermitidos.has(String(item.membroId)) &&
-          domingosValidos.includes(Number(item.domingoNumero)) &&
-          (item.status === "PRESENTE" || item.status === "FALTA")
-        );
-      })
-      .map((item) => ({
-        membroId: String(item.membroId),
-        domingoNumero: Number(item.domingoNumero),
-        status: item.status,
-      }));
-
     const domingos = domingosValidos.map((domingoNumero) => {
       const encontrado = domingosRecebidos.find(
         (item) => Number(item.domingoNumero) === domingoNumero,
@@ -263,14 +253,40 @@ export async function PUT(request: Request, context: Params) {
         oferta = Number.isNaN(valorOferta) ? null : valorOferta;
       }
 
+      const isFolgaGeral = Boolean(encontrado?.isFolgaGeral);
+      const motivoFolga = String(encontrado?.motivoFolga || "").trim() || null;
+
       return {
         domingoNumero,
         visitantes: Number.isNaN(visitantes) ? 0 : visitantes,
         oferta,
         revistasLivros: Number.isNaN(revistasLivros) ? 0 : revistasLivros,
         observacao: String(encontrado?.observacao || "").trim() || null,
+        isFolgaGeral,
+        motivoFolga,
       };
     });
+
+    const domingosFolga = new Set(
+      domingos
+        .filter((item) => item.isFolgaGeral)
+        .map((item) => item.domingoNumero),
+    );
+
+    const frequencias = frequenciasRecebidas
+      .filter((item) => {
+        return (
+          membroIdsPermitidos.has(String(item.membroId)) &&
+          domingosValidos.includes(Number(item.domingoNumero)) &&
+          !domingosFolga.has(Number(item.domingoNumero)) &&
+          (item.status === "PRESENTE" || item.status === "FALTA")
+        );
+      })
+      .map((item) => ({
+        membroId: String(item.membroId),
+        domingoNumero: Number(item.domingoNumero),
+        status: item.status,
+      }));
 
     await prisma.$transaction(async (tx) => {
       const registro = await tx.escolaDominicalRegistroMensal.upsert({
@@ -315,6 +331,8 @@ export async function PUT(request: Request, context: Params) {
           oferta: item.oferta,
           revistasLivros: item.revistasLivros,
           observacao: item.observacao,
+          isFolgaGeral: item.isFolgaGeral,
+          motivoFolga: item.motivoFolga,
         })),
       });
 
