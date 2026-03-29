@@ -392,6 +392,7 @@ export default function RelatorioPeriodoEbd({ igrejaId }: Props) {
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
     const margin = 8;
+    const contentWidth = pageWidth - margin * 2;
     let y = 48;
     const nomeCliente = relatorio.turma.nome || "Escola Dominical";
 
@@ -484,20 +485,19 @@ export default function RelatorioPeriodoEbd({ igrejaId }: Props) {
       }
     };
 
-    const labelX = margin;
-    const valueX = 60;
-    const valueMaxWidth = pageWidth - margin - valueX;
-
     const addSection = (titulo: string) => {
       checkPageBreak(10);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(11);
       doc.setTextColor(25, 35, 55);
-      doc.text(titulo, labelX, y);
-      y += 6;
+      doc.text(titulo, margin, y);
+      y += 7;
     };
 
     const addField = (label: string, value: string) => {
+      const labelX = margin;
+      const valueX = 60;
+      const valueMaxWidth = pageWidth - margin - valueX;
       const safeValue = value && value.trim() ? value.trim() : "-";
 
       doc.setFont("helvetica", "normal");
@@ -505,7 +505,7 @@ export default function RelatorioPeriodoEbd({ igrejaId }: Props) {
       const lines = doc.splitTextToSize(safeValue, valueMaxWidth);
       const height = Math.max(lines.length * 4, 4);
 
-      checkPageBreak(height + 3);
+      checkPageBreak(height + 4);
 
       doc.setFont("helvetica", "bold");
       doc.setFontSize(9);
@@ -517,7 +517,133 @@ export default function RelatorioPeriodoEbd({ igrejaId }: Props) {
       doc.setTextColor(0, 0, 0);
       doc.text(lines, valueX, y);
 
-      y += height + 3;
+      y += height + 4;
+    };
+
+    type TableColumn = {
+      key: string;
+      header: string;
+      width: number;
+      align?: "left" | "center" | "right";
+    };
+
+    const drawTableHeader = (columns: TableColumn[]) => {
+      const headerHeight = 8;
+      let x = margin;
+
+      checkPageBreak(headerHeight + 2);
+
+      doc.setFillColor(241, 245, 249);
+      doc.setDrawColor(203, 213, 225);
+
+      columns.forEach((col) => {
+        doc.rect(x, y, col.width, headerHeight, "FD");
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8);
+        doc.setTextColor(51, 65, 85);
+
+        const textX =
+          col.align === "right"
+            ? x + col.width - 2
+            : col.align === "center"
+              ? x + col.width / 2
+              : x + 2;
+
+        doc.text(col.header, textX, y + 5.2, {
+          align:
+            col.align === "right"
+              ? "right"
+              : col.align === "center"
+                ? "center"
+                : "left",
+        });
+
+        x += col.width;
+      });
+
+      y += headerHeight;
+    };
+
+    const drawTableRow = (
+      columns: TableColumn[],
+      row: Record<string, string | number>,
+    ) => {
+      const lineHeight = 4;
+      const verticalPadding = 3;
+
+      const cellLines = columns.map((col) => {
+        const raw = String(row[col.key] ?? "-");
+        return doc.splitTextToSize(raw, col.width - 4);
+      });
+
+      const rowHeight =
+        Math.max(...cellLines.map((lines) => lines.length), 1) * lineHeight +
+        verticalPadding * 2;
+
+      checkPageBreak(rowHeight + 1);
+
+      let x = margin;
+
+      columns.forEach((col, index) => {
+        doc.setDrawColor(219, 228, 238);
+        doc.setFillColor(255, 255, 255);
+        doc.rect(x, y, col.width, rowHeight, "FD");
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8.5);
+        doc.setTextColor(15, 23, 42);
+
+        const lines = cellLines[index];
+        const textX =
+          col.align === "right"
+            ? x + col.width - 2
+            : col.align === "center"
+              ? x + col.width / 2
+              : x + 2;
+
+        doc.text(lines, textX, y + verticalPadding + 3, {
+          align:
+            col.align === "right"
+              ? "right"
+              : col.align === "center"
+                ? "center"
+                : "left",
+        });
+
+        x += col.width;
+      });
+
+      y += rowHeight;
+    };
+
+    const drawTable = (
+      title: string,
+      columns: TableColumn[],
+      rows: Record<string, string | number>[],
+    ) => {
+      addSection(title);
+
+      if (!rows.length) {
+        addField(title.toUpperCase(), "Nenhum registro encontrado.");
+        return;
+      }
+
+      const renderHeader = () => drawTableHeader(columns);
+
+      renderHeader();
+
+      rows.forEach((row) => {
+        if (y + 12 > pageHeight - 20) {
+          doc.addPage();
+          y = 48;
+          printHeader();
+          renderHeader();
+        }
+
+        drawTableRow(columns, row);
+      });
+
+      y += 4;
     };
 
     printHeader();
@@ -540,29 +666,48 @@ export default function RelatorioPeriodoEbd({ igrejaId }: Props) {
       formatarMoedaBR(relatorio.cards.ofertaMediaPorAula),
     );
 
-    addSection("Ofertas por mês");
-    if (relatorio.ofertasPorMes.length === 0) {
-      addField("OFERTAS", "Nenhum lançamento de oferta encontrado no período.");
-    } else {
-      relatorio.ofertasPorMes.forEach((item, index) => {
-        addField(
-          `MÊS ${index + 1}`,
-          `${item.label} | Total aulas: ${item.totalAulas} | Oferta total: ${formatarMoedaBR(item.ofertaTotal)} | Média por aula: ${formatarMoedaBR(item.ofertaMediaPorAula)}`,
-        );
-      });
-    }
+    drawTable(
+      "Ofertas por mês",
+      [
+        { key: "mes", header: "Mês", width: 70 },
+        { key: "aulas", header: "Aulas", width: 25, align: "center" },
+        {
+          key: "ofertaTotal",
+          header: "Oferta total",
+          width: 48,
+          align: "right",
+        },
+        { key: "media", header: "Média/aula", width: 48, align: "right" },
+      ],
+      relatorio.ofertasPorMes.map((item) => ({
+        mes: item.label,
+        aulas: item.totalAulas,
+        ofertaTotal: formatarMoedaBR(item.ofertaTotal),
+        media: formatarMoedaBR(item.ofertaMediaPorAula),
+      })),
+    );
 
-    addSection("Alunos da turma");
-    if (relatorio.alunos.length === 0) {
-      addField("ALUNOS", "Nenhum aluno encontrado nesta turma.");
-    } else {
-      relatorio.alunos.forEach((aluno, index) => {
-        addField(
-          `ALUNO ${index + 1}`,
-          `${aluno.nome} | Nº ${aluno.numeroSequencial || "-"}${aluno.cargo ? ` | ${aluno.cargo}` : ""} | Total aulas: ${aluno.totalAulas} | Presenças: ${aluno.presencas} | Faltas: ${aluno.faltas} | % Presença: ${aluno.percentualPresenca.toFixed(1)}%`,
-        );
-      });
-    }
+    drawTable(
+      "Alunos da turma",
+      [
+        { key: "numero", header: "Nº", width: 16, align: "center" },
+        { key: "nome", header: "Aluno", width: 58 },
+        { key: "cargo", header: "Cargo", width: 34 },
+        { key: "aulas", header: "Aulas", width: 16, align: "center" },
+        { key: "presencas", header: "P", width: 14, align: "center" },
+        { key: "faltas", header: "F", width: 14, align: "center" },
+        { key: "percentual", header: "%", width: 18, align: "right" },
+      ],
+      relatorio.alunos.map((aluno) => ({
+        numero: aluno.numeroSequencial || "-",
+        nome: aluno.nome,
+        cargo: aluno.cargo || "-",
+        aulas: aluno.totalAulas,
+        presencas: aluno.presencas,
+        faltas: aluno.faltas,
+        percentual: `${aluno.percentualPresenca.toFixed(1)}%`,
+      })),
+    );
 
     printFooter();
 
