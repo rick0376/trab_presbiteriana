@@ -2,6 +2,7 @@
 
 import Header from "@/components/header/public-header/public-header";
 import Footer from "@/components/footer/public-footer/public-footer";
+import SiteAccessTracker from "@/components/system/SiteAccessTracker";
 import styles from "./styles.module.scss";
 
 export default function PublicLayout({
@@ -11,6 +12,7 @@ export default function PublicLayout({
 }) {
   return (
     <div className={styles.publicLayout}>
+      <SiteAccessTracker />
       <Header />
       <main className={styles.content}>{children}</main>
       <Footer />

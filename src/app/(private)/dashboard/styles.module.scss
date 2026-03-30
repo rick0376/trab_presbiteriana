@@ -60,7 +60,7 @@
 ===================================================== */
 .gridStats {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 14px;
   margin-bottom: 16px;
 }
@@ -79,7 +79,8 @@
 .statCardMM,
 .statCardE,
 .statCardCS,
-.statCardCA {
+.statCardCA,
+.statCardA {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -110,7 +111,8 @@
 .statCardMM::before,
 .statCardE::before,
 .statCardCS::before,
-.statCardCA::before {
+.statCardCA::before,
+.statCardA::before {
   content: "";
   position: absolute;
   inset: -40px -60px auto auto;
@@ -133,7 +135,8 @@
 .statCardMM:hover,
 .statCardE:hover,
 .statCardCS:hover,
-.statCardCA:hover {
+.statCardCA:hover,
+.statCardA:hover {
   transform: translateY(-2px);
   filter: brightness(1.02);
   box-shadow:
@@ -146,7 +149,8 @@
 .statCardMM::after,
 .statCardE::after,
 .statCardCS::after,
-.statCardCA::after {
+.statCardCA::after,
+.statCardA::after {
   position: absolute;
   left: 14px;
   top: 12px;
@@ -169,6 +173,15 @@
 }
 .statCardCA::after {
   content: "📆";
+}
+
+.statCardA::after {
+  content: "🌐";
+}
+
+.statCardA {
+  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 55%, #22d3ee 130%);
+  border-color: rgba(34, 211, 238, 0.3);
 }
 
 .statLabel {

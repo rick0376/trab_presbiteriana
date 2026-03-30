@@ -385,6 +385,12 @@ model EscolaDominicalFrequencia {
   @@map("ebd_frequencias")
 }
 
+model SiteCounter {
+  key       String   @id
+  total     Int      @default(0)
+  updatedAt DateTime @updatedAt
+}
+
 enum DiaSemana {
   SEGUNDA
   TERCA

@@ -354,11 +354,6 @@ export default async function DashboardPage() {
           <div className={styles.statLabel}>Cronograma Anual</div>
           <div className={styles.statValue}>{cronogramaAnual}</div>
         </div>
-
-        <div className={styles.statCardA}>
-          <div className={styles.statLabel}>Acessos do site</div>
-          <div className={styles.statValue}>{totalAcessosSite}</div>
-        </div>
       </section>
 
       <section className={styles.grid2}>
