@@ -13,7 +13,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 type SearchParamsShape = Record<string, string | string[] | undefined>;
 
 type PageProps = {
-  searchParams?: Promise<SearchParamsShape> | SearchParamsShape;
+  searchParams?: Promise<SearchParamsShape>;
 };
 
 function getDatePartsInTimeZone(date: Date, timeZone = TZ) {
@@ -92,9 +92,7 @@ export default async function DashboardAcessosPage({
 }: PageProps) {
   const user = await requireUser();
 
-  const resolvedSearchParams = (await searchParams) as
-    | SearchParamsShape
-    | undefined;
+  const resolvedSearchParams = await searchParams;
 
   const isSuperAdmin = user.role === "SUPERADMIN";
   const igrejaId = user.igrejaId ?? null;

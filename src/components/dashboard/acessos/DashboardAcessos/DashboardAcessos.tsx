@@ -498,7 +498,7 @@ export default function DashboardAcessos(props: Props) {
 
       <section className={`${styles.card} ${styles.filterCard}`}>
         <div className={styles.cardHeader}>
-          <h2>Filtro por período</h2>
+          <h2 className={styles.h2}>Filtro por período</h2>
         </div>
 
         <form method="GET" className={styles.filterForm}>
