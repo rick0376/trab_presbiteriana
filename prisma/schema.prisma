@@ -392,20 +392,31 @@ model SiteCounter {
 }
 
 model SiteAccess {
-  id         String   @id @default(cuid())
-  createdAt  DateTime @default(now())
+  id           String   @id @default(cuid())
+  createdAt    DateTime @default(now())
 
-  path       String?
-  referrer   String?
-  userAgent  String?
-  deviceType String?
-  visitorId  String?
-  ipHash     String?
+  path         String?
+  referrer     String?
+  userAgent    String?
+  deviceType   String?
+  visitorId    String?
+  ipHash       String?
+
+  displayMode  String?
+  utmSource    String?
+  utmMedium    String?
+  utmCampaign  String?
+  utmContent   String?
+  utmTerm      String?
 
   @@index([createdAt])
   @@index([deviceType])
   @@index([path])
   @@index([visitorId])
+  @@index([displayMode])
+  @@index([utmSource])
+  @@index([utmMedium])
+  @@index([utmCampaign])
 }
 
 enum DiaSemana {

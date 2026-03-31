@@ -10,6 +10,12 @@ type AccessBody = {
   path?: string;
   referrer?: string | null;
   visitorId?: string | null;
+  displayMode?: string | null;
+  utmSource?: string | null;
+  utmMedium?: string | null;
+  utmCampaign?: string | null;
+  utmContent?: string | null;
+  utmTerm?: string | null;
 };
 
 function getDeviceType(userAgent: string) {
@@ -41,7 +47,6 @@ function getRequestIp(req: NextRequest) {
 
 function hashIp(ip: string | null) {
   if (!ip) return null;
-
   return crypto.createHash("sha256").update(ip).digest("hex");
 }
 
@@ -69,6 +74,12 @@ export async function POST(req: NextRequest) {
     const path = cleanText(body.path, 255);
     const referrer = cleanText(body.referrer, 500);
     const visitorId = cleanText(body.visitorId, 120);
+    const displayMode = cleanText(body.displayMode, 60);
+    const utmSource = cleanText(body.utmSource, 120);
+    const utmMedium = cleanText(body.utmMedium, 120);
+    const utmCampaign = cleanText(body.utmCampaign, 180);
+    const utmContent = cleanText(body.utmContent, 180);
+    const utmTerm = cleanText(body.utmTerm, 180);
 
     const [counter] = await prisma.$transaction([
       prisma.siteCounter.upsert({
@@ -92,6 +103,12 @@ export async function POST(req: NextRequest) {
           deviceType,
           visitorId,
           ipHash,
+          displayMode,
+          utmSource,
+          utmMedium,
+          utmCampaign,
+          utmContent,
+          utmTerm,
         },
       }),
     ]);

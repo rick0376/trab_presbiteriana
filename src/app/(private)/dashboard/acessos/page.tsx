@@ -51,6 +51,46 @@ function getLastNDayKeys(baseDate: Date, days: number) {
   });
 }
 
+function getOrigemLabel(item: {
+  utmSource?: string | null;
+  utmMedium?: string | null;
+  utmCampaign?: string | null;
+  referrer?: string | null;
+  displayMode?: string | null;
+}) {
+  if (item.utmSource || item.utmMedium || item.utmCampaign) {
+    const source = item.utmSource || "utm";
+    const medium = item.utmMedium ? ` / ${item.utmMedium}` : "";
+    const campaign = item.utmCampaign ? ` / ${item.utmCampaign}` : "";
+    return `${source}${medium}${campaign}`;
+  }
+
+  if (item.referrer) {
+    return item.referrer;
+  }
+
+  if (
+    item.displayMode === "standalone" ||
+    item.displayMode === "ios-standalone"
+  ) {
+    return "PWA / não informado";
+  }
+
+  return "Direto / não informado";
+}
+
+function getModoLabel(displayMode?: string | null) {
+  if (!displayMode) return "-";
+
+  if (displayMode === "standalone") return "PWA";
+  if (displayMode === "ios-standalone") return "PWA iOS";
+  if (displayMode === "browser") return "Navegador";
+  if (displayMode === "fullscreen") return "Fullscreen";
+  if (displayMode === "minimal-ui") return "Minimal UI";
+
+  return displayMode;
+}
+
 export default async function DashboardAcessosPage() {
   const user = await requireUser();
 
@@ -108,6 +148,12 @@ export default async function DashboardAcessosPage() {
         deviceType: true,
         visitorId: true,
         ipHash: true,
+        displayMode: true,
+        utmSource: true,
+        utmMedium: true,
+        utmCampaign: true,
+        utmContent: true,
+        utmTerm: true,
       },
     }),
   ]);
@@ -345,7 +391,8 @@ export default async function DashboardAcessosPage() {
                   <th>Data/Hora</th>
                   <th>Página</th>
                   <th>Dispositivo</th>
-                  <th>Referrer</th>
+                  <th>Modo</th>
+                  <th>Origem</th>
                   <th>Visitante</th>
                 </tr>
               </thead>
@@ -356,7 +403,8 @@ export default async function DashboardAcessosPage() {
                     <td>{formatDateTimeBR(new Date(item.createdAt))}</td>
                     <td>{item.path || "-"}</td>
                     <td>{item.deviceType || "-"}</td>
-                    <td>{item.referrer || "-"}</td>
+                    <td>{getModoLabel(item.displayMode)}</td>
+                    <td>{getOrigemLabel(item)}</td>
                     <td>
                       {item.visitorId || item.ipHash?.slice(0, 12) || "-"}
                     </td>
