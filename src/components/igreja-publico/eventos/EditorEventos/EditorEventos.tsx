@@ -163,6 +163,7 @@ export default function EditorEventos({
               disabled={!canEdit || saving}
             >
               <option value="Evento">Evento</option>
+              <option value="Oracao">Oração</option>
               <option value="Culto">Culto</option>
               <option value="Pregação">Pregação</option>
               <option value="Conferência">Conferência</option>

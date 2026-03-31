@@ -391,6 +391,23 @@ model SiteCounter {
   updatedAt DateTime @updatedAt
 }
 
+model SiteAccess {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+
+  path       String?
+  referrer   String?
+  userAgent  String?
+  deviceType String?
+  visitorId  String?
+  ipHash     String?
+
+  @@index([createdAt])
+  @@index([deviceType])
+  @@index([path])
+  @@index([visitorId])
+}
+
 enum DiaSemana {
   SEGUNDA
   TERCA
