@@ -4,6 +4,7 @@ import styles from "./styles.module.scss";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import AniversariantesMesCard from "@/components/dashboard/AniversariantesMesCard/AniversariantesMesCard";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -86,10 +87,12 @@ export default async function DashboardPage() {
             <div className={styles.statValue}>{totalCronogramas}</div>
           </div>
 
-          <div className={styles.statCardA}>
-            <div className={styles.statLabel}>Acessos do site</div>
-            <div className={styles.statValue}>{totalAcessosSite}</div>
-          </div>
+          <Link href="/dashboard/acessos" className={styles.cardLink}>
+            <div className={styles.statCardA}>
+              <div className={styles.statLabel}>Acessos do site</div>
+              <div className={styles.statValue}>{totalAcessosSite}</div>
+            </div>
+          </Link>
         </section>
       </div>
     );
@@ -355,10 +358,12 @@ export default async function DashboardPage() {
           <div className={styles.statValue}>{cronogramaAnual}</div>
         </div>
 
-        <div className={styles.statCardA}>
-          <div className={styles.statLabel}>Acessos do site</div>
-          <div className={styles.statValue}>{totalAcessosSite}</div>
-        </div>
+        <Link href="/dashboard/acessos" className={styles.cardLink}>
+          <div className={styles.statCardA}>
+            <div className={styles.statLabel}>Acessos do site</div>
+            <div className={styles.statValue}>{totalAcessosSite}</div>
+          </div>
+        </Link>
       </section>
 
       <section className={styles.grid2}>

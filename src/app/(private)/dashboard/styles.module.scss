@@ -242,7 +242,11 @@
   background: linear-gradient(135deg, #ede9fe 0%, #d9f99d 55%, #a3e635 130%);
   border-color: rgba(163, 230, 53, 0.3);
 }
-
+.statCardA {
+  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 55%, #22d3ee 130%);
+  border-color: rgba(34, 211, 238, 0.3);
+  cursor: pointer;
+}
 /* =====================================================
    CARD BASE (neutro)
 ===================================================== */
@@ -623,6 +627,12 @@
   color: #f7f7f8;
 }
 
+.cardLink {
+  display: block;
+  width: 100%;
+  text-decoration: none;
+  color: inherit;
+}
 /* =====================================================
    RESPONSIVO
 ===================================================== */
