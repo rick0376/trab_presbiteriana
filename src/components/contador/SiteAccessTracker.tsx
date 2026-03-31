@@ -3,7 +3,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 const VISITOR_ID_KEY = "site-access-visitor-id";
 const LAST_TRACKED_AT_KEY = "site-access-last-tracked-at";
@@ -47,7 +47,6 @@ function getDisplayMode() {
 
 export default function SiteAccessTracker() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     const now = Date.now();
@@ -66,11 +65,13 @@ export default function SiteAccessTracker() {
       localStorage.setItem(VISITOR_ID_KEY, visitorId);
     }
 
-    const utmSource = searchParams.get("utm_source");
-    const utmMedium = searchParams.get("utm_medium");
-    const utmCampaign = searchParams.get("utm_campaign");
-    const utmContent = searchParams.get("utm_content");
-    const utmTerm = searchParams.get("utm_term");
+    const url = new URL(window.location.href);
+
+    const utmSource = url.searchParams.get("utm_source");
+    const utmMedium = url.searchParams.get("utm_medium");
+    const utmCampaign = url.searchParams.get("utm_campaign");
+    const utmContent = url.searchParams.get("utm_content");
+    const utmTerm = url.searchParams.get("utm_term");
 
     fetch("/api/contador/acesso", {
       method: "POST",
@@ -94,7 +95,7 @@ export default function SiteAccessTracker() {
       .finally(() => {
         localStorage.setItem(LAST_TRACKED_AT_KEY, String(now));
       });
-  }, [pathname, searchParams]);
+  }, [pathname]);
 
   return null;
 }
