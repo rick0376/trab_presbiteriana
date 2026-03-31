@@ -179,7 +179,7 @@ export default function IgrejasPageClient({ igrejas, initialPublico }: Props) {
             <div className={styles.topActions}>
               <div className={styles.cardRadio}>
                 <header className={styles.header}>
-                  <h1 className={styles.title}>📻 Rádio Presbiteriana</h1>
+                  <h1 className={styles.title}>📻 Rádio Renovada</h1>
                   <span
                     className={
                       visualStatus === "AO_VIVO" ? styles.live : styles.offline

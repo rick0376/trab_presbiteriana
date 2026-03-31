@@ -14,6 +14,22 @@ export default async function DashboardPage() {
   const isSuperAdmin = user.role === "SUPERADMIN";
   const igrejaId = user.igrejaId ?? null;
 
+  const permissaoAcessos = isSuperAdmin
+    ? { ler: true }
+    : await prisma.permissao.findUnique({
+        where: {
+          userId_recurso: {
+            userId: user.id,
+            recurso: "acessos_site",
+          },
+        },
+        select: {
+          ler: true,
+        },
+      });
+
+  const canViewAcessos = isSuperAdmin || !!permissaoAcessos?.ler;
+
   // ======================================================
   // SUPERADMIN
   // ======================================================
@@ -35,10 +51,12 @@ export default async function DashboardPage() {
       prisma.membro.count({ where: { ativo: false } }),
       prisma.evento.count(),
       prisma.cronogramaAnual.count(),
-      prisma.siteCounter.findUnique({
-        where: { key: "site-total" },
-        select: { total: true },
-      }),
+      canViewAcessos
+        ? prisma.siteCounter.findUnique({
+            where: { key: "site-total" },
+            select: { total: true },
+          })
+        : Promise.resolve(null),
     ]);
 
     const totalAcessosSite = siteCounter?.total ?? 0;
@@ -87,12 +105,14 @@ export default async function DashboardPage() {
             <div className={styles.statValue}>{totalCronogramas}</div>
           </div>
 
-          <Link href="/dashboard/acessos" className={styles.cardLink}>
-            <div className={styles.statCardA}>
-              <div className={styles.statLabel}>Acessos do site</div>
-              <div className={styles.statValue}>{totalAcessosSite}</div>
-            </div>
-          </Link>
+          {canViewAcessos && (
+            <Link href="/dashboard/acessos" className={styles.cardLink}>
+              <div className={styles.statCardA}>
+                <div className={styles.statLabel}>Acessos do site</div>
+                <div className={styles.statValue}>{totalAcessosSite}</div>
+              </div>
+            </Link>
+          )}
         </section>
       </div>
     );
@@ -246,10 +266,12 @@ export default async function DashboardPage() {
       },
     }),
 
-    prisma.siteCounter.findUnique({
-      where: { key: "site-total" },
-      select: { total: true },
-    }),
+    canViewAcessos
+      ? prisma.siteCounter.findUnique({
+          where: { key: "site-total" },
+          select: { total: true },
+        })
+      : Promise.resolve(null),
   ]);
 
   const totalAcessosSite = siteCounter?.total ?? 0;
@@ -358,12 +380,14 @@ export default async function DashboardPage() {
           <div className={styles.statValue}>{cronogramaAnual}</div>
         </div>
 
-        <Link href="/dashboard/acessos" className={styles.cardLink}>
-          <div className={styles.statCardA}>
-            <div className={styles.statLabel}>Acessos do site</div>
-            <div className={styles.statValue}>{totalAcessosSite}</div>
-          </div>
-        </Link>
+        {canViewAcessos && (
+          <Link href="/dashboard/acessos" className={styles.cardLink}>
+            <div className={styles.statCardA}>
+              <div className={styles.statLabel}>Acessos do site</div>
+              <div className={styles.statValue}>{totalAcessosSite}</div>
+            </div>
+          </Link>
+        )}
       </section>
 
       <section className={styles.grid2}>

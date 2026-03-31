@@ -87,6 +87,17 @@ const RECURSOS: RecursoConfig[] = [
   },
 
   {
+    value: "acessos_site",
+    label: "📊 Acessos do Site",
+    description: "Visualizar o dashboard de acessos e compartilhar relatórios",
+    tipos: ["ler", "compartilhar"],
+    labels: {
+      ler: "Visualizar card/página",
+      compartilhar: "PDF/WHATS",
+    },
+  },
+
+  {
     value: "escola_dominical",
     label: "📘 Escola Dominical",
     description: "Gerenciar turmas, frequência e compartilhamento da EBD",

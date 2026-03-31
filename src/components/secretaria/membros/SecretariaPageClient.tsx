@@ -343,6 +343,30 @@ export default function SecretariaPageClient() {
     };
   }, [items]);
 
+  const getNomeClientePdf = async () => {
+    const membroBase = itensFiltrados[0] ?? items[0];
+
+    if (!membroBase?.id) {
+      return "Sistema Igreja";
+    }
+
+    try {
+      const res = await fetch(`/api/membros/${membroBase.id}`, {
+        cache: "no-store",
+      });
+
+      if (!res.ok) {
+        return "Sistema Igreja";
+      }
+
+      const data = (await res.json()) as MembroDetalhado;
+
+      return data.igrejaNome?.trim() || "Sistema Igreja";
+    } catch {
+      return "Sistema Igreja";
+    }
+  };
+
   const desenharCarteirinhaNoDoc = async (
     doc: jsPDF,
     dadosMembro: MembroDetalhado,
@@ -639,7 +663,7 @@ export default function SecretariaPageClient() {
       return;
     }
 
-    const nomeCliente = "Sistema Igreja";
+    const nomeCliente = await getNomeClientePdf();
 
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
@@ -1112,7 +1136,7 @@ export default function SecretariaPageClient() {
 
       let y = margin;
 
-      const nomeCliente = "Sistema Igreja";
+      const nomeCliente = await getNomeClientePdf();
 
       const getLogoBase64 = async () => {
         try {
@@ -1354,13 +1378,18 @@ export default function SecretariaPageClient() {
   // =========================
   // WhatsApp
   // =========================
-  const enviarWhats = () => {
+
+  const enviarWhats = async () => {
     if (!canShare) return;
 
     if (itensFiltrados.length === 0) {
       showAlert("Atenção", "Nenhum membro para enviar no WhatsApp.");
       return;
     }
+
+    const popup = window.open("", "_blank");
+
+    const nomeCliente = await getNomeClientePdf();
 
     const dt = new Date();
     const dataBR = dt.toLocaleDateString("pt-BR", {
@@ -1382,6 +1411,7 @@ export default function SecretariaPageClient() {
             : "Somente OK";
 
     let texto = `👥 *RELATÓRIO DE MEMBROS*\n`;
+    texto += `Igreja: *${nomeCliente}*\n`;
     texto += `Filtro: *${filtroLabel}*\n`;
     texto += `Gerado em: ${dataBR} ${horaBR}\n\n`;
 
@@ -1392,14 +1422,16 @@ export default function SecretariaPageClient() {
       texto += `------------------------------\n`;
     });
 
-    texto += `📌 *Sistema Igreja*`;
+    texto += `📌 *${nomeCliente}*`;
 
-    window.open(
-      `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`,
-      "_blank",
-    );
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
+
+    if (popup) {
+      popup.location.href = url;
+    } else {
+      window.open(url, "_blank");
+    }
   };
-
   // =========================
   // Estado: ainda carregando permissões
   // =========================
