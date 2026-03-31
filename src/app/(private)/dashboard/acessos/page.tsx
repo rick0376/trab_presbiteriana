@@ -10,6 +10,12 @@ export const dynamic = "force-dynamic";
 const TZ = "America/Sao_Paulo";
 const DAY_MS = 24 * 60 * 60 * 1000;
 
+type SearchParamsShape = Record<string, string | string[] | undefined>;
+
+type PageProps = {
+  searchParams?: Promise<SearchParamsShape> | SearchParamsShape;
+};
+
 function getDatePartsInTimeZone(date: Date, timeZone = TZ) {
   const parts = new Intl.DateTimeFormat("pt-BR", {
     timeZone,
@@ -30,11 +36,6 @@ function getDayKey(date: Date, timeZone = TZ) {
   return `${year}-${month}-${day}`;
 }
 
-function getDayLabelFromKey(key: string) {
-  const [, month, day] = key.split("-");
-  return `${day}/${month}`;
-}
-
 function formatDateTimeBR(date: Date) {
   return new Intl.DateTimeFormat("pt-BR", {
     timeZone: TZ,
@@ -43,12 +44,55 @@ function formatDateTimeBR(date: Date) {
   }).format(date);
 }
 
-function getLastNDayKeys(baseDate: Date, days: number) {
-  return Array.from({ length: days }, (_, index) => {
-    const offset = days - 1 - index;
-    const date = new Date(baseDate.getTime() - offset * DAY_MS);
-    return getDayKey(date);
-  });
+function formatDateInput(date: Date) {
+  return getDayKey(date);
+}
+
+function formatYmdToPtBr(ymd: string) {
+  const [year, month, day] = ymd.split("-");
+  return `${day}/${month}/${year}`;
+}
+
+function getParam(
+  searchParams: SearchParamsShape | undefined,
+  key: string,
+): string | undefined {
+  const value = searchParams?.[key];
+  if (Array.isArray(value)) return value[0];
+  return value;
+}
+
+function parseYmd(value?: string | null) {
+  if (!value) return null;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+  return value;
+}
+
+function getRangeFromYmd(startYmd: string, endYmd: string) {
+  const start = new Date(`${startYmd}T00:00:00-03:00`);
+  const endExclusive = new Date(
+    new Date(`${endYmd}T00:00:00-03:00`).getTime() + DAY_MS,
+  );
+
+  return { start, endExclusive };
+}
+
+function getDayKeysBetween(startYmd: string, endYmd: string) {
+  const keys: string[] = [];
+  let cursor = new Date(`${startYmd}T00:00:00-03:00`);
+  const end = new Date(`${endYmd}T00:00:00-03:00`);
+
+  while (cursor.getTime() <= end.getTime()) {
+    keys.push(getDayKey(cursor));
+    cursor = new Date(cursor.getTime() + DAY_MS);
+  }
+
+  return keys;
+}
+
+function getDayLabelFromKey(key: string) {
+  const [, month, day] = key.split("-");
+  return `${day}/${month}`;
 }
 
 function getOrigemLabel(item: {
@@ -91,8 +135,14 @@ function getModoLabel(displayMode?: string | null) {
   return displayMode;
 }
 
-export default async function DashboardAcessosPage() {
+export default async function DashboardAcessosPage({
+  searchParams,
+}: PageProps) {
   const user = await requireUser();
+
+  const resolvedSearchParams = (await searchParams) as
+    | SearchParamsShape
+    | undefined;
 
   const isSuperAdmin = user.role === "SUPERADMIN";
   const igrejaId = user.igrejaId ?? null;
@@ -121,9 +171,22 @@ export default async function DashboardAcessosPage() {
   }
 
   const now = new Date();
-  const rangeStart = new Date(now.getTime() - 40 * DAY_MS);
 
-  const [siteCounter, recentAccessesRaw] = await Promise.all([
+  const todayYmd = formatDateInput(now);
+  const defaultDe = formatDateInput(new Date(now.getTime() - 29 * DAY_MS));
+  const defaultAte = todayYmd;
+
+  let selectedDe = parseYmd(getParam(resolvedSearchParams, "de")) ?? defaultDe;
+  let selectedAte =
+    parseYmd(getParam(resolvedSearchParams, "ate")) ?? defaultAte;
+
+  if (selectedDe > selectedAte) {
+    [selectedDe, selectedAte] = [selectedAte, selectedDe];
+  }
+
+  const { start, endExclusive } = getRangeFromYmd(selectedDe, selectedAte);
+
+  const [siteCounter, filteredAccessesRaw] = await Promise.all([
     prisma.siteCounter.findUnique({
       where: { key: "site-total" },
       select: { total: true, updatedAt: true },
@@ -132,13 +195,13 @@ export default async function DashboardAcessosPage() {
     prisma.siteAccess.findMany({
       where: {
         createdAt: {
-          gte: rangeStart,
+          gte: start,
+          lt: endExclusive,
         },
       },
       orderBy: {
         createdAt: "desc",
       },
-      take: 500,
       select: {
         id: true,
         createdAt: true,
@@ -158,7 +221,11 @@ export default async function DashboardAcessosPage() {
     }),
   ]);
 
-  const totalAcessos = siteCounter?.total ?? 0;
+  const totalAcessosGeral = siteCounter?.total ?? 0;
+  const totalPeriodo = filteredAccessesRaw.length;
+
+  const dayKeysInRange = getDayKeysBetween(selectedDe, selectedAte);
+  const periodDays = dayKeysInRange.length;
 
   const dailyMap = new Map<string, number>();
   const pathMap = new Map<string, number>();
@@ -170,9 +237,16 @@ export default async function DashboardAcessosPage() {
     other: 0,
   };
 
-  const unique30dSet = new Set<string>();
+  const sourceTotals = {
+    pwa: 0,
+    direto: 0,
+    referrer: 0,
+    utm: 0,
+  };
 
-  for (const access of recentAccessesRaw) {
+  const uniquePeriodoSet = new Set<string>();
+
+  for (const access of filteredAccessesRaw) {
     const createdAt = new Date(access.createdAt);
     const dayKey = getDayKey(createdAt);
 
@@ -189,50 +263,50 @@ export default async function DashboardAcessosPage() {
     else if (device === "bot") deviceTotals.bot += 1;
     else deviceTotals.other += 1;
 
+    if (access.utmSource || access.utmMedium || access.utmCampaign) {
+      sourceTotals.utm += 1;
+    } else if (
+      access.displayMode === "standalone" ||
+      access.displayMode === "ios-standalone"
+    ) {
+      sourceTotals.pwa += 1;
+    } else if (access.referrer) {
+      sourceTotals.referrer += 1;
+    } else {
+      sourceTotals.direto += 1;
+    }
+
     const uniqueKey =
       access.visitorId?.trim() ||
       access.ipHash?.trim() ||
       access.userAgent?.slice(0, 120) ||
       access.id;
 
-    unique30dSet.add(uniqueKey);
+    uniquePeriodoSet.add(uniqueKey);
   }
 
-  const todayKey = getDayKey(now);
-  const totalHoje = dailyMap.get(todayKey) ?? 0;
+  const uniquePeriodo = uniquePeriodoSet.size;
+  const mediaPorDia =
+    periodDays > 0 ? Number((totalPeriodo / periodDays).toFixed(1)) : 0;
 
-  const last7Keys = getLastNDayKeys(now, 7);
-  const last30Keys = getLastNDayKeys(now, 30);
-
-  const total7dias = last7Keys.reduce(
-    (acc, key) => acc + (dailyMap.get(key) ?? 0),
-    0,
-  );
-
-  const total30dias = last30Keys.reduce(
-    (acc, key) => acc + (dailyMap.get(key) ?? 0),
-    0,
-  );
-
-  const unique30dias = unique30dSet.size;
-
-  const chartData7dias = last7Keys.map((key) => ({
+  const chartData = dayKeysInRange.map((key) => ({
     key,
     label: getDayLabelFromKey(key),
     total: dailyMap.get(key) ?? 0,
   }));
 
-  const maxChartValue = Math.max(
-    ...chartData7dias.map((item) => item.total),
-    1,
-  );
+  const maxChartValue = Math.max(...chartData.map((item) => item.total), 1);
 
   const topPaths = Array.from(pathMap.entries())
     .map(([path, total]) => ({ path, total }))
     .sort((a, b) => b.total - a.total)
     .slice(0, 8);
 
-  const recentAccesses = recentAccessesRaw.slice(0, 20);
+  const recentAccesses = filteredAccessesRaw.slice(0, 50);
+
+  const hojeHref = `/dashboard/acessos?de=${todayYmd}&ate=${todayYmd}`;
+  const seteDiasHref = `/dashboard/acessos?de=${formatDateInput(new Date(now.getTime() - 6 * DAY_MS))}&ate=${todayYmd}`;
+  const trintaDiasHref = `/dashboard/acessos?de=${defaultDe}&ate=${defaultAte}`;
 
   return (
     <div className={styles.container}>
@@ -249,58 +323,136 @@ export default async function DashboardAcessosPage() {
         </Link>
       </div>
 
+      <section className={`${styles.card} ${styles.filterCard}`}>
+        <div className={styles.cardHeader}>
+          <h2>Filtro por período</h2>
+        </div>
+
+        <form method="GET" className={styles.filterForm}>
+          <div className={styles.fieldGroup}>
+            <label htmlFor="de" className={styles.fieldLabel}>
+              De
+            </label>
+            <input
+              id="de"
+              name="de"
+              type="date"
+              defaultValue={selectedDe}
+              className={styles.fieldInput}
+            />
+          </div>
+
+          <div className={styles.fieldGroup}>
+            <label htmlFor="ate" className={styles.fieldLabel}>
+              Até
+            </label>
+            <input
+              id="ate"
+              name="ate"
+              type="date"
+              defaultValue={selectedAte}
+              className={styles.fieldInput}
+            />
+          </div>
+
+          <div className={styles.filterActions}>
+            <button type="submit" className={styles.filterButton}>
+              Filtrar
+            </button>
+
+            <Link href="/dashboard/acessos" className={styles.clearButton}>
+              Limpar
+            </Link>
+          </div>
+        </form>
+
+        <div className={styles.quickFilters}>
+          <Link href={hojeHref} className={styles.quickLink}>
+            Hoje
+          </Link>
+          <Link href={seteDiasHref} className={styles.quickLink}>
+            7 dias
+          </Link>
+          <Link href={trintaDiasHref} className={styles.quickLink}>
+            30 dias
+          </Link>
+        </div>
+
+        <div className={styles.periodBadge}>
+          Período selecionado: {formatYmdToPtBr(selectedDe)} até{" "}
+          {formatYmdToPtBr(selectedAte)} • {periodDays} dia(s)
+        </div>
+      </section>
+
       <section className={styles.gridStats}>
         <div className={styles.statCard}>
           <div className={styles.statLabel}>Total geral</div>
-          <div className={styles.statValue}>{totalAcessos}</div>
+          <div className={styles.statValue}>{totalAcessosGeral}</div>
         </div>
 
         <div className={styles.statCard}>
-          <div className={styles.statLabel}>Hoje</div>
-          <div className={styles.statValue}>{totalHoje}</div>
+          <div className={styles.statLabel}>Total no período</div>
+          <div className={styles.statValue}>{totalPeriodo}</div>
         </div>
 
         <div className={styles.statCard}>
-          <div className={styles.statLabel}>Últimos 7 dias</div>
-          <div className={styles.statValue}>{total7dias}</div>
+          <div className={styles.statLabel}>Visitantes aprox.</div>
+          <div className={styles.statValue}>{uniquePeriodo}</div>
         </div>
 
         <div className={styles.statCard}>
-          <div className={styles.statLabel}>Últimos 30 dias</div>
-          <div className={styles.statValue}>{total30dias}</div>
+          <div className={styles.statLabel}>Média por dia</div>
+          <div className={styles.statValue}>{mediaPorDia}</div>
         </div>
 
         <div className={styles.statCard}>
-          <div className={styles.statLabel}>Visitantes aprox. 30 dias</div>
-          <div className={styles.statValue}>{unique30dias}</div>
+          <div className={styles.statLabel}>Mobile no período</div>
+          <div className={styles.statValue}>{deviceTotals.mobile}</div>
+        </div>
+
+        <div className={styles.statCard}>
+          <div className={styles.statLabel}>UTM no período</div>
+          <div className={styles.statValue}>{sourceTotals.utm}</div>
+        </div>
+
+        <div className={styles.statCard}>
+          <div className={styles.statLabel}>PWA no período</div>
+          <div className={styles.statValue}>{sourceTotals.pwa}</div>
         </div>
       </section>
 
       <section className={styles.grid2}>
         <div className={`${styles.card} ${styles.cardWide}`}>
           <div className={styles.cardHeader}>
-            <h2>Acessos por dia • últimos 7 dias</h2>
+            <h2>Acessos por dia</h2>
           </div>
 
-          <div className={styles.barChart}>
-            {chartData7dias.map((item) => {
-              const heightPercent = (item.total / maxChartValue) * 100;
+          <div className={styles.barChartScroll}>
+            <div
+              className={styles.barChart}
+              style={{
+                gridTemplateColumns: `repeat(${chartData.length}, minmax(42px, 1fr))`,
+              }}
+            >
+              {chartData.map((item) => {
+                const heightPercent = (item.total / maxChartValue) * 100;
 
-              return (
-                <div key={item.key} className={styles.barItem}>
-                  <div className={styles.barValue}>{item.total}</div>
+                return (
+                  <div key={item.key} className={styles.barItem}>
+                    <div className={styles.barValue}>{item.total}</div>
 
-                  <div className={styles.barTrack}>
-                    <div
-                      className={styles.barFill}
-                      style={{ height: `${heightPercent}%` }}
-                    />
+                    <div className={styles.barTrack}>
+                      <div
+                        className={styles.barFill}
+                        style={{ height: `${heightPercent}%` }}
+                      />
+                    </div>
+
+                    <div className={styles.barLabel}>{item.label}</div>
                   </div>
-
-                  <div className={styles.barLabel}>{item.label}</div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
 
@@ -329,6 +481,31 @@ export default async function DashboardAcessosPage() {
             <li className={styles.listItem}>
               <span>Outros</span>
               <strong>{deviceTotals.other}</strong>
+            </li>
+          </ul>
+        </div>
+
+        <div className={styles.card}>
+          <div className={styles.cardHeader}>
+            <h2>Origem dos acessos</h2>
+          </div>
+
+          <ul className={styles.list}>
+            <li className={styles.listItem}>
+              <span>UTM</span>
+              <strong>{sourceTotals.utm}</strong>
+            </li>
+            <li className={styles.listItem}>
+              <span>PWA</span>
+              <strong>{sourceTotals.pwa}</strong>
+            </li>
+            <li className={styles.listItem}>
+              <span>Referrer</span>
+              <strong>{sourceTotals.referrer}</strong>
+            </li>
+            <li className={styles.listItem}>
+              <span>Direto</span>
+              <strong>{sourceTotals.direto}</strong>
             </li>
           </ul>
         </div>
@@ -378,7 +555,7 @@ export default async function DashboardAcessosPage() {
 
       <section className={`${styles.card} ${styles.cardFull}`}>
         <div className={styles.cardHeader}>
-          <h2>Últimos acessos</h2>
+          <h2>Últimos acessos do período</h2>
         </div>
 
         {recentAccesses.length === 0 ? (
