@@ -12,6 +12,10 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 
 type SearchParamsShape = Record<string, string | string[] | undefined>;
 
+type PageProps = {
+  searchParams?: Promise<SearchParamsShape>;
+};
+
 function getDatePartsInTimeZone(date: Date, timeZone = TZ) {
   const parts = new Intl.DateTimeFormat("pt-BR", {
     timeZone,
@@ -85,9 +89,7 @@ function getDayLabelFromKey(key: string) {
 
 export default async function DashboardAcessosPage({
   searchParams,
-}: {
-  searchParams?: Promise<SearchParamsShape>;
-}) {
+}: PageProps) {
   const user = await requireUser();
 
   const resolvedSearchParams = await searchParams;
