@@ -89,10 +89,12 @@ const RECURSOS: RecursoConfig[] = [
   {
     value: "acessos_site",
     label: "📊 Acessos do Site",
-    description: "Visualizar o dashboard de acessos e compartilhar relatórios",
-    tipos: ["ler", "compartilhar"],
+    description:
+      "Visualizar o dashboard de acessos, compartilhar relatórios e excluir acessos",
+    tipos: ["ler", "deletar", "compartilhar"],
     labels: {
       ler: "Visualizar card/página",
+      deletar: "Excluir/Zerar acessos",
       compartilhar: "PDF/WHATS",
     },
   },

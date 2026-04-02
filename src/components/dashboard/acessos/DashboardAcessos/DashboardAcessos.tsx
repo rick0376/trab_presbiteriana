@@ -3,8 +3,11 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { jsPDF } from "jspdf";
 import { FileText, MessageCircle } from "lucide-react";
+import ConfirmModal from "@/components/ui/ConfirmModal/ConfirmModal";
 import styles from "./styles.module.scss";
 
 const TZ = "America/Sao_Paulo";
@@ -87,6 +90,7 @@ type DefaultProps = {
   topPaths: TopPath[];
   recentAccesses: RecentAccess[];
   canShare: boolean;
+  canDelete: boolean;
 };
 
 type Props = EmptyProps | DefaultProps;
@@ -185,9 +189,61 @@ export default function DashboardAcessos(props: Props) {
     topPaths,
     recentAccesses,
     canShare,
+    canDelete,
   } = props;
 
   const maxChartValue = Math.max(...chartData.map((item) => item.total), 1);
+
+  const router = useRouter();
+  const [loadingDelete, setLoadingDelete] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmType, setConfirmType] = useState<"all" | "period" | null>(null);
+
+  const abrirConfirmExcluirPeriodo = () => {
+    setConfirmType("period");
+    setConfirmOpen(true);
+  };
+
+  const abrirConfirmExcluirTudo = () => {
+    setConfirmType("all");
+    setConfirmOpen(true);
+  };
+
+  const confirmarExclusao = async () => {
+    if (!confirmType) return;
+
+    try {
+      setLoadingDelete(true);
+
+      const payload =
+        confirmType === "all"
+          ? { mode: "all" }
+          : { mode: "period", de: selectedDe, ate: selectedAte };
+
+      const resp = await fetch("/api/admin/acessos/limpar", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await resp.json();
+
+      if (!resp.ok || !data?.ok) {
+        alert(data?.message || "Erro ao excluir acessos.");
+        return;
+      }
+
+      setConfirmOpen(false);
+      setConfirmType(null);
+      router.refresh();
+    } catch {
+      alert("Erro ao excluir acessos.");
+    } finally {
+      setLoadingDelete(false);
+    }
+  };
 
   const getLogoBase64 = async () => {
     try {
@@ -563,21 +619,43 @@ export default function DashboardAcessos(props: Props) {
         </div>
       </section>
 
-      {canShare && (
-        <div className={styles.actionsRow}>
-          <button type="button" className={styles.btnPDF} onClick={gerarPdf}>
-            <FileText size={16} /> PDF
-          </button>
+      <div className={styles.actionsRow}>
+        {canShare && (
+          <>
+            <button type="button" className={styles.btnPDF} onClick={gerarPdf}>
+              <FileText size={16} /> PDF
+            </button>
 
-          <button
-            type="button"
-            className={styles.btnWhats}
-            onClick={enviarWhats}
-          >
-            <MessageCircle size={16} /> Whats
-          </button>
-        </div>
-      )}
+            <button
+              type="button"
+              className={styles.btnWhats}
+              onClick={enviarWhats}
+            >
+              <MessageCircle size={16} /> Whats
+            </button>
+          </>
+        )}
+
+        {canDelete && (
+          <>
+            <button
+              type="button"
+              className={styles.clearButton}
+              onClick={abrirConfirmExcluirPeriodo}
+            >
+              Excluir período
+            </button>
+
+            <button
+              type="button"
+              className={styles.filterButton}
+              onClick={abrirConfirmExcluirTudo}
+            >
+              Excluir tudo e zerar
+            </button>
+          </>
+        )}
+      </div>
 
       <section className={styles.gridStats}>
         <div className={styles.statCard}>
@@ -795,6 +873,26 @@ export default function DashboardAcessos(props: Props) {
           </div>
         )}
       </section>
+
+      <ConfirmModal
+        open={confirmOpen}
+        title={
+          confirmType === "all"
+            ? "Excluir todos os acessos?"
+            : "Excluir acessos do período?"
+        }
+        message={
+          confirmType === "all"
+            ? "Esta ação vai apagar todos os acessos e zerar o contador geral. Deseja continuar?"
+            : `Esta ação vai apagar os acessos do período de ${selectedDe} até ${selectedAte}. Deseja continuar?`
+        }
+        onConfirm={confirmarExclusao}
+        onCancel={() => {
+          if (loadingDelete) return;
+          setConfirmOpen(false);
+          setConfirmType(null);
+        }}
+      />
     </div>
   );
 }

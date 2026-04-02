@@ -96,7 +96,7 @@ export default async function DashboardAcessosPage({
   const igrejaId = user.igrejaId ?? null;
 
   const permissaoAcessos = isSuperAdmin
-    ? { ler: true, compartilhar: true }
+    ? { ler: true, compartilhar: true, deletar: true }
     : await prisma.permissao.findUnique({
         where: {
           userId_recurso: {
@@ -107,11 +107,13 @@ export default async function DashboardAcessosPage({
         select: {
           ler: true,
           compartilhar: true,
+          deletar: true,
         },
       });
 
   const canViewAcessos = isSuperAdmin || !!permissaoAcessos?.ler;
   const canShareAcessos = isSuperAdmin || !!permissaoAcessos?.compartilhar;
+  const canDeleteAcessos = isSuperAdmin || !!permissaoAcessos?.deletar;
 
   if (!canViewAcessos) {
     redirect("/sem-permissao");
@@ -329,6 +331,7 @@ export default async function DashboardAcessosPage({
       topPaths={topPaths}
       recentAccesses={recentAccesses}
       canShare={canShareAcessos}
+      canDelete={canDeleteAcessos}
     />
   );
 }
