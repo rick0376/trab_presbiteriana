@@ -284,6 +284,9 @@ export default async function DashboardAcessosPage({
     visitorId: item.visitorId,
     ipAddress: item.ipAddress,
     ipHash: item.ipHash,
+    ipCountry: item.ipCountry,
+    ipRegion: item.ipRegion,
+    ipCity: item.ipCity,
   }));
 
   const periodoLabel = `${formatYmdToPtBr(selectedDe)} até ${formatYmdToPtBr(selectedAte)}`;
