@@ -587,6 +587,105 @@
   vertical-align: top;
 }
 
+.accessCards {
+  display: none;
+}
+
+.accessCard {
+  border-radius: 16px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.68);
+  border: 1px solid rgba(34, 79, 110, 0.14);
+  box-shadow:
+    0 10px 22px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.accessCard + .accessCard {
+  margin-top: 12px;
+}
+
+.accessCardTop {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.accessDate {
+  font-size: 13px;
+  font-weight: 950;
+  color: #224f6e;
+}
+
+.accessBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.badgePath,
+.badgeDevice {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.badgePath {
+  background: linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%);
+  color: #1e3a8a;
+}
+
+.badgeDevice {
+  color: #fff;
+}
+
+.badgeDevice[data-device="desktop"] {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+}
+
+.badgeDevice[data-device="mobile"] {
+  background: linear-gradient(135deg, #fb7185 0%, #e11d48 100%);
+}
+
+.accessGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.accessItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.56);
+  border: 1px solid rgba(34, 79, 110, 0.08);
+  min-width: 0;
+}
+
+.accessItem strong {
+  font-size: 13px;
+  font-weight: 900;
+  color: #224f6e;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.accessLabel {
+  font-size: 11px;
+  font-weight: 900;
+  color: rgba(34, 79, 110, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
 @media (max-width: 980px) {
   .grid2 {
     grid-template-columns: 1fr;
@@ -615,5 +714,17 @@
 
   .barTrack {
     height: 140px;
+  }
+
+  .tableWrap {
+    display: none;
+  }
+
+  .accessCards {
+    display: block;
+  }
+
+  .accessGrid {
+    grid-template-columns: 1fr;
   }
 }

@@ -832,45 +832,102 @@ export default function DashboardAcessos(props: Props) {
         {recentAccesses.length === 0 ? (
           <p className={styles.empty}>Nenhum acesso encontrado.</p>
         ) : (
-          <div className={styles.tableWrap}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Data/Hora</th>
-                  <th>Página</th>
-                  <th>Dispositivo</th>
-                  <th>Modo</th>
-                  <th>Origem</th>
-                  <th>Visitante</th>
-                  <th>IP</th>
-                  <th>Hash IP</th>
-                  <th>País</th>
-                  <th>Região</th>
-                  <th>Cidade</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {recentAccesses.map((item) => (
-                  <tr key={item.id}>
-                    <td>{formatDateTimeBR(item.createdAt)}</td>
-                    <td>{item.path || "-"}</td>
-                    <td>{item.deviceType || "-"}</td>
-                    <td>{getModoLabel(item.displayMode)}</td>
-                    <td>{getOrigemLabel(item)}</td>
-                    <td>{item.visitorId || "-"}</td>
-                    <td>{item.ipAddress || "-"}</td>
-                    <td>
-                      {item.ipHash ? item.ipHash.slice(0, 16) + "..." : "-"}
-                    </td>
-                    <td>{item.ipCountry || "-"}</td>
-                    <td>{item.ipRegion || "-"}</td>
-                    <td>{item.ipCity || "-"}</td>
+          <>
+            <div className={styles.tableWrap}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>Data/Hora</th>
+                    <th>Página</th>
+                    <th>Dispositivo</th>
+                    <th>Modo</th>
+                    <th>Origem</th>
+                    {/*<th>Visitante</th>*/}
+                    <th>IP</th>
+                    {/*<th>Hash IP</th>*/}
+                    <th>País</th>
+                    <th>Região</th>
+                    <th>Cidade</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+
+                <tbody>
+                  {recentAccesses.map((item) => (
+                    <tr key={item.id}>
+                      <td>{formatDateTimeBR(item.createdAt)}</td>
+                      <td>{item.path || "-"}</td>
+                      <td>{item.deviceType || "-"}</td>
+                      <td>{getModoLabel(item.displayMode)}</td>
+                      <td>{getOrigemLabel(item)}</td>
+
+                      {/*<td>{item.visitorId || "-"}</td>*/}
+                      <td>{item.ipAddress || "-"}</td>
+
+                      {/*<td>
+                        {item.ipHash ? item.ipHash.slice(0, 16) + "..." : "-"}
+                      </td>
+                      */}
+
+                      <td>{item.ipCountry || "-"}</td>
+                      <td>{item.ipRegion || "-"}</td>
+                      <td>{item.ipCity || "-"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className={styles.accessCards}>
+              {recentAccesses.map((item) => (
+                <article key={item.id} className={styles.accessCard}>
+                  <div className={styles.accessCardTop}>
+                    <div className={styles.accessDate}>
+                      {formatDateTimeBR(item.createdAt)}
+                    </div>
+                    <div className={styles.accessBadges}>
+                      <span className={styles.badgePath}>
+                        {item.path || "-"}
+                      </span>
+                      <span
+                        className={styles.badgeDevice}
+                        data-device={(item.deviceType || "").toLowerCase()}
+                      >
+                        {item.deviceType || "-"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className={styles.accessGrid}>
+                    <div className={styles.accessItem}>
+                      <span className={styles.accessLabel}>Modo</span>
+                      <strong>{getModoLabel(item.displayMode)}</strong>
+                    </div>
+
+                    <div className={styles.accessItem}>
+                      <span className={styles.accessLabel}>Origem</span>
+                      <strong>{getOrigemLabel(item)}</strong>
+                    </div>
+
+                    <div className={styles.accessItem}>
+                      <span className={styles.accessLabel}>IP</span>
+                      <strong>{item.ipAddress || "-"}</strong>
+                    </div>
+
+                    <div className={styles.accessItem}>
+                      <span className={styles.accessLabel}>Local</span>
+                      <strong>
+                        {[
+                          item.ipCountry || "-",
+                          item.ipRegion || "-",
+                          item.ipCity || "-",
+                        ].join(" / ")}
+                      </strong>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </>
         )}
       </section>
 
