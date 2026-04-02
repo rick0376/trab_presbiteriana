@@ -48,6 +48,9 @@ type RecentAccess = {
   visitorId?: string | null;
   ipAddress?: string | null;
   ipHash?: string | null;
+  ipCountry?: string | null;
+  ipRegion?: string | null;
+  ipCity?: string | null;
 };
 
 type EmptyProps = {
@@ -763,6 +766,9 @@ export default function DashboardAcessos(props: Props) {
                   <th>Visitante</th>
                   <th>IP</th>
                   <th>Hash IP</th>
+                  <th>País</th>
+                  <th>Região</th>
+                  <th>Cidade</th>
                 </tr>
               </thead>
 
@@ -779,6 +785,9 @@ export default function DashboardAcessos(props: Props) {
                     <td>
                       {item.ipHash ? item.ipHash.slice(0, 16) + "..." : "-"}
                     </td>
+                    <td>{item.ipCountry || "-"}</td>
+                    <td>{item.ipRegion || "-"}</td>
+                    <td>{item.ipCity || "-"}</td>
                   </tr>
                 ))}
               </tbody>

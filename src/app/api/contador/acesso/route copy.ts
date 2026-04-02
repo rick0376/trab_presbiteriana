@@ -99,18 +99,6 @@ function cleanText(value: unknown, max = 500) {
   return trimmed.slice(0, max);
 }
 
-function getGeoFromVercel(req: NextRequest) {
-  const ipCountry = cleanText(req.headers.get("x-vercel-ip-country"), 10);
-  const ipRegion = cleanText(req.headers.get("x-vercel-ip-country-region"), 20);
-  const ipCity = cleanText(req.headers.get("x-vercel-ip-city"), 120);
-
-  return {
-    ipCountry,
-    ipRegion,
-    ipCity,
-  };
-}
-
 export async function POST(req: NextRequest) {
   try {
     let body: AccessBody = {};
@@ -125,7 +113,6 @@ export async function POST(req: NextRequest) {
     const deviceType = getDeviceType(userAgent);
     const ipAddress = getRequestIp(req);
     const ipHash = hashIp(ipAddress);
-    const { ipCountry, ipRegion, ipCity } = getGeoFromVercel(req);
 
     const path = cleanText(body.path, 255);
     const referrer = cleanText(body.referrer, 500);
@@ -160,9 +147,6 @@ export async function POST(req: NextRequest) {
           visitorId,
           ipAddress,
           ipHash,
-          ipCountry,
-          ipRegion,
-          ipCity,
           displayMode,
           utmSource,
           utmMedium,

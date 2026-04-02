@@ -402,6 +402,9 @@ model SiteAccess {
   visitorId    String?
   ipAddress    String?
   ipHash       String?
+  ipCountry    String?
+  ipRegion     String?
+  ipCity       String?
 
   displayMode  String?
   utmSource    String?
@@ -416,6 +419,9 @@ model SiteAccess {
   @@index([visitorId])
   @@index([ipAddress])
   @@index([ipHash])
+  @@index([ipCountry])
+  @@index([ipRegion])
+  @@index([ipCity])
   @@index([displayMode])
   @@index([utmSource])
   @@index([utmMedium])
