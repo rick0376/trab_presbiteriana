@@ -3,6 +3,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "node:crypto";
 import { prisma } from "@/lib/prisma";
+import { geolocation, ipAddress } from "@vercel/functions";
 
 export const runtime = "nodejs";
 
@@ -123,9 +124,23 @@ export async function POST(req: NextRequest) {
 
     const userAgent = req.headers.get("user-agent") || "";
     const deviceType = getDeviceType(userAgent);
-    const ipAddress = getRequestIp(req);
-    const ipHash = hashIp(ipAddress);
-    const { ipCountry, ipRegion, ipCity } = getGeoFromVercel(req);
+
+    const ipFromVercel = ipAddress(req) || getRequestIp(req);
+    const ipHash = hashIp(ipFromVercel);
+
+    const geo = geolocation(req);
+
+    const ipCountry =
+      cleanText(geo.country, 10) ||
+      cleanText(req.headers.get("x-vercel-ip-country"), 10);
+
+    const ipRegion =
+      cleanText(geo.countryRegion, 20) ||
+      cleanText(req.headers.get("x-vercel-ip-country-region"), 20);
+
+    const ipCity =
+      cleanText(geo.city, 120) ||
+      cleanText(req.headers.get("x-vercel-ip-city"), 120);
 
     const path = cleanText(body.path, 255);
     const referrer = cleanText(body.referrer, 500);
@@ -158,7 +173,7 @@ export async function POST(req: NextRequest) {
           userAgent: userAgent || null,
           deviceType,
           visitorId,
-          ipAddress,
+          ipAddress: ipFromVercel,
           ipHash,
           ipCountry,
           ipRegion,
