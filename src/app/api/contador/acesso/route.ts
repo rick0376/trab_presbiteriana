@@ -101,18 +101,6 @@ function cleanText(value: unknown, max = 500) {
 
 export async function POST(req: NextRequest) {
   try {
-    /*console.log("========== HEADERS ACESSO ==========");
-    console.log(Object.fromEntries(req.headers.entries()));
-    console.log("x-forwarded-for:", req.headers.get("x-forwarded-for"));
-    console.log("x-real-ip:", req.headers.get("x-real-ip"));
-    console.log("cf-connecting-ip:", req.headers.get("cf-connecting-ip"));
-    console.log("x-client-ip:", req.headers.get("x-client-ip"));
-    console.log("x-cluster-client-ip:", req.headers.get("x-cluster-client-ip"));
-    console.log("forwarded:", req.headers.get("forwarded"));
-    console.log("ip capturado:", getRequestIp(req));
-    console.log("====================================");
-*/
-
     let body: AccessBody = {};
 
     try {

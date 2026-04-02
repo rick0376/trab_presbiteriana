@@ -776,7 +776,9 @@ export default function DashboardAcessos(props: Props) {
                     <td>{getOrigemLabel(item)}</td>
                     <td>{item.visitorId || "-"}</td>
                     <td>{item.ipAddress || "-"}</td>
-                    <td>{item.ipHash || "-"}</td>
+                    <td>
+                      {item.ipHash ? item.ipHash.slice(0, 16) + "..." : "-"}
+                    </td>
                   </tr>
                 ))}
               </tbody>
