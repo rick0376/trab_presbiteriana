@@ -129,6 +129,14 @@ export async function POST(req: NextRequest) {
     const ipHash = hashIp(ipFromVercel);
 
     const geo = geolocation(req);
+    console.log("geo", geo);
+    console.log("x-vercel-ip-country", req.headers.get("x-vercel-ip-country"));
+    console.log(
+      "x-vercel-ip-country-region",
+      req.headers.get("x-vercel-ip-country-region"),
+    );
+    console.log("x-vercel-ip-city", req.headers.get("x-vercel-ip-city"));
+    console.log("ipFromVercel", ipFromVercel);
 
     const ipCountry =
       cleanText(geo.country, 10) ||
