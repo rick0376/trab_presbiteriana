@@ -177,6 +177,7 @@ export default async function DashboardAcessosPage({
         userAgent: true,
         deviceType: true,
         visitorId: true,
+        ipAddress: true,
         ipHash: true,
         displayMode: true,
         utmSource: true,
@@ -278,6 +279,7 @@ export default async function DashboardAcessosPage({
     utmCampaign: item.utmCampaign,
     referrer: item.referrer,
     visitorId: item.visitorId,
+    ipAddress: item.ipAddress,
     ipHash: item.ipHash,
   }));
 

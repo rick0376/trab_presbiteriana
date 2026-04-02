@@ -46,6 +46,7 @@ type RecentAccess = {
   utmCampaign?: string | null;
   referrer?: string | null;
   visitorId?: string | null;
+  ipAddress?: string | null;
   ipHash?: string | null;
 };
 
@@ -497,8 +498,8 @@ export default function DashboardAcessos(props: Props) {
       </div>
 
       <section className={`${styles.card} ${styles.filterCard}`}>
-        <div className={styles.cardHeader}>
-          <h2 className={styles.h2}>Filtro por período</h2>
+        <div className={styles.cardHeader1}>
+          <h2>Filtros por período</h2>
         </div>
 
         <form method="GET" className={styles.filterForm}>
@@ -760,6 +761,8 @@ export default function DashboardAcessos(props: Props) {
                   <th>Modo</th>
                   <th>Origem</th>
                   <th>Visitante</th>
+                  <th>IP</th>
+                  <th>Hash IP</th>
                 </tr>
               </thead>
 
@@ -771,9 +774,9 @@ export default function DashboardAcessos(props: Props) {
                     <td>{item.deviceType || "-"}</td>
                     <td>{getModoLabel(item.displayMode)}</td>
                     <td>{getOrigemLabel(item)}</td>
-                    <td>
-                      {item.visitorId || item.ipHash?.slice(0, 12) || "-"}
-                    </td>
+                    <td>{item.visitorId || "-"}</td>
+                    <td>{item.ipAddress || "-"}</td>
+                    <td>{item.ipHash || "-"}</td>
                   </tr>
                 ))}
               </tbody>

@@ -400,7 +400,6 @@ model SiteAccess {
   userAgent    String?
   deviceType   String?
   visitorId    String?
-  ipAddress    String?
   ipHash       String?
 
   displayMode  String?
@@ -414,8 +413,6 @@ model SiteAccess {
   @@index([deviceType])
   @@index([path])
   @@index([visitorId])
-  @@index([ipAddress])
-  @@index([ipHash])
   @@index([displayMode])
   @@index([utmSource])
   @@index([utmMedium])

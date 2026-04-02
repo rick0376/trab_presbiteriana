@@ -34,7 +34,7 @@
   font-weight: 650;
 }
 
-.h2 {
+.filtroH2 {
   margin: 0;
   font-size: 28px;
   font-weight: 950;
@@ -246,6 +246,21 @@
   font-size: 16px;
   font-weight: 950;
   color: #224f6e;
+}
+
+.cardHeader1 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.cardHeader1 h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 950;
+  color: #f3f5f7;
 }
 
 .filterForm {

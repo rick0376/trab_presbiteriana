@@ -30,16 +30,58 @@ function getDeviceType(userAgent: string) {
   return "desktop";
 }
 
-function getRequestIp(req: NextRequest) {
-  const forwarded = req.headers.get("x-forwarded-for");
-  const realIp = req.headers.get("x-real-ip");
+function normalizeIp(ip: string | null) {
+  if (!ip) return null;
 
-  if (forwarded) {
-    return forwarded.split(",")[0]?.trim() || null;
+  const value = ip.trim();
+
+  if (!value) return null;
+
+  if (value === "::1") return "127.0.0.1";
+  if (value === "::ffff:127.0.0.1") return "127.0.0.1";
+
+  if (value.startsWith("::ffff:")) {
+    return value.replace("::ffff:", "");
   }
 
-  if (realIp) {
-    return realIp.trim();
+  return value;
+}
+
+function getRequestIp(req: NextRequest) {
+  const candidates = [
+    req.headers.get("x-forwarded-for"),
+    req.headers.get("x-real-ip"),
+    req.headers.get("cf-connecting-ip"),
+    req.headers.get("x-client-ip"),
+    req.headers.get("x-cluster-client-ip"),
+    req.headers.get("forwarded"),
+  ];
+
+  for (const candidate of candidates) {
+    if (!candidate) continue;
+
+    if (candidate.includes(",")) {
+      const first = candidate.split(",")[0]?.trim() || null;
+      const normalized = normalizeIp(first);
+      if (normalized) return normalized;
+      continue;
+    }
+
+    if (candidate.startsWith("for=")) {
+      const forwardedIp = candidate
+        .split(";")[0]
+        .replace(/^for=/i, "")
+        .replace(/^"/, "")
+        .replace(/"$/, "")
+        .trim();
+
+      const normalized = normalizeIp(forwardedIp);
+      if (normalized) return normalized;
+      continue;
+    }
+
+    const normalized = normalizeIp(candidate);
+    if (normalized) return normalized;
   }
 
   return null;
@@ -59,6 +101,18 @@ function cleanText(value: unknown, max = 500) {
 
 export async function POST(req: NextRequest) {
   try {
+    /*console.log("========== HEADERS ACESSO ==========");
+    console.log(Object.fromEntries(req.headers.entries()));
+    console.log("x-forwarded-for:", req.headers.get("x-forwarded-for"));
+    console.log("x-real-ip:", req.headers.get("x-real-ip"));
+    console.log("cf-connecting-ip:", req.headers.get("cf-connecting-ip"));
+    console.log("x-client-ip:", req.headers.get("x-client-ip"));
+    console.log("x-cluster-client-ip:", req.headers.get("x-cluster-client-ip"));
+    console.log("forwarded:", req.headers.get("forwarded"));
+    console.log("ip capturado:", getRequestIp(req));
+    console.log("====================================");
+*/
+
     let body: AccessBody = {};
 
     try {
@@ -69,7 +123,8 @@ export async function POST(req: NextRequest) {
 
     const userAgent = req.headers.get("user-agent") || "";
     const deviceType = getDeviceType(userAgent);
-    const ipHash = hashIp(getRequestIp(req));
+    const ipAddress = getRequestIp(req);
+    const ipHash = hashIp(ipAddress);
 
     const path = cleanText(body.path, 255);
     const referrer = cleanText(body.referrer, 500);
@@ -102,6 +157,7 @@ export async function POST(req: NextRequest) {
           userAgent: userAgent || null,
           deviceType,
           visitorId,
+          ipAddress,
           ipHash,
           displayMode,
           utmSource,
