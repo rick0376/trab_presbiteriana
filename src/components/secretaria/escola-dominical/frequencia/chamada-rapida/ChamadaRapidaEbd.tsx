@@ -3,8 +3,10 @@
 "use client";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Save } from "lucide-react";
 import FrequenciaChamadaMobile from "../mobile/FrequenciaChamadaMobile";
 import styles from "./styles.module.scss";
+
 type Props = {
   turmaId: string;
   igrejaId: string;
@@ -32,6 +34,8 @@ type RegistroDomingo = {
   oferta: string | number | null;
   revistasLivros: number;
   observacao?: string | null;
+  isFolgaGeral?: boolean;
+  motivoFolga?: string | null;
 };
 type RegistroFrequencia = {
   id: string;
@@ -64,6 +68,8 @@ type DomingoForm = {
   oferta: string;
   revistasLivros: number;
   observacao: string;
+  isFolgaGeral: boolean;
+  motivoFolga: string;
 };
 type Permissao = {
   id?: string;
@@ -153,8 +159,11 @@ function criarDomingosPadrao(domingosDoMes: DomingoDoMes[]): DomingoForm[] {
     oferta: "",
     revistasLivros: 0,
     observacao: "",
+    isFolgaGeral: false,
+    motivoFolga: "",
   }));
 }
+
 function criarMapaInicial(alunos: Aluno[], domingosDoMes: DomingoDoMes[]) {
   const mapa: Record<string, EbdStatus> = {};
   alunos.forEach((aluno) => {
@@ -181,6 +190,7 @@ export default function ChamadaRapidaEbd({
   const [domingos, setDomingos] = useState<DomingoForm[]>([]);
   const [observacoes, setObservacoes] = useState("");
   const [domingoSelecionadoNumero, setDomingoSelecionadoNumero] = useState("");
+  const [folgaRapidaAberta, setFolgaRapidaAberta] = useState(false);
   const [permissaoEbd, setPermissaoEbd] = useState<Permissao | null>(null);
   const [loadingPerms, setLoadingPerms] = useState(true);
   const [carregando, setCarregando] = useState(true);
@@ -259,10 +269,21 @@ export default function ChamadaRapidaEbd({
                   : "",
               revistasLivros: domingo.revistasLivros || 0,
               observacao: domingo.observacao || "",
+              isFolgaGeral: Boolean(domingo.isFolgaGeral),
+              motivoFolga: domingo.motivoFolga || "",
             };
           }
         });
       }
+
+      domingosBase.forEach((domingo) => {
+        if (!domingo.isFolgaGeral) return;
+
+        data.alunos.forEach((aluno) => {
+          mapaBase[`${aluno.id}-${domingo.domingoNumero}`] = "FALTA";
+        });
+      });
+
       setDomingos(domingosBase);
     } catch (error) {
       setErro(getErrorMessage(error, "Erro ao carregar frequência."));
@@ -303,12 +324,66 @@ export default function ChamadaRapidaEbd({
       domingosDoMes.find((item) => item.domingoNumero === domingoNumero) || null
     );
   }
+
+  function getDomingoForm(domingoNumero: number) {
+    return (
+      domingos.find((item) => item.domingoNumero === domingoNumero) || null
+    );
+  }
+
+  function isDomingoFolga(domingoNumero: number) {
+    return !!getDomingoForm(domingoNumero)?.isFolgaGeral;
+  }
+
+  function alterarFolgaDomingo(
+    domingoNumero: number,
+    campo: "isFolgaGeral" | "motivoFolga",
+    valor: string | boolean,
+  ) {
+    setDomingos((estadoAtual) =>
+      estadoAtual.map((item) => {
+        if (item.domingoNumero !== domingoNumero) return item;
+
+        if (campo === "isFolgaGeral") {
+          const marcado = Boolean(valor);
+
+          return {
+            ...item,
+            isFolgaGeral: marcado,
+            motivoFolga: marcado ? item.motivoFolga : "",
+          };
+        }
+
+        return {
+          ...item,
+          motivoFolga: String(valor),
+        };
+      }),
+    );
+
+    if (campo === "isFolgaGeral" && Boolean(valor)) {
+      setFrequencias((estadoAtual) => {
+        const novoEstado = { ...estadoAtual };
+
+        alunos.forEach((aluno) => {
+          novoEstado[`${aluno.id}-${domingoNumero}`] = "FALTA";
+        });
+
+        return novoEstado;
+      });
+    }
+  }
+
   function isDomingoLiberado(domingoNumero: number) {
+    if (isDomingoFolga(domingoNumero)) return false;
+
     const meta = getDomingoMeta(domingoNumero);
     if (!meta) return false;
+
     const dataDomingo = new Date(`${meta.dataISO}T12:00:00`);
     const hojeLimite = new Date();
     hojeLimite.setHours(23, 59, 59, 999);
+
     return dataDomingo.getTime() <= hojeLimite.getTime();
   }
   function alterarStatus(
@@ -328,13 +403,21 @@ export default function ChamadaRapidaEbd({
       setSalvando(true);
       setErro("");
       setSucesso("");
+      const domingosFolga = new Set(
+        domingos
+          .filter((item) => item.isFolgaGeral)
+          .map((item) => item.domingoNumero),
+      );
+
       const listaFrequencias = alunos.flatMap((aluno) =>
-        domingosDoMes.map((domingo) => ({
-          membroId: aluno.id,
-          domingoNumero: domingo.domingoNumero,
-          status:
-            frequencias[`${aluno.id}-${domingo.domingoNumero}`] || "FALTA",
-        })),
+        domingosDoMes
+          .filter((domingo) => !domingosFolga.has(domingo.domingoNumero))
+          .map((domingo) => ({
+            membroId: aluno.id,
+            domingoNumero: domingo.domingoNumero,
+            status:
+              frequencias[`${aluno.id}-${domingo.domingoNumero}`] || "FALTA",
+          })),
       );
       await getJsonOrThrow(
         `/api/secretaria/escola-dominical/turmas/${turmaId}/frequencia`,
@@ -358,6 +441,12 @@ export default function ChamadaRapidaEbd({
       setSalvando(false);
     }
   }
+
+  const domingoSelecionadoNumeroInt = Number(domingoSelecionadoNumero);
+  const domingoSelecionadoMeta = getDomingoMeta(domingoSelecionadoNumeroInt);
+  const domingoSelecionadoForm = getDomingoForm(domingoSelecionadoNumeroInt);
+  const domingoSelecionadoEmFolga = !!domingoSelecionadoForm?.isFolgaGeral;
+
   if (loadingPerms) {
     return (
       <div className={styles.container}>
@@ -373,33 +462,37 @@ export default function ChamadaRapidaEbd({
         <div className={styles.vazio}>
           {" "}
           ⛔ Você não tem permissão para visualizar a chamada rápida.{" "}
-        </div>{" "}
+        </div>
       </div>
     );
   }
   if (carregando) {
     return (
       <div className={styles.container}>
-        {" "}
         <div className={styles.vazio}>Carregando chamada rápida...</div>{" "}
       </div>
     );
   }
   return (
     <div className={styles.container}>
-      {" "}
       <section className={styles.topo}>
-        {" "}
         <div className={styles.top}>
-          {" "}
           <button
             type="button"
             className={styles.voltarBotao}
             onClick={() => router.back()}
           >
-            {" "}
-            ← Voltar{" "}
-          </button>{" "}
+            ← Voltar
+          </button>
+          {canEdit && (
+            <button
+              type="button"
+              className={styles.folgaBotao}
+              onClick={() => setFolgaRapidaAberta((v) => !v)}
+            >
+              {folgaRapidaAberta ? "Fechar folga" : "Folga do domingo"}
+            </button>
+          )}
           <div className={styles.tituloWrap}>
             {" "}
             <span className={styles.badge}>Modo rápido</span>{" "}
@@ -412,6 +505,72 @@ export default function ChamadaRapidaEbd({
           <p>• Professor(a): {turma?.professor?.nome || "-"}</p>{" "}
         </div>{" "}
       </section>{" "}
+      {canEdit && folgaRapidaAberta && domingoSelecionadoMeta && (
+        <section className={styles.folgaBox}>
+          <div className={styles.folgaHeader}>
+            <div>
+              <h2>Folga rápida do domingo</h2>
+              <p>
+                {domingoSelecionadoMeta.label} •{" "}
+                {domingoSelecionadoMeta.domingoNumero}º domingo
+              </p>
+            </div>
+          </div>
+
+          <div className={styles.folgaGrid}>
+            <label className={styles.folgaCheckbox}>
+              <input
+                type="checkbox"
+                checked={!!domingoSelecionadoForm?.isFolgaGeral}
+                onChange={(e) =>
+                  alterarFolgaDomingo(
+                    domingoSelecionadoNumeroInt,
+                    "isFolgaGeral",
+                    e.target.checked,
+                  )
+                }
+              />
+              <span>Marcar como folga geral</span>
+            </label>
+
+            {domingoSelecionadoEmFolga && (
+              <div className={styles.folgaMotivoWrap}>
+                <label>Motivo da folga</label>
+                <input
+                  value={domingoSelecionadoForm?.motivoFolga || ""}
+                  onChange={(e) =>
+                    alterarFolgaDomingo(
+                      domingoSelecionadoNumeroInt,
+                      "motivoFolga",
+                      e.target.value,
+                    )
+                  }
+                  placeholder="Ex.: congresso, feriado, culto especial..."
+                />
+              </div>
+            )}
+
+            {domingoSelecionadoEmFolga && (
+              <div className={styles.folgaAviso}>
+                Este domingo está em folga geral. A chamada ficará bloqueada e
+                ele não será computado como falta.
+              </div>
+            )}
+
+            <div className={styles.folgaActions}>
+              <button
+                type="button"
+                className={styles.salvarFolgaBotao}
+                onClick={salvarFrequencia}
+                disabled={salvando}
+              >
+                <Save size={18} />
+                <span>{salvando ? "Salvando..." : "Salvar folga"}</span>
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
       <section className={styles.filtros}>
         {" "}
         <div className={styles.filtroItem}>
@@ -450,7 +609,15 @@ export default function ChamadaRapidaEbd({
         erro={erro}
         sucesso={sucesso}
         isDomingoLiberado={isDomingoLiberado}
-      />{" "}
+      />
+      {domingoSelecionadoEmFolga && (
+        <div className={styles.folgaSelecionadaAviso}>
+          Domingo selecionado em folga geral
+          {domingoSelecionadoForm?.motivoFolga
+            ? ` • Motivo: ${domingoSelecionadoForm.motivoFolga}`
+            : ""}
+        </div>
+      )}
     </div>
   );
 }
