@@ -68,11 +68,14 @@ export default function FrequenciaTabelaDesktop({
               <tr key={aluno.id}>
                 <td>
                   <div className={styles.alunoCell}>
+                    {aluno.cargo ? ` • ${aluno.cargo}` : ""}
                     <strong>{aluno.nome}</strong>
+                    {/*
                     <span>
                       Nº {aluno.numeroSequencial || "-"}
                       {aluno.cargo ? ` • ${aluno.cargo}` : ""}
                     </span>
+                    */}
                   </div>
                 </td>
 

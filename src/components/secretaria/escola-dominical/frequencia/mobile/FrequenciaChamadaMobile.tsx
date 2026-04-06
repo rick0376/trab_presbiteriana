@@ -88,79 +88,63 @@ export default function FrequenciaChamadaMobile({
   }, [alunosComStatus.length, presencas]);
   return (
     <div className={styles.mobileBox}>
-      {" "}
       <section className={styles.bloco}>
-        {" "}
         <div className={styles.blocoHeader}>
-          {" "}
           <div>
-            {" "}
-            <h2>Chamada rápida</h2>{" "}
+            <h2>Chamada rápida</h2>
             <p>
-              {" "}
               {domingoSelecionado
                 ? `${domingoSelecionado.label} • ${domingoSelecionado.domingoNumero}º domingo`
-                : "Selecione o domingo do mês"}{" "}
-            </p>{" "}
-          </div>{" "}
-        </div>{" "}
+                : "Selecione o domingo do mês"}
+            </p>
+          </div>
+        </div>
         <div className={styles.mobileTopBar}>
-          {" "}
           <div className={styles.filtroItem}>
-            {" "}
-            <label>Domingo do mês</label>{" "}
+            <label>Domingo do mês</label>
             <select
               value={domingoSelecionadoNumero}
               onChange={(e) => setDomingoSelecionadoNumero(e.target.value)}
             >
-              {" "}
               {domingosDoMes.map((domingo) => (
                 <option
                   key={domingo.domingoNumero}
                   value={domingo.domingoNumero}
                 >
-                  {" "}
-                  {domingo.label} • {domingo.domingoNumero}º domingo{" "}
+                  {domingo.label} • {domingo.domingoNumero}º domingo
                 </option>
-              ))}{" "}
-            </select>{" "}
-          </div>{" "}
+              ))}
+            </select>
+          </div>
           <div className={styles.mobileResumoDia}>
-            {" "}
             <div className={styles.resumoChip}>
-              {" "}
-              <span className={styles.resumoLabel}>Presentes</span>{" "}
-              <strong className={styles.resumoValor}>{presencas}</strong>{" "}
-            </div>{" "}
+              <span className={styles.resumoLabel}>Presentes</span>
+              <strong className={styles.resumoValor}>{presencas}</strong>
+            </div>
             <div className={styles.resumoChip}>
-              {" "}
-              <span className={styles.resumoLabel}>Faltas</span>{" "}
-              <strong className={styles.resumoValor}>{faltas}</strong>{" "}
-            </div>{" "}
-          </div>{" "}
+              <span className={styles.resumoLabel}>Faltas</span>
+              <strong className={styles.resumoValor}>{faltas}</strong>
+            </div>
+          </div>
           {!domingoLiberado && (
             <div className={styles.avisoBloqueio}>
-              {" "}
-              Este domingo ainda não pode receber presença ou falta.{" "}
+              Este domingo ainda não pode receber presença ou falta.
             </div>
-          )}{" "}
-        </div>{" "}
+          )}
+        </div>
         <div className={styles.mobileCards}>
-          {" "}
           {alunosComStatus.map((aluno) => (
             <article key={aluno.id} className={styles.alunoCardMobile}>
-              {" "}
               <div className={styles.alunoCardHeader}>
-                {" "}
-                <strong>{aluno.nome}</strong>{" "}
+                {aluno.cargo ? ` • ${aluno.cargo}` : ""}
+                <strong>{aluno.nome}</strong>
                 <span>
-                  {" "}
-                  IPR - {aluno.numeroSequencialFormatado}{" "}
-                  {aluno.cargo ? ` • ${aluno.cargo}` : ""}{" "}
-                </span>{" "}
-              </div>{" "}
+                  {/*IPR - {aluno.numeroSequencialFormatado}
+                  {aluno.cargo ? ` • ${aluno.cargo}` : ""}
+                  */}
+                </span>
+              </div>
               <div className={styles.alunoCardActions}>
-                {" "}
                 <button
                   type="button"
                   disabled={!canEdit || !domingoLiberado}
@@ -169,9 +153,8 @@ export default function FrequenciaChamadaMobile({
                     alterarStatus(aluno.id, domingoNumero, "PRESENTE")
                   }
                 >
-                  {" "}
-                  ✓ Presente{" "}
-                </button>{" "}
+                  ✓ Presente
+                </button>
                 <button
                   type="button"
                   disabled={!canEdit || !domingoLiberado}
@@ -180,15 +163,14 @@ export default function FrequenciaChamadaMobile({
                     alterarStatus(aluno.id, domingoNumero, "FALTA")
                   }
                 >
-                  {" "}
-                  ✕ Falta{" "}
-                </button>{" "}
-              </div>{" "}
+                  ✕ Falta
+                </button>
+              </div>
             </article>
-          ))}{" "}
-        </div>{" "}
-        {!!erro && <div className={styles.erroBox}>{erro}</div>}{" "}
-        {!!sucesso && <div className={styles.sucessoBox}>{sucesso}</div>}{" "}
+          ))}
+        </div>
+        {!!erro && <div className={styles.erroBox}>{erro}</div>}
+        {!!sucesso && <div className={styles.sucessoBox}>{sucesso}</div>}
         {canEdit && (
           <div className={styles.salvarArea}>
             <button
@@ -201,8 +183,8 @@ export default function FrequenciaChamadaMobile({
               {salvando ? "Salvando..." : "Salvar frequência"}
             </button>
           </div>
-        )}{" "}
-      </section>{" "}
+        )}
+      </section>
     </div>
   );
 }

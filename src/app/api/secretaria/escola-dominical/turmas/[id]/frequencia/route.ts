@@ -1,4 +1,4 @@
-//src/app/(private)/secretaria/escola-dominical/frequencia/[turmaId]/page.tsx
+//src/app/(private)/secretaria/escola-dominical/frequencia/[id]/page.tsx
 
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
@@ -50,6 +50,36 @@ function getSundayNumbersOfMonth(mes: number, ano: number): number[] {
   }
 
   return domingos;
+}
+
+const CARGO_ORDEM: Record<string, number> = {
+  "pastor presidente": 1,
+  pastor: 2,
+  presbitero: 3,
+  evangelista: 4,
+  missionario: 5,
+  missionaria: 6,
+  diacono: 7,
+  diaconisa: 8,
+  cooperador: 9,
+  cooperadora: 10,
+  irmao: 11,
+  irma: 12,
+};
+
+function normalizarCargo(cargo?: string | null) {
+  if (!cargo) return "";
+
+  return cargo
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+}
+
+function getPesoCargo(cargo?: string | null) {
+  const cargoNormalizado = normalizarCargo(cargo);
+  return CARGO_ORDEM[cargoNormalizado] ?? 999;
 }
 
 export async function GET(request: Request, context: Params) {
@@ -156,7 +186,18 @@ export async function GET(request: Request, context: Params) {
 
     const alunosOrdenados = turma.alunos
       .map((item) => item.membro)
-      .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+      .sort((a, b) => {
+        const pesoA = getPesoCargo(a.cargo);
+        const pesoB = getPesoCargo(b.cargo);
+
+        if (pesoA !== pesoB) {
+          return pesoA - pesoB;
+        }
+
+        return a.nome.localeCompare(b.nome, "pt-BR", {
+          sensitivity: "base",
+        });
+      });
 
     return NextResponse.json({
       turma: {
