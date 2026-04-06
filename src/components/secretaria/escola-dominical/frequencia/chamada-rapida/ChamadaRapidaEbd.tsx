@@ -494,30 +494,45 @@ export default function ChamadaRapidaEbd({
             </button>
           )}
           <div className={styles.tituloWrap}>
-            {" "}
-            <span className={styles.badge}>Modo rápido</span>{" "}
-            <h1 className={styles.titulo}>Chamada rápida</h1>{" "}
-          </div>{" "}
-        </div>{" "}
+            <span className={styles.badge}>Modo rápido</span>
+            <h1 className={styles.titulo}>Chamada rápida</h1>
+          </div>
+        </div>
         <div className={styles.meta}>
-          {" "}
-          <p>• {igrejaNomeLimpo || "-"}</p> <p>• {turma?.nome || "-"}</p>{" "}
-          <p>• Professor(a): {turma?.professor?.nome || "-"}</p>{" "}
-        </div>{" "}
-      </section>{" "}
+          <p>• {igrejaNomeLimpo || "-"}</p> <p>• {turma?.nome || "-"}</p>
+          <p>• Professor(a): {turma?.professor?.nome || "-"}</p>
+        </div>
+      </section>
       {canEdit && folgaRapidaAberta && domingoSelecionadoMeta && (
         <section className={styles.folgaBox}>
           <div className={styles.folgaHeader}>
             <div>
               <h2>Folga rápida do domingo</h2>
               <p>
-                {domingoSelecionadoMeta.label} •{" "}
+                {domingoSelecionadoMeta.label} •
                 {domingoSelecionadoMeta.domingoNumero}º domingo
               </p>
             </div>
           </div>
 
           <div className={styles.folgaGrid}>
+            <div className={styles.folgaSelectWrap}>
+              <label>Domingo do mês</label>
+              <select
+                value={domingoSelecionadoNumero}
+                onChange={(e) => setDomingoSelecionadoNumero(e.target.value)}
+              >
+                {domingosDoMes.map((domingo) => (
+                  <option
+                    key={domingo.domingoNumero}
+                    value={domingo.domingoNumero}
+                  >
+                    {domingo.label} • {domingo.domingoNumero}º domingo
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <label className={styles.folgaCheckbox}>
               <input
                 type="checkbox"
@@ -572,30 +587,25 @@ export default function ChamadaRapidaEbd({
         </section>
       )}
       <section className={styles.filtros}>
-        {" "}
         <div className={styles.filtroItem}>
-          {" "}
-          <label>Mês</label>{" "}
+          <label>Mês</label>
           <select value={mes} onChange={(e) => setMes(Number(e.target.value))}>
-            {" "}
             {MESES.map((item) => (
               <option key={item.valor} value={item.valor}>
-                {" "}
-                {item.label}{" "}
+                {item.label}
               </option>
-            ))}{" "}
-          </select>{" "}
-        </div>{" "}
+            ))}
+          </select>
+        </div>
         <div className={styles.filtroItem}>
-          {" "}
-          <label>Ano</label>{" "}
+          <label>Ano</label>
           <input
             type="number"
             value={ano}
             onChange={(e) => setAno(Number(e.target.value))}
-          />{" "}
-        </div>{" "}
-      </section>{" "}
+          />
+        </div>
+      </section>
       <FrequenciaChamadaMobile
         alunos={alunos}
         domingosDoMes={domingosDoMes}
