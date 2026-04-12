@@ -1,0 +1,205 @@
+//src/components/radio/programacao/EditorProgramacaoRadio/styles.module.scss
+
+.container {
+  min-height: calc(100svh - 5rem - 40px);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 58px 0 24px;
+}
+
+.card {
+  width: 100%;
+  max-width: 980px;
+  background: rgba(15, 23, 42, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  display: grid;
+  gap: 16px;
+  color: #fff;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 900;
+  margin: 0;
+}
+
+.subtitle {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 14px;
+}
+
+.form {
+  display: grid;
+  gap: 12px;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: #243047;
+  color: #fff;
+  outline: none;
+}
+
+.input option {
+  color: #000;
+  background: #fff;
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btnPrimary,
+.btnSecondary {
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.btnPrimary {
+  background: #22c55e;
+  color: #0b1220;
+}
+
+.btnSecondary {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.listBox {
+  margin-top: 8px;
+}
+
+.listTitle {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.empty {
+  padding: 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.days {
+  display: grid;
+  gap: 14px;
+}
+
+.dayCard {
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dayTitle {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.dayItems {
+  display: grid;
+  gap: 10px;
+}
+
+.programCard {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.programMain {
+  display: grid;
+  gap: 4px;
+}
+
+.programMain span,
+.programMain small {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.programActions {
+  display: flex;
+  gap: 8px;
+}
+
+.iconBtn,
+.iconBtnDanger {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconBtn {
+  background: #1d4ed8;
+  color: #fff;
+}
+
+.iconBtnDanger {
+  background: #ef4444;
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 16px 12px 24px;
+  }
+
+  .card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .grid2 {
+    grid-template-columns: 1fr;
+  }
+
+  .programCard {
+    flex-direction: column;
+  }
+}

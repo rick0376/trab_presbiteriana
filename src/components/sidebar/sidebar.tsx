@@ -150,6 +150,11 @@ export default function Sidebar({
               icon: Radio,
             },
             {
+              label: "Programação da Rádio",
+              href: "/radio/admin-radio/programacao",
+              icon: Radio,
+            },
+            {
               label: "Configuração",
               icon: Radio,
               onClick: () => setShowModal(true),

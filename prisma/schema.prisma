@@ -318,6 +318,23 @@ model RadioStatsHistory {
   @@map("radio_stats_history")
 }
 
+model RadioProgramacao {
+  id           String    @id @default(cuid())
+  diaSemana    DiaSemana
+  horaInicio   String
+  horaFim      String
+  titulo       String
+  subtitulo    String?
+  responsavel  String?
+  ativo        Boolean   @default(true)
+  ordem        Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([diaSemana, ordem])
+  @@map("radio_programacao")
+}
+
 model EscolaDominicalTurma {
   id           String   @id @default(cuid())
   igrejaId     String
