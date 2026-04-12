@@ -1,3 +1,5 @@
+//src/app/(public)/igrejas/page.tsx
+
 import { prisma } from "@/lib/prisma";
 import IgrejasPageClient from "@/components/igreja-publico/IgrejasPage/IgrejasPageClient";
 

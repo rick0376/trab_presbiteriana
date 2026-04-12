@@ -1,3 +1,5 @@
+//tsconfig.json
+
 {
   "compilerOptions": {
     "target": "ES2017",
@@ -29,6 +31,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
+    "**/*.d.ts",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "prisma/seed.js"

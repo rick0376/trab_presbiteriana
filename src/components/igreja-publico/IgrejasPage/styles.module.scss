@@ -1,817 +1,193 @@
-/* =========================
-   PAGE WRAPPER
-========================= */
-.home {
-  max-width: 1100px;
-  margin-top: 20px;
-  padding: 22px;
-  scroll-margin-top: 110px;
+.page {
+  min-height: 100%;
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(201, 214, 228, 0.65),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at right center,
+      rgba(214, 199, 176, 0.24),
+      transparent 26%
+    ),
+    linear-gradient(180deg, #f3f5f8 0%, #f8fafc 45%, #eef2f7 100%);
+  padding: 24px 0 72px;
 }
 
-/* =========================
-   BANNER
-========================= */
-.banner {
-  max-width: 1100px;
+.container {
+  width: min(1280px, calc(100% - 40px));
   margin: 0 auto;
-  border-radius: 18px;
-  overflow: hidden;
-
-  background: radial-gradient(
-    circle at top,
-    #0f2a3d 0%,
-    #547083 40%,
-    #0b2a41 100%
-  );
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
-}
-
-.bannerInner {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 32px;
-  gap: 22px;
-}
-
-.bannerLeft {
-  flex: 1;
-  min-width: 0;
-}
-
-.topActions {
-  margin-bottom: 10px;
-}
-
-.bannerTitle {
-  margin-top: 12px;
-  margin-bottom: 12px;
-  display: flex;
-  gap: 12px;
-  justify-content: flex-start;
-}
-
-.bannerLogo {
-  width: 100px;
-  height: 100px;
-  object-fit: contain;
-  filter: drop-shadow(0px 10px 18px rgba(0, 0, 0, 0.45));
-}
-
-.bannerTitle h1 {
-  margin: 0;
-  font-size: clamp(20px, 2.2vw, 30px);
-  letter-spacing: 0.6px;
-  font-weight: 400;
-  color: #ffffff;
-  line-height: 1.1;
-}
-
-.bannerSubtitle {
-  margin-top: 10px;
-  margin-bottom: 14px;
-  font-size: 15px;
-  color: rgba(255, 255, 255, 0.75);
-}
-
-.radioNotice {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 14px 16px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 28px;
 }
 
-.radioNoticeTop {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.radioSubText {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.5;
-  color: rgba(255, 255, 255, 0.78);
-}
-
-/* =========================
-   RADIO CARD (dentro do banner)
-========================= */
-.cardRadio {
-  width: 100%;
-  max-width: 420px;
-  padding: 10px;
-
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 20px;
-  color: #fff;
-
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 10px;
-}
-
-.title {
-  font-size: 16px;
-  font-weight: 600;
-  margin: 0;
-}
-
-.live {
-  color: #22c55e;
-  font-weight: 800;
-}
-
-.offline {
-  color: #f87171;
-  font-weight: 800;
-}
-
-.radioBtn {
-  width: 100%;
-  margin-top: 10px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-
-  padding: 10px;
-  border-radius: 16px;
-  border: none;
-  background: rgba(0, 0, 0, 0.25);
-
-  color: #fff;
-  font-size: 16px;
-  font-weight: 800;
-  cursor: pointer;
-
-  transition:
-    transform 0.08s ease,
-    opacity 0.08s ease,
-    background 0.08s ease;
-}
-
-.radioBtn:hover {
-  transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.12);
-  opacity: 0.95;
-}
-
-.radioIcon {
-  font-size: 20px;
-}
-
-.radioText {
-  flex: 1;
-  text-align: left;
-}
-
-.badge {
-  background: rgba(255, 255, 255, 0.15);
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.footer {
-  margin-top: 10px;
-  text-align: center;
-}
-
-.adminLink {
-  font-size: 13px;
-  opacity: 0.7;
-  text-decoration: none;
-  color: #fff;
-}
-
-.adminLink:hover {
-  opacity: 1;
-}
-
-.radioLinks {
-  margin-top: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  flex-wrap: wrap;
-}
-
-.radioPageLink {
-  border: none;
-  background: transparent;
-  color: #dbe7f0;
-  font-weight: 700;
-  cursor: pointer;
-  padding: 0;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.radioPageLink:hover {
-  color: #ffffff;
-}
-
-.radioStats {
-  display: block;
-  margin-top: 10px;
-  display: flex;
-  justify-content: center;
-  gap: 14px;
-  flex-wrap: wrap;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.88);
-}
-
-.radioStats strong {
-  color: #ffffff;
-}
-
-.radioEmoji {
-  font-size: 20px;
-  line-height: 1;
-  display: inline-flex;
-  align-items: center;
-  margin-right: 6px;
-}
-
-.statsEmoji {
-  font-size: 18px;
-  line-height: 1;
-  display: inline-flex;
-  align-items: center;
-  margin-right: 4px;
-}
-
-/* =========================
-   BANNER BUTTONS
-========================= */
-.bannerButtons {
-  display: flex;
-  gap: 10px;
-  margin-top: 20px;
-  margin-bottom: 14px;
-  flex-wrap: wrap;
-}
-
-.btnGreen,
-.btnRed,
-.btnBlue {
-  text-decoration: none;
-  padding: 9px 16px;
-  border-radius: 10px;
-  font-weight: 700;
-  transition: 0.25s;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  cursor: pointer;
-}
-
-.btnGreen {
-  background: #22c55e;
-  color: #ffffff;
-}
-
-.btnGreen:hover {
-  background: #16a34a;
-  transform: translateY(-2px);
-}
-
-.btnRed {
-  background: #f50505;
-  color: #ffffff;
-}
-
-.btnRed:hover {
-  background: #e76d6d;
-  transform: translateY(-2px);
-}
-
-.btnBlue {
-  background: #0284c7;
-  color: #ffffff;
-}
-
-.btnBlue:hover {
-  background: #0369a1;
-  transform: translateY(-2px);
-}
-
-/* =========================
-   BANNER INFOS (horários)
-========================= */
-.bannerInfos {
-  display: flex;
-  gap: 14px;
-  flex-wrap: wrap;
-}
-
-.infoItem {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 999px;
-  background: #facc15;
-}
-
-.infoItem p {
-  margin: 0;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.75);
-}
-
-/* =========================
-   BANNER RIGHT IMAGE
-========================= */
-.bannerGlobal {
-  display: flex; /* ADICIONA */
-  flex-direction: column; /* ADICIONA */
-  align-items: center; /* mantém o que você já queria */
-  min-width: 0; /* ADICIONA (importante p/ quebrar texto) */
-}
-
-.bannerRight {
-  width: 240px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start; /* Alinha ao topo */
-  align-items: center; /* Centraliza os itens */
-  flex-shrink: 0;
-  margin-bottom: 20px;
-}
-
-/* Imagem */
-.bannerRight img {
-  width: 100%;
-  height: auto;
-  object-fit: contain;
-  filter: drop-shadow(0px 18px 26px rgba(0, 0, 0, 0.55));
-}
-
-/* Fallback caso a imagem não carregue */
-.imgFallback {
-  width: 100%;
-  height: 240px;
-  display: grid;
-  place-items: center;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.85);
-  font-weight: 700;
-}
-.bannerEndereco {
-  color: #cfdbeb;
-}
-
-.bannerEndereco {
-  color: #cfdbeb;
-  max-width: 220px;
-  text-align: center;
-  white-space: normal;
-  overflow-wrap: anywhere;
-  word-break: break-word;
-}
-/* =========== Rede Sociais ==============*/
-.socialRow {
-  display: flex;
-  gap: 12px;
-  margin-top: 12px;
-  margin-bottom: 12px;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.socialInstagram,
-.socialFacebook {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  //width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  padding: 10px;
-  text-decoration: none;
-  transition:
-    transform 0.1s ease,
-    background 0.1s ease;
-}
-
-.socialWhats {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-
-  text-decoration: none;
-  transition:
-    transform 0.1s ease,
-    background 0.1s ease;
-}
-
-.socialIcon {
-  font-size: 18px;
-  margin-right: 6px;
-}
-
-/* Cores */
-.socialWhats {
-  background: #22c55e;
-  color: #ffffff;
-}
-
-.socialInstagram {
-  background: linear-gradient(45deg, #fcb045, #e92969);
-  text-decoration: none;
-  color: #fff;
-}
-
-.socialFacebook {
-  background: #1877f2;
-  color: #cfdbeb;
-}
-
-.socialWhats:hover {
-  transform: translateY(-1px);
-  background: #cfebd1;
-  color: #22c55e;
-}
-.socialInstagram:hover {
-  transform: translateY(-1px);
-  background: linear-gradient(
-    45deg,
-    #f78989,
-    #e6bb80
-  ); /* Alterando o degradê ao passar o mouse */
-  color: #fff;
-}
-.socialFacebook:hover {
-  transform: translateY(-1px);
-  background: #a7c5ec;
-  color: #1877f2;
-}
-
-/* =========================
-   CARDS (igrejas)
-========================= */
-.cards {
-  max-width: 1100px;
-  margin: 18px auto 0;
-
-  display: grid;
-  grid-template-columns: 1fr;
-  justify-items: center;
-  gap: 16px;
-}
-
-.card {
-  width: 100%;
-  border-radius: 16px;
-  overflow: hidden;
-
-  background: radial-gradient(
-    circle at top,
-    #0f2a3d 0%,
-    #547083 40%,
-    #0b2a41 100%
-  );
-
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
-
-  position: relative;
-  overflow: hidden;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    filter 0.2s ease;
-}
-
-.card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
-  filter: brightness(1.08);
-}
-
-.cardTop {
-  height: 190px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 16px;
-}
-
-.cardTop img {
-  width: 150px;
-  height: 150px;
-  object-fit: contain;
-}
-
-.cardBody {
-  padding: 14px 14px 18px;
-  text-align: center;
-}
-
-.cardBody h3 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 400;
-  color: #ffffff;
-}
-
-.slug {
-  margin-top: 6px;
-  font-size: 13px;
-  opacity: 0.6;
-  color: #ffffff;
-}
-
-.endereco {
-  margin-top: 8px;
-  font-size: 14px;
-  opacity: 0.85;
-  line-height: 1.4;
-  color: rgba(255, 255, 255, 0.75);
-}
-
-.publicGrid {
-  display: grid;
-  gap: 18px;
-  margin-top: 18px;
-}
-
-.btnVisit {
-  display: inline-block;
-  width: 100%;
-  text-align: center;
-  margin-top: 10px;
-  background: transparent;
-  border: none;
-  //border: 1px solid rgba(255, 255, 255, 0.18);
-  color: #ffffff;
-  text-decoration: none;
-
-  padding: 11px 14px;
-  border-radius: 10px;
-  font-weight: 800;
-  transition: 0.25s;
-  cursor: pointer;
-}
-
-/*.btnVisit:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-*/
-
-/* =========================
-   WHATSAPP FLOAT
-========================= */
-.whatsappFloat {
-  position: fixed;
-  bottom: 22px;
-  right: 22px;
-  width: 64px;
-  height: 64px;
-  border-radius: 999px;
-  background: #22c55e;
-  color: #ffffff;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  text-decoration: none;
-  box-shadow: 0 12px 22px rgba(0, 0, 0, 0.45);
-  transition: 0.25s;
-  z-index: 9999;
-}
-
-.whatsappFloat:hover {
-  transform: translateY(-3px);
-  background: #16a34a;
-}
-
-.whatsIcon {
-  font-size: 28px;
-  line-height: 0;
-}
-
-/* =========================
-   CRONOGRAMA
-========================= */
 .cronogramaSection {
-  margin-top: 40px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
 .cronogramaCard {
-  background: #c28006;
-  border-radius: 14px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
   overflow: hidden;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(21, 44, 76, 0.08);
+  box-shadow: 0 18px 44px rgba(13, 28, 48, 0.08);
 }
 
 .cronogramaToggle {
   width: 100%;
-  padding: 18px 20px;
-
-  background: radial-gradient(
-    circle at top,
-    #0f2a3d 0%,
-    #547083 40%,
-    #0b2a41 100%
-  );
-
-  color: white;
+  min-height: 82px;
+  padding: 0 24px;
+  background: linear-gradient(180deg, #14355c 0%, #0e2848 100%);
+  color: #ffffff;
   border: none;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 18px;
-  font-weight: 600;
-
-  position: relative;
-  overflow: hidden;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    filter 0.2s ease;
+  cursor: pointer;
+  transition: filter 0.18s ease;
 }
 
 .cronogramaToggle:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
-  filter: brightness(1.08);
+  filter: brightness(1.04);
 }
 
 .cronogramaHeader {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
+}
+
+.cronogramaIcon {
+  font-size: 22px;
+}
+
+.cronogramaTitle {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.cronogramaArrow {
+  font-size: 18px;
+  font-weight: 700;
 }
 
 .cronogramaContent {
-  padding: 20px;
-  background: #a38603;
-  border-top: 1px solid #eee;
+  padding: 16px;
+  background: transparent;
 }
 
-/* =========================
-   MODAL
-========================= */
-.modalOverlay {
+.whatsappFloat {
   position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
+  right: 24px;
+  bottom: 24px;
+  width: 64px;
+  height: 64px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
+  text-decoration: none;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.22);
+  z-index: 999;
+  transition: transform 0.18s ease;
+}
+
+.whatsappFloat:hover {
+  transform: translateY(-2px);
+}
+
+.whatsIcon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(9, 17, 28, 0.58);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 16px;
+  z-index: 9999;
 }
 
 .modal {
   width: min(420px, 100%);
-  background: linear-gradient(135deg, #0f172a, #020617);
-  border-radius: 18px;
+  border-radius: 22px;
   padding: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+  background: linear-gradient(180deg, #132b49 0%, #0d1f37 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.26);
   text-align: center;
-  color: #fff;
 }
 
 .modalIcon {
-  font-size: 40px;
-  margin-bottom: 12px;
+  font-size: 36px;
+  margin-bottom: 10px;
 }
 
 .modalTitle {
-  font-size: 20px;
+  margin: 0;
+  font-size: 22px;
   font-weight: 800;
-  margin-bottom: 8px;
 }
 
 .modalText {
+  margin: 12px 0 0;
+  color: rgba(255, 255, 255, 0.82);
   font-size: 15px;
-  opacity: 0.85;
-  margin-bottom: 20px;
+  line-height: 1.6;
 }
 
 .modalBtn {
+  margin-top: 22px;
   width: 100%;
-  padding: 12px;
-  border-radius: 12px;
+  height: 48px;
   border: none;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #d6b17a 0%, #b7894c 100%);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
   cursor: pointer;
-  font-weight: 800;
-  color: #0b1220;
-  background: linear-gradient(135deg, #22c55e, #16a34a);
 }
 
-@media (min-width: 980px) {
-  .publicGrid {
-    grid-template-columns: 1fr 1fr;
-    align-items: start;
+@media (max-width: 768px) {
+  .page {
+    padding: 12px 0 58px;
   }
 
-  /* deixa o anual “quebrar” pra baixo se for grande */
-  .publicGrid > :nth-child(3) {
-    grid-column: 1 / -1;
-  }
-}
-
-/* =========================
-   RESPONSIVO
-========================= */
-@media (max-width: 850px) {
-  .bannerInner {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 22px;
+  .container {
+    width: min(100%, calc(100% - 20px));
+    gap: 20px;
   }
 
-  .bannerRight {
-    width: 100%;
-    justify-content: center;
+  .cronogramaToggle {
+    min-height: 70px;
+    padding: 0 16px;
   }
 
-  .bannerRight img {
-    max-width: 280px;
-  }
-}
-
-@media (max-width: 520px) {
-  .home {
-    padding: 8px;
+  .cronogramaTitle {
+    font-size: 18px;
   }
 
-  .bannerLogo {
-    width: 40px;
-    height: 40px;
+  .cronogramaContent {
+    padding: 10px;
   }
 
-  .bannerSubtitle {
-    font-size: 14px;
-  }
-
-  .btnGreen,
-  .btnRed,
-  .btnBlue {
-    padding: 9px 14px;
-    font-size: 14px;
-  }
-
-  .cardTop {
-    height: 180px;
-  }
-
-  .cardTop img {
-    width: 140px;
-    height: 140px;
-  }
-
-  .radioBtn {
-    padding: 9px 12px;
-    gap: 8px;
-  }
-
-  .radioText {
-    font-size: 14px;
-  }
-
-  .badge {
-    font-size: 10px;
-    padding: 3px 8px;
+  .whatsappFloat {
+    width: 58px;
+    height: 58px;
+    right: 16px;
+    bottom: 16px;
   }
 }

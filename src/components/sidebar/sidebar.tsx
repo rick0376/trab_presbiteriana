@@ -20,6 +20,7 @@ import {
   BadgeDollarSign,
   Radio,
   GraduationCap,
+  Building2,
 } from "lucide-react";
 
 type MenuChild = {
@@ -85,6 +86,16 @@ export default function Sidebar({
             {
               label: "Cronograma Anual",
               href: "/dashboard/publico/cronograma-anual",
+              icon: CalendarDays,
+            },
+            {
+              label: "Departamentos",
+              href: "/dashboard/departamentos",
+              icon: Building2,
+            },
+            {
+              label: "História da Igreja",
+              href: "/dashboard/publico/historia",
               icon: CalendarDays,
             },
           ],

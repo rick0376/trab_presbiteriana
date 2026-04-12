@@ -75,7 +75,9 @@ model Igreja {
   membrosLista        Membro[]
   users               User[]
   ebdTurmas           EscolaDominicalTurma[]
+  departamentos       Departamento[]
   backupConfig        BackupConfig?
+  historia HistoriaIgreja?
   backupGlobalTargets BackupGlobalConfig[]   @relation("BackupGlobalTargetIgreja")
 
   @@map("igrejas")
@@ -141,6 +143,8 @@ model Membro {
 
   igreja Igreja @relation(fields: [igrejaId], references: [id], onDelete: Cascade)
 
+  departamentosResponsavel DepartamentoResponsavel[]
+
   ebdTurmasComoProfessor EscolaDominicalTurma[]      @relation("ProfessorEbd")
   ebdTurmasAluno         EscolaDominicalTurmaAluno[]
   ebdFrequencias         EscolaDominicalFrequencia[]
@@ -179,18 +183,31 @@ model Evento {
 }
 
 model IgrejaPublico {
-  id             String           @id @default(cuid())
-  igrejaId       String           @unique
-  bannerSubtitle String?
-  whatsappUrl    String?
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  facebookUrl    String?
-  instagramUrl   String?
-  endereco       String?
-  cronograma     CronogramaItem[]
-  horarios       HorarioPublico[]
-  igreja         Igreja           @relation(fields: [igrejaId], references: [id], onDelete: Cascade)
+  id                          String           @id @default(cuid())
+  igrejaId                    String           @unique
+  bannerSubtitle              String?
+  heroSlogan                  String?
+  boasVindasTexto             String?
+  pastorNome                  String?
+  pastorCargo                 String?
+  pastorSubtitle              String?
+  pastorMensagem              String?
+  pastorImageUrl              String?
+  pastorImagePublicId         String?
+  heroBackgroundImageUrl      String?
+  heroBackgroundImagePublicId String?
+  whatsappUrl                 String?
+  telefonePublico             String?
+  emailPublico                String?
+  footerDescricao             String?
+  createdAt                   DateTime         @default(now())
+  updatedAt                   DateTime         @updatedAt
+  facebookUrl                 String?
+  instagramUrl                String?
+  endereco                    String?
+  cronograma                  CronogramaItem[]
+  horarios                    HorarioPublico[]
+  igreja                      Igreja           @relation(fields: [igrejaId], references: [id], onDelete: Cascade)
 
   @@map("igrejas_publico")
 }
@@ -198,7 +215,13 @@ model IgrejaPublico {
 model HorarioPublico {
   id              String        @id @default(cuid())
   igrejaPublicoId String
+
   texto           String
+  diaLabel        String?
+  hora            String?
+  tituloCard      String?
+  descricaoCard   String?
+
   ordem           Int           @default(0)
   igrejaPublico   IgrejaPublico @relation(fields: [igrejaPublicoId], references: [id], onDelete: Cascade)
 
@@ -426,6 +449,83 @@ model SiteAccess {
   @@index([utmSource])
   @@index([utmMedium])
   @@index([utmCampaign])
+}
+
+model Departamento {
+  id                   String   @id @default(cuid())
+  igrejaId             String
+  nome                 String
+  slug                 String
+  descricao            String?
+  capaUrl              String?
+  capaPublicId         String?
+  diasFuncionamento    String?
+  horarioFuncionamento String?
+  ordem                Int      @default(0)
+  ativo                Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  igreja       Igreja                   @relation(fields: [igrejaId], references: [id], onDelete: Cascade)
+  responsaveis DepartamentoResponsavel[]
+
+  @@unique([igrejaId, slug])
+  @@index([igrejaId, ativo])
+  @@map("departamentos")
+}
+
+model DepartamentoResponsavel {
+  id             String   @id @default(cuid())
+  departamentoId String
+  membroId       String
+  cargoTitulo    String
+  bio            String?
+  fotoUrl        String?
+  fotoPublicId   String?
+  ordem          Int      @default(0)
+  ativo          Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  departamento Departamento @relation(fields: [departamentoId], references: [id], onDelete: Cascade)
+  membro       Membro       @relation(fields: [membroId], references: [id], onDelete: Restrict)
+
+  @@unique([departamentoId, membroId])
+  @@index([membroId])
+  @@map("departamento_responsaveis")
+}
+
+model HistoriaIgreja {
+  id                  String               @id @default(cuid())
+  igrejaId            String               @unique
+  titulo              String
+  subtitulo           String?
+  texto               String?
+  imagemCapaUrl       String?
+  imagemCapaPublicId  String?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  igreja Igreja @relation(fields: [igrejaId], references: [id], onDelete: Cascade)
+  marcos HistoriaIgrejaMarco[]
+
+  @@map("historias_igreja")
+}
+
+model HistoriaIgrejaMarco {
+  id               String         @id @default(cuid())
+  historiaIgrejaId String
+  ano              String
+  titulo           String
+  descricao        String?
+  ordem            Int            @default(0)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  historia HistoriaIgreja @relation(fields: [historiaIgrejaId], references: [id], onDelete: Cascade)
+
+  @@index([historiaIgrejaId])
+  @@map("historias_igreja_marcos")
 }
 
 enum DiaSemana {

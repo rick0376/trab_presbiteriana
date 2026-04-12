@@ -2,15 +2,19 @@
 
 "use client";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import styles from "./styles.module.scss";
 import CronogramaSemanal from "@/components/igreja-publico/CronogramaSemanal/CronogramaSemanal";
 import EventosPublicos from "@/components/igreja-publico/eventos/EventosPublicos/EventosPublicos";
 import CronogramaAnual from "@/components/igreja-publico/CronogramaAnual/CronogramaAnual";
-import { FaFacebookF, FaInstagram, FaWhatsapp } from "react-icons/fa";
+import { FaWhatsapp } from "react-icons/fa";
 import { useRadioPlayer } from "@/components/radio/radioplayer/RadioPlayerProvider";
+import HeroPublico from "@/components/igreja-publico/HeroPublico/HeroPublico";
+import BoasVindasPublica from "@/components/igreja-publico/BoasVindasPublica/BoasVindasPublica";
+import CultosSemana from "@/components/igreja-publico/CultosSemana/CultosSemana";
+import PastorDestaque from "@/components/igreja-publico/PastorDestaque/PastorDestaque";
+import DepartamentosDestaque from "@/components/igreja-publico/DepartamentosDestaque/DepartamentosDestaque";
+import { useRouter } from "next/navigation";
 
 type IgrejaDB = {
   id: string;
@@ -25,10 +29,27 @@ type IgrejaDB = {
 
 type IgrejaPublicoData = {
   bannerSubtitle: string | null;
+  heroSlogan?: string | null;
+  boasVindasTexto?: string | null;
+  pastorNome?: string | null;
+  pastorCargo?: string | null;
+  pastorSubtitle?: string | null;
+  pastorMensagem?: string | null;
+  pastorImageUrl?: string | null;
+  heroBackgroundImageUrl?: string | null;
   whatsappUrl: string | null;
   instagramUrl: string | null;
   facebookUrl: string | null;
-  horarios: { id: string; texto: string; ordem: number }[];
+  endereco?: string | null;
+  horarios: {
+    id: string;
+    texto: string;
+    diaLabel?: string | null;
+    hora?: string | null;
+    tituloCard?: string | null;
+    descricaoCard?: string | null;
+    ordem: number;
+  }[];
   cronograma: {
     id: string;
     dia:
@@ -50,33 +71,18 @@ type Props = {
   initialPublico: IgrejaPublicoData | null;
 };
 
-type RadioListeners = {
-  current: number;
-  peak: number;
-  max?: number;
-  uptime?: number;
-  online?: boolean;
-};
-
 type RadioVisualStatus =
   | "AO_VIVO"
   | "OFFLINE"
   | "MANUTENCAO"
   | "AGUARDANDO_PROGRAMACAO";
 
-const FALLBACK_IMG = "/images/igreja-a.png";
-const FALLBACK_ENDERECO = "Sem endereço";
-
 export default function IgrejasPageClient({ igrejas, initialPublico }: Props) {
-  const router = useRouter();
-  const { isLive, isPlaying, togglePlay, radioConfig, canPlay } =
+  const { isLive, isPlaying, togglePlay, radioConfig, canPlay, playError } =
     useRadioPlayer();
 
-  const [radioListeners, setRadioListeners] = useState<RadioListeners | null>(
-    null,
-  );
+  const router = useRouter();
 
-  const [imgOk, setImgOk] = useState(true);
   const [buildOpen, setBuildOpen] = useState(false);
   const [buildPage, setBuildPage] = useState("");
   const [openSemanal, setOpenSemanal] = useState(false);
@@ -89,22 +95,16 @@ export default function IgrejasPageClient({ igrejas, initialPublico }: Props) {
 
   async function loadPublico(slug: string) {
     if (!slug) return;
+
     try {
       const r = await fetch(`/api/igreja-publico/${slug}`, {
         cache: "no-store",
       });
+
       if (!r.ok) return;
+
       const j = (await r.json()) as IgrejaPublicoData;
       setPublico(j);
-    } catch {}
-  }
-
-  async function loadRadioListeners() {
-    try {
-      const r = await fetch("/api/radio/listeners", { cache: "no-store" });
-      if (!r.ok) return;
-      const j = (await r.json()) as RadioListeners;
-      setRadioListeners(j);
     } catch {}
   }
 
@@ -117,24 +117,13 @@ export default function IgrejasPageClient({ igrejas, initialPublico }: Props) {
     setBuildOpen(true);
   }
 
-  useEffect(() => {
-    loadRadioListeners();
-    const t = setInterval(loadRadioListeners, 10000);
-    return () => clearInterval(t);
-  }, []);
+  function scrollToSection(id: string) {
+    const el = document.getElementById(id);
+    if (!el) return;
 
-  const instagramLink =
-    (publico?.instagramUrl ?? "").trim() ||
-    "https://www.instagram.com/iprmoreiracesar/";
-
-  const facebookLink =
-    (publico?.facebookUrl ?? "").trim() ||
-    "https://www.facebook.com/profile.php?id=100067254810345";
-
-  const enderecoBanner =
-    ((publico as any)?.endereco ?? "").trim() ||
-    (igrejas?.[0]?.publico?.endereco ?? "").trim() ||
-    FALLBACK_ENDERECO;
+    const y = el.getBoundingClientRect().top + window.scrollY - 110;
+    window.scrollTo({ top: y, behavior: "smooth" });
+  }
 
   const visualStatus = (radioConfig?.status ?? "OFFLINE") as RadioVisualStatus;
 
@@ -171,254 +160,150 @@ export default function IgrejasPageClient({ igrejas, initialPublico }: Props) {
           ? "Programação"
           : "Offline");
 
+  const heroSlogan =
+    (publico?.heroSlogan ?? "").trim() ||
+    "Transformando Vidas pelo Amor de Cristo";
+
+  const pastorPrincipal = {
+    nome: (publico?.pastorNome ?? "").trim() || "Pr. Rafael Popovski",
+    cargo: (publico?.pastorCargo ?? "").trim() || "Pastor",
+    subtitulo:
+      (publico?.pastorSubtitle ?? "").trim() ||
+      "Servindo com amor, cuidado pastoral e compromisso com a Palavra.",
+    mensagem:
+      (publico?.pastorMensagem ?? "").trim() ||
+      "Seja bem-vindo à nossa igreja. É uma alegria ter você conosco. Que você se sinta acolhido e encontre a graça e o amor de Cristo em sua vida e família.",
+    imagem: (publico?.pastorImageUrl ?? "").trim() || "/images/pastor.png",
+  };
+  const churchName = igrejas?.[0]?.nome || "Igreja Presbiteriana Renovada";
+
+  const heroBackgroundImageUrl =
+    (publico?.heroBackgroundImageUrl ?? "").trim() ||
+    "/images/bg-hero-igreja.jpg";
+
+  const boasVindasTexto =
+    (publico?.boasVindasTexto ?? "").trim() ||
+    `Somos a ${churchName}, uma comunidade de fé comprometida em compartilhar o evangelho de Jesus Cristo e transformar vidas para a glória de Deus.`;
+
+  const instagramLink =
+    (publico?.instagramUrl ?? "").trim() ||
+    "https://www.instagram.com/iprmoreiracesar/";
+
+  const facebookLink =
+    (publico?.facebookUrl ?? "").trim() ||
+    "https://www.facebook.com/profile.php?id=100067254810345";
+
+  const enderecoIgreja =
+    (publico?.endereco ?? "").trim() ||
+    (igrejas?.[0]?.publico?.endereco ?? "").trim() ||
+    "Endereço não informado";
+
   return (
-    <div className={styles.home}>
-      <section className={styles.banner}>
-        <div className={styles.bannerInner}>
-          <div className={styles.bannerLeft}>
-            <div className={styles.topActions}>
-              <div className={styles.cardRadio}>
-                <header className={styles.header}>
-                  <h1 className={styles.title}>📻 Rádio Renovada</h1>
-                  <span
-                    className={
-                      visualStatus === "AO_VIVO" ? styles.live : styles.offline
-                    }
-                  >
-                    {statusLabel}
-                  </span>
-                </header>
+    <div className={styles.page}>
+      <div className={styles.container}>
+        <HeroPublico
+          churchName={churchName}
+          slogan={heroSlogan}
+          subtitle={
+            publico?.bannerSubtitle ?? "Cultos às quartas, sextas e domingos"
+          }
+          logoUrl="/images/logo_transparente.png"
+          heroImageUrl={pastorPrincipal.imagem}
+          backgroundImageUrl={heroBackgroundImageUrl}
+          radioStatusLabel={statusLabel}
+          radioMainText={mainRadioText}
+          radioBadgeText={badgeText}
+          radioSubText={radioSubText}
+          radioCanPlay={canPlay}
+          radioIsPlaying={isPlaying}
+          radioPlayError={playError}
+          address={enderecoIgreja}
+          instagramLink={instagramLink}
+          facebookLink={facebookLink}
+          loginHref="/login"
+          onPlayRadio={togglePlay}
+          onHistoria={() => router.push("/historia")}
+          onDepartamentos={() => scrollToSection("departamentos")}
+          onEventos={() => scrollToSection("eventos")}
+        />
 
-                {canPlay ? (
-                  <button
-                    type="button"
-                    className={styles.radioBtn}
-                    onClick={togglePlay}
-                    disabled={!canPlay}
-                  >
-                    <span className={styles.radioIcon}>
-                      {isPlaying ? "⏸" : "▶"}
-                    </span>
-                    <span className={styles.radioText}>{mainRadioText}</span>
-                    <span className={styles.badge}>
-                      {isPlaying ? "Tocando" : badgeText}
-                    </span>
-                  </button>
-                ) : (
-                  <div className={styles.radioNotice}>
-                    <div className={styles.radioNoticeTop}>
-                      <span className={styles.radioIcon}>📻</span>
-                      <span className={styles.radioText}>{mainRadioText}</span>
-                      <span className={styles.badge}>{badgeText}</span>
-                    </div>
+        <BoasVindasPublica
+          churchName={churchName}
+          texto={boasVindasTexto}
+          tags={["Amor em Cristo", "Comunhão", "Crescimento Espiritual"]}
+          pastorName={pastorPrincipal.nome}
+          pastorTitle={pastorPrincipal.cargo}
+          pastorSubtitle={pastorPrincipal.subtitulo}
+          imageUrl={pastorPrincipal.imagem}
+          onHistoria={() => router.push("/historia")}
+        />
 
-                    {radioSubText ? (
-                      <p className={styles.radioSubText}>{radioSubText}</p>
-                    ) : null}
-                  </div>
-                )}
+        <CultosSemana horarios={publico?.horarios ?? []} />
 
-                <footer className={styles.footer}>
-                  {/*}
-                  {radioListeners && (
-                    <div className={styles.radioStats}>
-                      <span>
-                        <span className={styles.statsEmoji}>👥</span> Online:{" "}
-                        <strong>{radioListeners.current ?? 0}</strong>
-                      </span>
-                      <span>
-                        <span className={styles.statsEmoji}>📈</span> Pico:{" "}
-                        <strong>{radioListeners.peak ?? 0}</strong>
-                      </span>
-                    </div>
-                  )}
-                   */}
+        <PastorDestaque
+          pastorName={pastorPrincipal.nome}
+          pastorTitle={pastorPrincipal.cargo}
+          mensagem={pastorPrincipal.mensagem}
+          imageUrl={pastorPrincipal.imagem}
+          onLideranca={() => openBuildModal("Liderança")}
+        />
 
-                  <div className={styles.radioLinks}>
-                    <Link href="" className={styles.adminLink}>
-                      <span className={styles.radioEmoji}>📻</span>
-                      <span>Rádio Presbiteriana</span>
-                    </Link>
-                  </div>
-                </footer>
+        <DepartamentosDestaque igrejaSlug={mainSlug} />
+
+        <EventosPublicos slug={mainSlug} />
+
+        <section id="cronograma" className={styles.cronogramaSection}>
+          <div className={styles.cronogramaCard}>
+            <button
+              type="button"
+              className={styles.cronogramaToggle}
+              onClick={() => setOpenSemanal((v) => !v)}
+              aria-expanded={openSemanal}
+            >
+              <div className={styles.cronogramaHeader}>
+                <span className={styles.cronogramaIcon}>🗂️</span>
+                <span className={styles.cronogramaTitle}>
+                  Cronograma Semanal
+                </span>
               </div>
-            </div>
 
-            <div className={styles.bannerTitle}>
-              <img
-                src="/images/logo_transparente.png"
-                alt="Logo Igreja Matriz"
-                className={styles.bannerLogo}
-              />
-              <h1>Igreja Presbiteriana Renovada</h1>
-            </div>
+              <span className={styles.cronogramaArrow}>
+                {openSemanal ? "▲" : "▼"}
+              </span>
+            </button>
 
-            <p className={styles.bannerSubtitle}>
-              {publico?.bannerSubtitle ?? "Cultos as Quartas, Sexta e Domingos"}
-            </p>
-
-            <div className={styles.bannerInfos}>
-              {publico?.horarios?.length ? (
-                publico.horarios.map((h) => (
-                  <div key={h.id} className={styles.infoItem}>
-                    <span className={styles.dot}></span>
-                    <p>{h.texto}</p>
-                  </div>
-                ))
-              ) : (
-                <div className={styles.infoItem}>
-                  <span className={styles.dot}></span>
-                  <p>Aguardando Informações</p>
-                </div>
-              )}
-            </div>
-
-            <div className={styles.bannerButtons}>
-              <button
-                type="button"
-                className={styles.btnGreen}
-                onClick={() => {
-                  const el = document.getElementById("eventos");
-                  if (!el) return;
-                  const y =
-                    el.getBoundingClientRect().top + window.scrollY - 110;
-                  window.scrollTo({ top: y, behavior: "smooth" });
-                }}
-              >
-                Eventos
-              </button>
-
-              <button
-                type="button"
-                className={styles.btnRed}
-                onClick={() => {
-                  const el = document.getElementById("cronograma");
-                  if (!el) return;
-                  const y =
-                    el.getBoundingClientRect().top + window.scrollY - 110;
-                  window.scrollTo({ top: y, behavior: "smooth" });
-                }}
-              >
-                Cronograma
-              </button>
-
-              <Link href="/login" className={styles.btnBlue}>
-                Acesso
-              </Link>
-            </div>
+            {openSemanal && (
+              <div className={styles.cronogramaContent}>
+                <CronogramaSemanal items={publico?.cronograma ?? []} />
+              </div>
+            )}
           </div>
 
-          <div className={styles.bannerGlobal}>
-            <div className={styles.bannerRight}>
-              {imgOk ? (
-                <img
-                  src="/images/pastor.png"
-                  alt="Pastor Presidente"
-                  onError={() => setImgOk(false)}
-                />
-              ) : (
-                <div className={styles.imgFallback}>Sem imagem</div>
-              )}
-            </div>
+          <div className={styles.cronogramaCard}>
+            <button
+              type="button"
+              className={styles.cronogramaToggle}
+              onClick={() => setOpenAnual((v) => !v)}
+              aria-expanded={openAnual}
+            >
+              <div className={styles.cronogramaHeader}>
+                <span className={styles.cronogramaIcon}>📆</span>
+                <span className={styles.cronogramaTitle}>Cronograma Anual</span>
+              </div>
 
-            <div className={styles.bannerEndereco}>{enderecoBanner}</div>
+              <span className={styles.cronogramaArrow}>
+                {openAnual ? "▲" : "▼"}
+              </span>
+            </button>
 
-            <div className={styles.socialRow}>
-              <a
-                href={instagramLink}
-                target="_blank"
-                rel="noreferrer"
-                className={styles.socialInstagram}
-                aria-label="Instagram"
-                title="Instagram Igreja Presbiteriana - MC"
-              >
-                <FaInstagram className={styles.socialIcon} />
-                <span className={styles.socialName}>Instagram</span>
-              </a>
-
-              <a
-                href={facebookLink}
-                target="_blank"
-                rel="noreferrer"
-                className={styles.socialFacebook}
-                aria-label="Facebook"
-                title="Facebook Igreja Presbiteriana - MC"
-              >
-                <FaFacebookF className={styles.socialIcon} />
-                <span className={styles.socialName}>Facebook</span>
-              </a>
-            </div>
+            {openAnual && (
+              <div className={styles.cronogramaContent}>
+                <CronogramaAnual slug={mainSlug} />
+              </div>
+            )}
           </div>
-        </div>
-      </section>
-
-      <section className={styles.cards}>
-        {igrejas.map((item) => {
-          return (
-            <div key={item.id} className={styles.card}>
-              <button
-                type="button"
-                className={styles.btnVisit}
-                onClick={() => openBuildModal(`Site da igreja: ${item.nome}`)}
-              >
-                Visitar Site
-              </button>
-            </div>
-          );
-        })}
-      </section>
-
-      <EventosPublicos slug={mainSlug} />
-
-      <section id="cronograma" className={styles.cronogramaSection}>
-        <div className={styles.cronogramaCard}>
-          <button
-            type="button"
-            className={styles.cronogramaToggle}
-            onClick={() => setOpenSemanal((v) => !v)}
-            aria-expanded={openSemanal}
-          >
-            <div className={styles.cronogramaHeader}>
-              <span className={styles.cronogramaIcon}>📅</span>
-              <span className={styles.cronogramaTitle}>Cronograma Semanal</span>
-            </div>
-
-            <span className={styles.cronogramaArrow}>
-              {openSemanal ? "▲" : "▼"}
-            </span>
-          </button>
-
-          {openSemanal && (
-            <div className={styles.cronogramaContent}>
-              <CronogramaSemanal items={publico?.cronograma ?? []} />
-            </div>
-          )}
-        </div>
-
-        <div className={styles.cronogramaCard}>
-          <button
-            type="button"
-            className={styles.cronogramaToggle}
-            onClick={() => setOpenAnual((v) => !v)}
-            aria-expanded={openAnual}
-          >
-            <div className={styles.cronogramaHeader}>
-              <span className={styles.cronogramaIcon}>🗓</span>
-              <span className={styles.cronogramaTitle}>Cronograma Anual</span>
-            </div>
-
-            <span className={styles.cronogramaArrow}>
-              {openAnual ? "▲" : "▼"}
-            </span>
-          </button>
-
-          {openAnual && (
-            <div className={styles.cronogramaContent}>
-              <CronogramaAnual slug={mainSlug} />
-            </div>
-          )}
-        </div>
-      </section>
+        </section>
+      </div>
 
       {publico?.whatsappUrl ? (
         <a
@@ -443,8 +328,8 @@ export default function IgrejasPageClient({ igrejas, initialPublico }: Props) {
             <div className={styles.modalIcon}>🚧</div>
             <h3 className={styles.modalTitle}>Página em construção</h3>
             <p className={styles.modalText}>
-              A área de <strong>{buildPage}</strong> ainda está sendo
-              desenvolvida.
+              A área de <strong>{buildPage}</strong> ainda será conectada na
+              próxima etapa.
             </p>
             <button
               type="button"

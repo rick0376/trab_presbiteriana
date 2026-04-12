@@ -1,3 +1,5 @@
+//src/app/layout.tsx
+
 import type { Metadata } from "next";
 import "./globals.scss";
 import Providers from "@/components/providers/Providers";

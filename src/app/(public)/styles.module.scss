@@ -1,36 +1,29 @@
-/* Layout Público */
+//src/app/(public)/styles.module.scss
+
 .publicLayout {
   min-height: 100vh;
-  background: radial-gradient(
-    circle at top,
-    #0f2a3d 0%,
-    #9ccae9 40%,
-    #04121c 100%
-  );
   display: flex;
   flex-direction: column;
-}
-
-.headerSpace {
-  padding-top: 5rem;
+  background: transparent;
 }
 
 .content {
   flex: 1;
-  padding: 20px;
-  max-width: 1400px;
+  width: 100%;
+  max-width: 1440px;
   margin: 0 auto;
+  padding: 20px 20px 60px;
 }
 
 @media (max-width: 1200px) {
   .content {
-    padding: 15px;
+    padding: 16px 16px 48px;
   }
 }
 
 @media (max-width: 768px) {
   .content {
     max-width: 100%;
-    padding: 10px;
+    padding: 12px 10px 36px;
   }
 }

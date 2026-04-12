@@ -1,3 +1,5 @@
+// api/upload/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import cloudinary from "@/lib/cloudinary";
 

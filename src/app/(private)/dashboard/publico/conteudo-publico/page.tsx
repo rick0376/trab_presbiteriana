@@ -16,10 +16,8 @@ export default async function ConteudoPublicoPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  // ✅ 1) Ver a página
   await requirePermission("publico", "ler");
 
-  // ✅ 2) Descobrir se pode editar (sem bloquear a página)
   const me = await requireUser();
   const canEdit =
     me.role === "SUPERADMIN"
@@ -56,14 +54,34 @@ export default async function ConteudoPublicoPage({
     create: {
       igrejaId,
       bannerSubtitle: "",
+      heroSlogan: "",
+      boasVindasTexto: "",
+      pastorNome: "",
+      pastorCargo: "",
+      pastorSubtitle: "",
+      pastorMensagem: "",
+      pastorImageUrl: "",
+      pastorImagePublicId: "",
+      heroBackgroundImageUrl: "",
+      heroBackgroundImagePublicId: "",
       whatsappUrl: "",
+      instagramUrl: "",
+      facebookUrl: "",
+      endereco: "",
+      telefonePublico: "",
+      emailPublico: "",
+      footerDescricao: "",
     },
     include: {
+      igreja: {
+        select: {
+          nome: true,
+        },
+      },
       horarios: { orderBy: { ordem: "asc" } },
       cronograma: { orderBy: [{ dia: "asc" }, { ordem: "asc" }] },
     },
   });
 
-  // ✅ passa canEdit pro client component
   return <EditorPublico initialData={publico} canEdit={canEdit} />;
 }
