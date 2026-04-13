@@ -1,7 +1,5 @@
 //src/components/igreja-publico/HeroPublico/HeroPublico.tsx
 
-//src/components/igreja-publico/HeroPublico/HeroPublico.tsx
-
 "use client";
 
 import { useState } from "react";
