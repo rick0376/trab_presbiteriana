@@ -1,6 +1,7 @@
 //src/components/igreja-publico/DepartamentoDetalhePublico/DepartamentoDetalhePublico.tsx
 
 import Link from "next/link";
+import AlbunsDepartamentoPublico from "@/components/igreja-publico/AlbunsDepartamentoPublico/AlbunsDepartamentoPublico";
 import styles from "./styles.module.scss";
 
 type Props = {
@@ -107,6 +108,8 @@ export default function DepartamentoDetalhePublico({
           </p>
         </div>
       </div>
+
+      <AlbunsDepartamentoPublico items={item.albuns ?? []} />
 
       <div id="responsaveis-departamento" className={styles.responsaveisCard}>
         <h2 className={styles.sectionTitle}>Responsáveis</h2>

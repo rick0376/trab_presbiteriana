@@ -1,4 +1,4 @@
-//src/components/departamentos/EditorDepartamentos/EditorDepartamentos.tsx
+//src/components/igreja-publico/departamentos/EditorDepartamentos.tsx
 
 "use client";
 
@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import styles from "./styles.module.scss";
 import ConfirmModal from "@/components/ui/ConfirmModal/ConfirmModal";
 import { useToast } from "@/components/ui/Toast/useToast";
-import ListaDepartamentos from "@/components/departamentos/ListaDepartamentos/ListaDepartamentos";
+import ListaDepartamentos from "@/components/igreja-publico/departamentos/ListaDepartamentos/ListaDepartamentos";
 import { ImagePlus, Trash2, X } from "lucide-react";
 
 type Props = {

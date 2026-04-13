@@ -94,6 +94,11 @@ export default function Sidebar({
               icon: Building2,
             },
             {
+              label: "Álbuns Departamentos",
+              href: "/dashboard/publico/departamentos/albuns",
+              icon: CalendarDays,
+            },
+            {
               label: "História da Igreja",
               href: "/dashboard/publico/historia",
               icon: CalendarDays,

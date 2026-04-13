@@ -1,9 +1,9 @@
-//src/app/(private)/dashboard/departamentos/page.tsx
+//src/app/(private)/dashboard/publico/departamentos/page.tsx
 
 import { prisma } from "@/lib/prisma";
 import { requirePermission } from "@/lib/permissions";
 import { requireUser } from "@/lib/auth";
-import EditorDepartamentos from "@/components/departamentos/EditorDepartamentos/EditorDepartamentos";
+import EditorDepartamentos from "@/components/igreja-publico/departamentos/EditorDepartamentos/EditorDepartamentos";
 
 export const dynamic = "force-dynamic";
 

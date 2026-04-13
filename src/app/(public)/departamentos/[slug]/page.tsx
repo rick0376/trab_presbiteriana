@@ -50,6 +50,19 @@ export default async function DepartamentoDetalhePage({
         },
         orderBy: { ordem: "asc" },
       },
+      albuns: {
+        where: { ativo: true },
+        include: {
+          imagens: {
+            orderBy: [{ ordem: "asc" }, { createdAt: "asc" }],
+          },
+        },
+        orderBy: [
+          { ordem: "asc" },
+          { dataEvento: "desc" },
+          { createdAt: "desc" },
+        ],
+      },
     },
   });
 

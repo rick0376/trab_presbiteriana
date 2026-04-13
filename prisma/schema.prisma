@@ -485,12 +485,50 @@ model Departamento {
 
   igreja       Igreja                   @relation(fields: [igrejaId], references: [id], onDelete: Cascade)
   responsaveis DepartamentoResponsavel[]
+  albuns       DepartamentoAlbum[]
 
   @@unique([igrejaId, slug])
   @@index([igrejaId, ativo])
   @@map("departamentos")
 }
 
+model DepartamentoAlbum {
+  id                 String   @id @default(cuid())
+  departamentoId     String
+  titulo             String
+  descricao          String?
+  dataEvento         DateTime?
+  capaUrl            String?
+  capaPublicId       String?
+  ordem              Int      @default(0)
+  ativo              Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  departamento Departamento            @relation(fields: [departamentoId], references: [id], onDelete: Cascade)
+  imagens      DepartamentoAlbumImagem[]
+
+  @@index([departamentoId, ativo])
+  @@index([departamentoId, ordem])
+  @@map("departamento_albuns")
+}
+
+model DepartamentoAlbumImagem {
+  id          String   @id @default(cuid())
+  albumId     String
+  titulo      String?
+  altText     String?
+  imageUrl    String
+  publicId    String
+  ordem       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  album DepartamentoAlbum @relation(fields: [albumId], references: [id], onDelete: Cascade)
+
+  @@index([albumId, ordem])
+  @@map("departamento_album_imagens")
+}
 model DepartamentoResponsavel {
   id             String   @id @default(cuid())
   departamentoId String

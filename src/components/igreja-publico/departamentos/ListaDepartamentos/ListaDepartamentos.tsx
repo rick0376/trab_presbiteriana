@@ -1,4 +1,4 @@
-//src/components/departamentos/ListaDepartamentos/ListaDepartamentos.tsx
+//src/components/igeja-publico/departamentos/ListaDepartamentos/ListaDepartamentos.tsx
 
 "use client";
 
