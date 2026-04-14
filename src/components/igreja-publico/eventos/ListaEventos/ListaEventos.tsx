@@ -6,7 +6,8 @@ import { useState } from "react";
 import styles from "./styles.module.scss";
 import ConfirmModal from "@/components/ui/ConfirmModal/ConfirmModal";
 import { useToast } from "@/components/ui/Toast/useToast";
-import { PencilLine, Trash2, X } from "lucide-react";
+import { Images, PencilLine, Trash2, X } from "lucide-react";
+import Link from "next/link";
 
 export type Evento = {
   id: string;
@@ -267,6 +268,15 @@ export default function ListaEventos({
                       className={styles.actions}
                       onClick={(e) => e.stopPropagation()}
                     >
+                      <Link
+                        href={`/dashboard/publico/eventos/${ev.id}/fotos`}
+                        className={styles.iconBtnPhotos}
+                        aria-label="Fotos"
+                        title="Fotos do evento"
+                      >
+                        <Images size={18} />
+                      </Link>
+
                       <button
                         type="button"
                         className={styles.iconBtn}

@@ -1,0 +1,262 @@
+//src/components/igreja-publico/eventos/EditorEventoFotos/styles.module.scss
+
+.container {
+  margin: 64px auto 0;
+  width: 100%;
+  max-width: 1120px;
+  padding: 24px;
+}
+
+.card {
+  background: linear-gradient(180deg, #0d4f6a 0%, #083b53 100%);
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.topBar {
+  margin-bottom: 12px;
+}
+
+.backButton {
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 800;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.title {
+  margin: 0 0 8px;
+  color: #ffffff;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.subtitle {
+  margin: 0 0 20px;
+  color: #dbeafe;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.msg {
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #f8fafc;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.block {
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 18px;
+}
+
+.blockTitle {
+  margin: 0 0 16px;
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.label {
+  display: block;
+  margin-bottom: 8px;
+  color: #e2f1f8;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: none;
+  outline: none;
+  background: #f3f4f6;
+  color: #0f172a;
+  font-size: 15px;
+  margin-bottom: 14px;
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.08);
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.fileInput {
+  display: none;
+}
+
+.fileBtn {
+  min-height: 46px;
+  padding: 0 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  width: fit-content;
+}
+
+.fileBtnSelected {
+  background: linear-gradient(180deg, #38bdf8 0%, #0ea5e9 100%);
+  border-color: transparent;
+}
+
+.previewGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.previewCard {
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+  aspect-ratio: 1 / 1;
+}
+
+.previewImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.actionRow {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btnGreen,
+.btnSecondary,
+.deleteButton {
+  min-height: 46px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.btnGreen {
+  background: linear-gradient(180deg, #38bdf8 0%, #0ea5e9 100%);
+  color: #ffffff;
+}
+
+.btnSecondary {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.deleteButton {
+  background: #ef4444;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.empty {
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+  font-weight: 600;
+}
+
+.galleryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.imageCard {
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.imageWrap {
+  aspect-ratio: 1 / 1;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.imageBody {
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.imageMeta {
+  color: #dbeafe;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+@media (max-width: 900px) {
+  .container {
+    padding: 12px;
+  }
+
+  .card {
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .grid2 {
+    grid-template-columns: 1fr;
+  }
+
+  .previewGrid,
+  .galleryGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .actionRow {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 560px) {
+  .previewGrid,
+  .galleryGrid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -2,8 +2,8 @@
 
 "use client";
 
-import { useMemo, useState } from "react";
-import { X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import styles from "./styles.module.scss";
 
 type AlbumImage = {
@@ -39,6 +39,8 @@ function formatDateBR(value?: string | null) {
 
 export default function AlbunsDepartamentoPublico({ items }: Props) {
   const [selected, setSelected] = useState<Album | null>(null);
+  const [lightboxAlbum, setLightboxAlbum] = useState<Album | null>(null);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const ordered = useMemo(() => {
     return [...items].sort((a, b) => {
@@ -47,6 +49,57 @@ export default function AlbunsDepartamentoPublico({ items }: Props) {
       return bd - ad;
     });
   }, [items]);
+
+  const lightboxImages = lightboxAlbum?.imagens ?? [];
+  const lightboxSelected =
+    lightboxIndex !== null && lightboxImages[lightboxIndex]
+      ? lightboxImages[lightboxIndex]
+      : null;
+
+  function closeAlbumModal() {
+    setSelected(null);
+  }
+
+  function openLightbox(album: Album, index: number) {
+    setLightboxAlbum(album);
+    setLightboxIndex(index);
+  }
+
+  function closeLightbox() {
+    setLightboxAlbum(null);
+    setLightboxIndex(null);
+  }
+
+  function prevLightboxImage() {
+    if (!lightboxImages.length || lightboxIndex === null) return;
+
+    setLightboxIndex((prev) => {
+      if (prev === null) return 0;
+      return prev === 0 ? lightboxImages.length - 1 : prev - 1;
+    });
+  }
+
+  function nextLightboxImage() {
+    if (!lightboxImages.length || lightboxIndex === null) return;
+
+    setLightboxIndex((prev) => {
+      if (prev === null) return 0;
+      return prev === lightboxImages.length - 1 ? 0 : prev + 1;
+    });
+  }
+
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") closeLightbox();
+      if (e.key === "ArrowLeft") prevLightboxImage();
+      if (e.key === "ArrowRight") nextLightboxImage();
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [lightboxIndex, lightboxImages.length]);
 
   if (!ordered.length) return null;
 
@@ -75,6 +128,7 @@ export default function AlbunsDepartamentoPublico({ items }: Props) {
 
                 <div className={styles.body}>
                   <h3 className={styles.title}>{album.titulo}</h3>
+
                   <div className={styles.meta}>
                     <span>{formatDateBR(album.dataEvento)}</span>
                     <span>{album.imagens?.length ?? 0} foto(s)</span>
@@ -99,7 +153,7 @@ export default function AlbunsDepartamentoPublico({ items }: Props) {
       </section>
 
       {selected ? (
-        <div className={styles.modalOverlay} onClick={() => setSelected(null)}>
+        <div className={styles.modalOverlay} onClick={closeAlbumModal}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <div>
@@ -113,7 +167,7 @@ export default function AlbunsDepartamentoPublico({ items }: Props) {
               <button
                 type="button"
                 className={styles.modalClose}
-                onClick={() => setSelected(null)}
+                onClick={closeAlbumModal}
                 aria-label="Fechar"
               >
                 <X size={18} />
@@ -122,19 +176,78 @@ export default function AlbunsDepartamentoPublico({ items }: Props) {
 
             <div className={styles.modalGrid}>
               {selected.imagens?.length ? (
-                selected.imagens.map((img) => (
-                  <div key={img.id} className={styles.modalImageWrap}>
-                    <img
-                      src={cloud(img.imageUrl) ?? ""}
-                      alt={selected.titulo}
-                      className={styles.modalImage}
-                    />
-                  </div>
+                selected.imagens.map((img, index) => (
+                  <button
+                    key={img.id}
+                    type="button"
+                    className={styles.modalImageBtn}
+                    onClick={() => openLightbox(selected, index)}
+                  >
+                    <div className={styles.modalImageWrap}>
+                      <img
+                        src={cloud(img.imageUrl) ?? ""}
+                        alt={selected.titulo}
+                        className={styles.modalImage}
+                      />
+                    </div>
+                  </button>
                 ))
               ) : (
                 <div className={styles.empty}>Nenhuma foto neste álbum.</div>
               )}
             </div>
+          </div>
+        </div>
+      ) : null}
+
+      {lightboxSelected ? (
+        <div className={styles.lightboxOverlay} onClick={closeLightbox}>
+          <div
+            className={styles.lightboxModal}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className={styles.lightboxClose}
+              onClick={closeLightbox}
+              aria-label="Fechar"
+            >
+              <X size={20} />
+            </button>
+
+            {lightboxImages.length > 1 ? (
+              <>
+                <button
+                  type="button"
+                  className={`${styles.lightboxNavBtn} ${styles.lightboxNavBtnLeft}`}
+                  onClick={prevLightboxImage}
+                  aria-label="Imagem anterior"
+                >
+                  <ChevronLeft size={28} />
+                </button>
+
+                <button
+                  type="button"
+                  className={`${styles.lightboxNavBtn} ${styles.lightboxNavBtnRight}`}
+                  onClick={nextLightboxImage}
+                  aria-label="Próxima imagem"
+                >
+                  <ChevronRight size={28} />
+                </button>
+              </>
+            ) : null}
+
+            <img
+              src={cloud(lightboxSelected.imageUrl) ?? ""}
+              alt={lightboxAlbum?.titulo || "Foto do álbum"}
+              className={styles.lightboxImage}
+            />
+
+            {lightboxImages.length > 1 ? (
+              <div className={styles.lightboxCounter}>
+                {lightboxIndex! + 1} / {lightboxImages.length}
+              </div>
+            ) : null}
           </div>
         </div>
       ) : null}

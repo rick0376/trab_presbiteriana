@@ -2,9 +2,10 @@
 
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import styles from "./styles.module.scss";
-import { X } from "lucide-react";
+import { Images, X } from "lucide-react";
 
 type Evento = {
   id: string;
@@ -94,7 +95,15 @@ export default function EventosPublicos({ slug }: { slug: string }) {
   return (
     <section id="eventos" className={styles.wrap}>
       <header className={styles.head}>
-        <h2 className={styles.title}>📅 Próximos Eventos</h2>
+        <div className={styles.headTop}>
+          <h2 className={styles.title}>📅 Próximos Eventos</h2>
+
+          <Link href="/eventos/galeria" className={styles.galleryButton}>
+            <Images size={16} />
+            <span>Galeria de eventos</span>
+          </Link>
+        </div>
+
         <p className={styles.sub}>
           Acompanhe os próximos encontros e programações.
         </p>

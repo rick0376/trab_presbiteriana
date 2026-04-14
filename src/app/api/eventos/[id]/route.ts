@@ -1,196 +1,70 @@
 // api/eventos/[id]/route.ts
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireUser } from "@/lib/auth";
 import { requirePermission } from "@/lib/permissions";
-import cloudinary from "@/lib/cloudinary";
+import { destroyCloudinaryAssetAndCleanup } from "@/lib/cloudinary-upload";
 
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function PATCH(req: Request, context: any) {
-  const user = await requirePermission("publico", "editar");
-
-  // Aguardar os parâmetros da rota
-  const { id } = await context.params;
-
-  const { searchParams } = new URL(req.url);
-  const igrejaIdQuery = searchParams.get("igrejaId")?.trim() || null;
-
-  const igrejaId =
-    user.role === "SUPERADMIN"
-      ? (igrejaIdQuery ?? user.igrejaId)
-      : user.igrejaId;
-
-  if (!igrejaId) {
-    return NextResponse.json(
-      { error: "Igreja não definida." },
-      { status: 400 },
-    );
-  }
-
-  const evento = await prisma.evento.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      igrejaId: true,
-      imagemPublicId: true, // Isso para deletar a imagem anterior, se necessário
-      imagemUrl: true, // Para ver a URL da imagem no banco
-    },
-  });
-
-  if (!evento || evento.igrejaId !== igrejaId) {
-    return NextResponse.json(
-      { error: "Evento não encontrado." },
-      { status: 404 },
-    );
-  }
-
-  // Recuperar os dados enviados
-  const formData = await req.formData();
-  const titulo = formData.get("titulo")?.toString().trim() || "";
-  const dataStr = formData.get("data")?.toString().trim() || "";
-  const tipo = formData.get("tipo")?.toString().trim() || "";
-  const responsavel = formData.get("responsavel")?.toString().trim() || "";
-  const local = formData.get("local")?.toString().trim() || "";
-  const descricao = formData.get("descricao")?.toString().trim() || "";
-  const file = formData.get("imagem") as File | null;
-
-  if (!titulo || !dataStr) {
-    return NextResponse.json({ error: "Dados inválidos" }, { status: 400 });
-  }
-
-  function parseLocalDateTime(value: string) {
-    const [date, time] = value.split("T");
-    const [y, m, d] = date.split("-").map(Number);
-    const [hh, mm] = time.split(":").map(Number);
-
-    // cria data UTC com mesmos números (sem deslocamento)
-    return new Date(Date.UTC(y, m - 1, d, hh, mm));
-  }
-
-  const data = parseLocalDateTime(dataStr);
-
-  let imagemUrl = evento.imagemUrl;
-  let imagemPublicId = evento.imagemPublicId;
-
-  if (file && file.size > 0) {
-    if (imagemPublicId) {
-      try {
-        await cloudinary.uploader.destroy(imagemPublicId);
-      } catch (err) {
-        console.error("Erro ao deletar imagem antiga:", err);
-      }
-    }
-
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
-    const result: any = await new Promise((resolve, reject) => {
-      cloudinary.uploader
-        .upload_stream(
-          {
-            folder: `saas_igreja/eventos`,
-            resource_type: "auto",
-            transformation: [
-              { width: 1000, height: 1000, crop: "limit" },
-              { quality: "auto:good" },
-            ],
-          },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          },
-        )
-        .end(buffer);
-    });
-
-    imagemUrl = result.secure_url;
-    imagemPublicId = result.public_id;
-  }
-
-  const updated = await prisma.evento.update({
-    where: { id },
-    data: {
-      titulo,
-      data,
-      tipo,
-      responsavel,
-      local,
-      descricao,
-      imagemUrl,
-      imagemPublicId,
-    },
-    select: { id: true, titulo: true, data: true },
-  });
-
-  return NextResponse.json({
-    id: updated.id,
-    titulo: updated.titulo,
-    data: updated.data.toJSON(),
-  });
+function jsonError(message: string, status = 400) {
+  return NextResponse.json({ error: message }, { status });
 }
 
-export async function DELETE(req: Request, context: any) {
-  const user = await requirePermission("publico", "editar");
+function getIdFromUrl(req: NextRequest) {
+  const parts = req.nextUrl.pathname.split("/");
+  return parts[parts.length - 1];
+}
 
-  // Aguardar e obter os parâmetros da rota
-  const { id } = await context.params;
+async function resolveIgrejaId(
+  user: { id: string; role: string; igrejaId?: string | null },
+  igrejaIdParam: string | null,
+) {
+  if (user.role === "SUPERADMIN") return igrejaIdParam || null;
+
+  if (user.igrejaId) return user.igrejaId;
+
+  const igreja = await prisma.igreja.findFirst({
+    where: { adminId: user.id },
+    select: { id: true },
+  });
+
+  return igreja?.id || null;
+}
+
+export async function DELETE(req: NextRequest) {
+  const user = await requireUser();
+  await requirePermission("publico", "editar");
 
   const { searchParams } = new URL(req.url);
-  const igrejaIdQuery = searchParams.get("igrejaId")?.trim() || null;
-
-  const igrejaId =
-    user.role === "SUPERADMIN"
-      ? (igrejaIdQuery ?? user.igrejaId)
-      : user.igrejaId;
+  const igrejaId = await resolveIgrejaId(user, searchParams.get("igrejaId"));
 
   if (!igrejaId) {
-    return NextResponse.json(
-      { error: "Igreja não definida." },
-      { status: 400 },
-    );
+    return jsonError("Igreja não encontrada.");
   }
 
-  const evento = await prisma.evento.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      igrejaId: true,
-      imagemPublicId: true,
+  const id = getIdFromUrl(req);
+
+  const existing = await prisma.eventoImagem.findFirst({
+    where: {
+      id,
+      evento: {
+        igrejaId,
+      },
     },
   });
 
-  if (!evento || evento.igrejaId !== igrejaId) {
-    return NextResponse.json(
-      { error: "Evento não encontrado." },
-      { status: 404 },
-    );
+  if (!existing) {
+    return jsonError("Imagem não encontrada.", 404);
   }
 
-  // 🔥 Deletar imagem do Cloudinary
-  if (evento.imagemPublicId) {
-    try {
-      await cloudinary.uploader.destroy(evento.imagemPublicId);
+  await destroyCloudinaryAssetAndCleanup(existing.publicId);
 
-      // 🔥 Verificar se a pasta ficou vazia
-      const folder = evento.imagemPublicId.split("/").slice(0, -1).join("/");
-
-      const resources = await cloudinary.api.resources({
-        type: "upload",
-        prefix: folder,
-        max_results: 1,
-      });
-
-      if (resources.resources.length === 0) {
-        await cloudinary.api.delete_folder(folder);
-      }
-    } catch (err) {
-      console.error("Erro ao limpar Cloudinary:", err);
-    }
-  }
-
-  // Deletar evento no banco
-  await prisma.evento.delete({ where: { id } });
+  await prisma.eventoImagem.delete({
+    where: { id: existing.id },
+  });
 
   return NextResponse.json({ ok: true });
 }
