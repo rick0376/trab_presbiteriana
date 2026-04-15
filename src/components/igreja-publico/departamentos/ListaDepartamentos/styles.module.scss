@@ -20,16 +20,24 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.cover {
+.coverWrap {
   width: 100%;
-  height: 220px;
-  background: rgba(255, 255, 255, 0.06);
+  height: 320px;
+  padding: 12px;
+  background: linear-gradient(180deg, #eef2f7 0%, #dbe7f3 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.coverImg {
+.coverImage {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+  border-radius: 12px;
+  background: #f8fafc;
 }
 
 .coverEmpty {
@@ -37,8 +45,10 @@
   height: 100%;
   display: grid;
   place-items: center;
-  color: #dbeafe;
+  color: #17375b;
   font-weight: 700;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.65);
 }
 
 .body {
@@ -181,8 +191,9 @@
 }
 
 @media (max-width: 768px) {
-  .cover {
-    height: 180px;
+  .coverWrap {
+    height: 240px;
+    padding: 10px;
   }
 
   .topRow {

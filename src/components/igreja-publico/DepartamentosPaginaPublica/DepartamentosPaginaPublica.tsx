@@ -34,12 +34,12 @@ export default function DepartamentosPaginaPublica({
 
           return (
             <article key={item.id} className={styles.card}>
-              <div className={styles.cover}>
+              <div className={styles.coverWrap}>
                 {item.capaUrl ? (
                   <img
                     src={cloud(item.capaUrl) ?? ""}
                     alt={item.nome}
-                    className={styles.coverImg}
+                    className={styles.coverImage}
                   />
                 ) : (
                   <div className={styles.coverEmpty}>Sem capa</div>

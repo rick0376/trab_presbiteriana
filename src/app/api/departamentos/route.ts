@@ -109,6 +109,7 @@ export async function POST(req: Request) {
 
   const nome = String(formData.get("nome") ?? "").trim();
   const descricao = String(formData.get("descricao") ?? "").trim();
+  const whatsappUrl = String(formData.get("whatsappUrl") ?? "").trim();
   const diasFuncionamento = String(
     formData.get("diasFuncionamento") ?? "",
   ).trim();
@@ -243,6 +244,7 @@ export async function POST(req: Request) {
       descricao: descricao || null,
       capaUrl,
       capaPublicId,
+      whatsappUrl: whatsappUrl || null,
       diasFuncionamento: diasFuncionamento || null,
       horarioFuncionamento: horarioFuncionamento || null,
       ordem,

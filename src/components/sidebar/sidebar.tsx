@@ -90,7 +90,7 @@ export default function Sidebar({
             },
             {
               label: "Departamentos",
-              href: "/dashboard/departamentos",
+              href: "/dashboard/publico/departamentos",
               icon: Building2,
             },
             {

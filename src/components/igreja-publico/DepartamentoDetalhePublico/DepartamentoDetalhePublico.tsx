@@ -29,6 +29,7 @@ export default function DepartamentoDetalhePublico({
   item,
 }: Props) {
   const resumo = getResumo(item.descricao);
+  const whatsappContato = item.whatsappUrl || whatsappUrl || null;
 
   return (
     <section className={styles.page}>
@@ -50,9 +51,9 @@ export default function DepartamentoDetalhePublico({
           </div>
 
           <div className={styles.actions}>
-            {whatsappUrl ? (
+            {whatsappContato ? (
               <a
-                href={whatsappUrl}
+                href={whatsappContato}
                 target="_blank"
                 rel="noreferrer"
                 className={styles.primaryButton}

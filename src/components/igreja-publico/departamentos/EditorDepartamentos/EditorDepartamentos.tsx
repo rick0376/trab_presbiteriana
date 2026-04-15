@@ -51,6 +51,46 @@ function revokeIfBlob(url?: string | null) {
   }
 }
 
+function cleanWhatsappDigits(value: string) {
+  return value.replace(/\D/g, "").slice(0, 11);
+}
+
+function formatWhatsappInput(value: string) {
+  const digits = cleanWhatsappDigits(value);
+
+  if (digits.length <= 2) {
+    return digits ? `(${digits}` : "";
+  }
+
+  if (digits.length <= 6) {
+    return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  }
+
+  if (digits.length <= 10) {
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+  }
+
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7, 11)}`;
+}
+
+function whatsappDigitsToUrl(value: string) {
+  const digits = cleanWhatsappDigits(value);
+  if (digits.length < 10) return "";
+  return `https://wa.me/55${digits}`;
+}
+
+function extractWhatsappDigits(value?: string | null) {
+  const digits = String(value ?? "").replace(/\D/g, "");
+
+  if (!digits) return "";
+
+  if (digits.startsWith("55") && digits.length >= 12) {
+    return digits.slice(2, 13);
+  }
+
+  return digits.slice(0, 11);
+}
+
 export default function EditorDepartamentos({ igrejaId, canEdit }: Props) {
   const toast = useToast();
 
@@ -62,6 +102,7 @@ export default function EditorDepartamentos({ igrejaId, canEdit }: Props) {
 
   const [nome, setNome] = useState("");
   const [descricao, setDescricao] = useState("");
+  const [whatsappNumero, setWhatsappNumero] = useState("");
   const [diasFuncionamento, setDiasFuncionamento] = useState("");
   const [horarioFuncionamento, setHorarioFuncionamento] = useState("");
   const [ordem, setOrdem] = useState("0");
@@ -127,6 +168,7 @@ export default function EditorDepartamentos({ igrejaId, canEdit }: Props) {
     setEditingId(null);
     setNome("");
     setDescricao("");
+    setWhatsappNumero("");
     setDiasFuncionamento("");
     setHorarioFuncionamento("");
     setOrdem("0");
@@ -246,6 +288,9 @@ export default function EditorDepartamentos({ igrejaId, canEdit }: Props) {
     setEditingId(item.id);
     setNome(item.nome ?? "");
     setDescricao(item.descricao ?? "");
+    setWhatsappNumero(
+      formatWhatsappInput(extractWhatsappDigits(item.whatsappUrl ?? "")),
+    );
     setDiasFuncionamento(item.diasFuncionamento ?? "");
     setHorarioFuncionamento(item.horarioFuncionamento ?? "");
     setOrdem(String(item.ordem ?? 0));
@@ -284,6 +329,13 @@ export default function EditorDepartamentos({ igrejaId, canEdit }: Props) {
       return;
     }
 
+    const whatsappDigits = cleanWhatsappDigits(whatsappNumero);
+
+    if (whatsappNumero.trim() && whatsappDigits.length < 10) {
+      toast.error("Informe um WhatsApp válido com DDD.");
+      return;
+    }
+
     const membroIds = responsaveis.map((r) => r.membroId).filter(Boolean);
 
     const uniqueIds = new Set(membroIds);
@@ -300,6 +352,7 @@ export default function EditorDepartamentos({ igrejaId, canEdit }: Props) {
 
       fd.append("nome", nome.trim());
       fd.append("descricao", descricao.trim());
+      fd.append("whatsappUrl", whatsappDigitsToUrl(whatsappNumero));
       fd.append("diasFuncionamento", diasFuncionamento.trim());
       fd.append("horarioFuncionamento", horarioFuncionamento.trim());
       fd.append("ordem", String(Number(ordem || 0)));
@@ -443,6 +496,19 @@ export default function EditorDepartamentos({ igrejaId, canEdit }: Props) {
               onChange={(e) => setDescricao(e.target.value)}
               disabled={!canEdit || saving}
               placeholder="Descrição do departamento"
+            />
+
+            <label className={styles.label}>WhatsApp do departamento</label>
+            <input
+              className={styles.input}
+              value={whatsappNumero}
+              onChange={(e) =>
+                setWhatsappNumero(formatWhatsappInput(e.target.value))
+              }
+              disabled={!canEdit || saving}
+              placeholder="Ex: (12) 99189-0682"
+              inputMode="numeric"
+              maxLength={15}
             />
 
             <div className={styles.grid2}>
