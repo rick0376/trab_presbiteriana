@@ -48,6 +48,7 @@ export default async function EventosGaleriaPage() {
     titulo: evento.titulo,
     data: evento.data.toISOString(),
     imagemUrl: evento.imagemUrl ?? null,
+    tipo: evento.tipo ?? null,
     local: evento.local ?? null,
     descricao: evento.descricao ?? null,
     imagens: evento.imagens.map((img) => ({

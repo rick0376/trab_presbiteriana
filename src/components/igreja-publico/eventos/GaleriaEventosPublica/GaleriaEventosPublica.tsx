@@ -11,6 +11,7 @@ type Item = {
   titulo: string;
   data: string;
   imagemUrl?: string | null;
+  tipo?: string | null;
   local?: string | null;
   descricao?: string | null;
   imagens?: {
@@ -45,25 +46,46 @@ function formatBR(iso: string) {
   });
 }
 
+function normalizarTipo(tipo?: string | null) {
+  const valor = String(tipo ?? "").trim();
+  return valor || "Sem tipo";
+}
+
 export default function GaleriaEventosPublica({ churchName, items }: Props) {
   const [busca, setBusca] = useState("");
+  const [tipoSelecionado, setTipoSelecionado] = useState("Todos");
+
+  const tiposDisponiveis = useMemo(() => {
+    const tipos = Array.from(
+      new Set(items.map((item) => normalizarTipo(item.tipo))),
+    ).sort((a, b) => a.localeCompare(b, "pt-BR"));
+
+    return ["Todos", ...tipos];
+  }, [items]);
 
   const filtrados = useMemo(() => {
     const q = busca.trim().toLowerCase();
-    if (!q) return items;
 
     return items.filter((item) => {
-      return (
+      const tipoAtual = normalizarTipo(item.tipo);
+
+      const passouTipo =
+        tipoSelecionado === "Todos" || tipoAtual === tipoSelecionado;
+
+      const passouBusca =
+        !q ||
         item.titulo.toLowerCase().includes(q) ||
         String(item.local ?? "")
           .toLowerCase()
           .includes(q) ||
         String(item.descricao ?? "")
           .toLowerCase()
-          .includes(q)
-      );
+          .includes(q) ||
+        tipoAtual.toLowerCase().includes(q);
+
+      return passouTipo && passouBusca;
     });
-  }, [items, busca]);
+  }, [items, busca, tipoSelecionado]);
 
   return (
     <section className={styles.page}>
@@ -71,21 +93,39 @@ export default function GaleriaEventosPublica({ churchName, items }: Props) {
         <div className={styles.kicker}>{churchName}</div>
         <h1 className={styles.title}>Galeria de Eventos</h1>
         <p className={styles.sub}>
-          Procure um evento realizado e veja as fotos dele.
+          Procure um evento realizado e filtre por tipo.
         </p>
 
-        <input
-          className={styles.input}
-          placeholder="Buscar evento..."
-          value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-        />
+        <div className={styles.filters}>
+          <input
+            className={styles.input}
+            placeholder="Buscar evento..."
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+          />
+
+          <div className={styles.typesWrap}>
+            {tiposDisponiveis.map((tipo) => (
+              <button
+                key={tipo}
+                type="button"
+                className={`${styles.typeBtn} ${
+                  tipoSelecionado === tipo ? styles.typeBtnActive : ""
+                }`}
+                onClick={() => setTipoSelecionado(tipo)}
+              >
+                {tipo}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {filtrados.length ? (
         <div className={styles.grid}>
           {filtrados.map((item) => {
             const cover = item.imagemUrl || item.imagens?.[0]?.imageUrl || null;
+            const tipoLabel = normalizarTipo(item.tipo);
 
             return (
               <article key={item.id} className={styles.card}>
@@ -99,10 +139,15 @@ export default function GaleriaEventosPublica({ churchName, items }: Props) {
                   ) : (
                     <div className={styles.thumbEmpty}>Sem imagem</div>
                   )}
+
+                  <div className={styles.badges}>
+                    <span className={styles.badge}>{tipoLabel}</span>
+                  </div>
                 </div>
 
                 <div className={styles.body}>
                   <h3 className={styles.cardTitle}>{item.titulo}</h3>
+
                   <div className={styles.meta}>
                     <span>{formatBR(item.data)}</span>
                     <span>{item._count?.imagens ?? 0} foto(s)</span>
