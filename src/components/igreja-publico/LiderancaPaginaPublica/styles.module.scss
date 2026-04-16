@@ -1,0 +1,344 @@
+//src/components/igreja-publico/LiderancaPaginaPublica/styles.module.scss
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.backLink {
+  color: #17375b;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 28px;
+  align-items: start;
+  padding: 34px;
+  border-radius: 30px;
+  background:
+    radial-gradient(
+      circle at left top,
+      rgba(217, 176, 113, 0.12),
+      transparent 28%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.96),
+      rgba(247, 242, 236, 0.96)
+    );
+  border: 1px solid rgba(21, 44, 76, 0.08);
+  box-shadow: 0 18px 44px rgba(13, 28, 48, 0.08);
+}
+
+.heroText {
+  display: flex;
+  flex-direction: column;
+}
+
+.kicker {
+  display: inline-flex;
+  width: fit-content;
+  min-height: 30px;
+  align-items: center;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(20, 53, 92, 0.08);
+  color: #14355c;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.title {
+  margin: 16px 0 12px;
+  color: #17375b;
+  font-size: clamp(40px, 4.8vw, 72px);
+  line-height: 0.94;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.subtitle {
+  margin: 0 0 18px;
+  color: #475569;
+  font-size: 16px;
+  line-height: 1.8;
+  max-width: 760px;
+}
+
+.pastorBox {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pastorName {
+  margin: 0;
+  color: #17375b;
+  font-size: 34px;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.pastorRole {
+  color: #334155;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.pastorMini {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.pastorText {
+  margin: 0;
+  color: #475569;
+  font-size: 16px;
+  line-height: 1.9;
+  max-width: 760px;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.primaryButton,
+.secondaryButton {
+  min-height: 48px;
+  padding: 0 18px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.primaryButton {
+  background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+  color: #ffffff;
+}
+
+.secondaryButton {
+  background: linear-gradient(180deg, #f4ede4 0%, #e7dfd4 100%);
+  color: #22334b;
+}
+
+.heroImageWrap {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.imageFrame {
+  width: 100%;
+  max-width: 360px;
+  min-height: 420px;
+  padding: 12px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+  border: 1px solid rgba(21, 44, 76, 0.08);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.heroImage {
+  width: 100%;
+  height: 100%;
+  max-height: 396px;
+  object-fit: contain;
+  object-position: center;
+  border-radius: 18px;
+  display: block;
+  background: #f6efe6;
+}
+
+.sectionCard {
+  padding: 30px;
+  border-radius: 28px;
+  background: #ffffff;
+  border: 1px solid rgba(21, 44, 76, 0.08);
+  box-shadow: 0 18px 44px rgba(13, 28, 48, 0.06);
+}
+
+.sectionTitle {
+  margin: 0 0 18px;
+  color: #17375b;
+  font-size: clamp(28px, 3vw, 42px);
+  line-height: 1;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.departamentosGrid {
+  display: grid;
+  gap: 18px;
+}
+
+.departamentoCard {
+  padding: 20px;
+  border-radius: 22px;
+  background: rgba(20, 53, 92, 0.04);
+  border: 1px solid rgba(20, 53, 92, 0.08);
+}
+
+.departamentoHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.departamentoTitle {
+  margin: 0;
+  color: #17375b;
+  font-size: 26px;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.departamentoLink {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  background: linear-gradient(180deg, #1b4d84 0%, #123a66 100%);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.responsaveisGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.responsavelCard {
+  overflow: hidden;
+  border-radius: 22px;
+  background: #ffffff;
+  border: 1px solid rgba(21, 44, 76, 0.08);
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.06);
+}
+
+.responsavelFotoWrap {
+  height: 240px;
+  padding: 12px;
+  background: linear-gradient(180deg, #eef2f7 0%, #dbe7f3 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.responsavelFoto {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  border-radius: 14px;
+  background: #f8fafc;
+  display: block;
+}
+
+.responsavelFotoEmpty {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: #17375b;
+  font-weight: 700;
+}
+
+.responsavelBody {
+  padding: 18px;
+}
+
+.responsavelNome {
+  margin: 0 0 8px;
+  color: #17375b;
+  font-size: 22px;
+  font-weight: 800;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.responsavelCargo {
+  margin-bottom: 10px;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.responsavelBio {
+  margin: 0;
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+.emptyBox {
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(20, 53, 92, 0.05);
+  color: #17375b;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+@media (max-width: 1100px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .heroImageWrap {
+    justify-content: center;
+  }
+
+  .responsaveisGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero,
+  .sectionCard {
+    padding: 18px;
+    border-radius: 22px;
+  }
+
+  .title {
+    font-size: 36px;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .responsaveisGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .imageFrame {
+    min-height: 320px;
+  }
+}

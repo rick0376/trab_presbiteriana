@@ -3,6 +3,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import styles from "./styles.module.scss";
 import CronogramaSemanal from "@/components/igreja-publico/CronogramaSemanal/CronogramaSemanal";
 import EventosPublicos from "@/components/igreja-publico/eventos/EventosPublicos/EventosPublicos";
@@ -14,7 +15,6 @@ import BoasVindasPublica from "@/components/igreja-publico/BoasVindasPublica/Boa
 import CultosSemana from "@/components/igreja-publico/CultosSemana/CultosSemana";
 import PastorDestaque from "@/components/igreja-publico/PastorDestaque/PastorDestaque";
 import DepartamentosDestaque from "@/components/igreja-publico/DepartamentosDestaque/DepartamentosDestaque";
-import { useRouter } from "next/navigation";
 
 type IgrejaDB = {
   id: string;
@@ -78,10 +78,10 @@ type RadioVisualStatus =
   | "AGUARDANDO_PROGRAMACAO";
 
 export default function IgrejasPageClient({ igrejas, initialPublico }: Props) {
+  const router = useRouter();
+
   const { isLive, isPlaying, togglePlay, radioConfig, canPlay, playError } =
     useRadioPlayer();
-
-  const router = useRouter();
 
   const [buildOpen, setBuildOpen] = useState(false);
   const [buildPage, setBuildPage] = useState("");
@@ -245,7 +245,7 @@ export default function IgrejasPageClient({ igrejas, initialPublico }: Props) {
           pastorTitle={pastorPrincipal.cargo}
           mensagem={pastorPrincipal.mensagem}
           imageUrl={pastorPrincipal.imagem}
-          onLideranca={() => openBuildModal("Liderança")}
+          onLideranca={() => router.push("/lideranca")}
         />
 
         <DepartamentosDestaque igrejaSlug={mainSlug} />
