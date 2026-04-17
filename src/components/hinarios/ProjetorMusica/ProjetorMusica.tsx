@@ -22,6 +22,11 @@ type Props = {
   };
 };
 
+type ParteProjetor = {
+  texto: string;
+  isRefrao: boolean;
+};
+
 function splitBlocos(letra: string) {
   return letra
     .split(/\n\s*\n/g)
@@ -29,26 +34,54 @@ function splitBlocos(letra: string) {
     .filter(Boolean);
 }
 
-function quebrarBlocoEmPartes(bloco: string, linhasPorParte = 3) {
-  const linhas = bloco
+function detectarRefrao(bloco: string) {
+  const normalizado = bloco.toLowerCase();
+  return (
+    normalizado.includes("refrão") ||
+    normalizado.includes("refrao") ||
+    normalizado.includes("coro") ||
+    normalizado.includes("chorus")
+  );
+}
+
+function limparMarcadorRefrao(bloco: string) {
+  return bloco
+    .replace(/^refrão\s*:?\s*/i, "")
+    .replace(/^refrao\s*:?\s*/i, "")
+    .replace(/^coro\s*:?\s*/i, "")
+    .replace(/^chorus\s*:?\s*/i, "")
+    .trim();
+}
+
+function quebrarBlocoEmPartes(
+  bloco: string,
+  linhasPorParte = 4,
+): ParteProjetor[] {
+  const isRefrao = detectarRefrao(bloco);
+
+  const blocoLimpo = limparMarcadorRefrao(bloco);
+
+  const linhas = blocoLimpo
     .split("\n")
     .map((linha) => linha.trim())
     .filter((linha) => linha.length > 0);
 
   if (!linhas.length) return [];
 
-  const partes: string[] = [];
+  const partes: ParteProjetor[] = [];
 
   for (let i = 0; i < linhas.length; i += linhasPorParte) {
-    partes.push(linhas.slice(i, i + linhasPorParte).join("\n"));
+    partes.push({
+      texto: linhas.slice(i, i + linhasPorParte).join("\n"),
+      isRefrao,
+    });
   }
 
   return partes;
 }
 
-function gerarPaginasProjetor(letra: string, linhasPorParte = 3) {
+function gerarPaginasProjetor(letra: string, linhasPorParte = 4) {
   const blocos = splitBlocos(letra);
-
   return blocos.flatMap((bloco) => quebrarBlocoEmPartes(bloco, linhasPorParte));
 }
 
@@ -56,14 +89,14 @@ export default function ProjetorMusica({ musica }: Props) {
   const [index, setIndex] = useState(0);
   const [fullscreen, setFullscreen] = useState(false);
   const [fontScale, setFontScale] = useState(1);
-  const [linhasPorParte, setLinhasPorParte] = useState(3);
+  const [linhasPorParte, setLinhasPorParte] = useState(4);
 
   const partes = useMemo(
     () => gerarPaginasProjetor(musica.letra, linhasPorParte),
     [musica.letra, linhasPorParte],
   );
 
-  const atual = partes[index] ?? "";
+  const atual = partes[index] ?? { texto: "", isRefrao: false };
 
   function prev() {
     setIndex((prevIndex) => (prevIndex <= 0 ? 0 : prevIndex - 1));
@@ -133,6 +166,8 @@ export default function ProjetorMusica({ musica }: Props) {
       if (e.key === "1") setLinhasPorParte(2);
       if (e.key === "2") setLinhasPorParte(3);
       if (e.key === "3") setLinhasPorParte(4);
+      if (e.key === "4") setLinhasPorParte(5);
+      if (e.key === "5") setLinhasPorParte(6);
     }
 
     function handleFsChange() {
@@ -203,34 +238,22 @@ export default function ProjetorMusica({ musica }: Props) {
             Parte {index + 1} / {partes.length}
           </span>
           <span>Fonte: {Math.round(fontScale * 100)}%</span>
+          <span>{linhasPorParte} linhas</span>
         </div>
 
         <div className={styles.modeBox}>
           <span className={styles.modeLabel}>Quebra:</span>
 
-          <button
-            type="button"
-            className={`${styles.modeBtn} ${linhasPorParte === 2 ? styles.modeBtnActive : ""}`}
-            onClick={() => setLinhasPorParte(2)}
-          >
-            2 linhas
-          </button>
-
-          <button
-            type="button"
-            className={`${styles.modeBtn} ${linhasPorParte === 3 ? styles.modeBtnActive : ""}`}
-            onClick={() => setLinhasPorParte(3)}
-          >
-            3 linhas
-          </button>
-
-          <button
-            type="button"
-            className={`${styles.modeBtn} ${linhasPorParte === 4 ? styles.modeBtnActive : ""}`}
-            onClick={() => setLinhasPorParte(4)}
-          >
-            4 linhas
-          </button>
+          {[2, 3, 4, 5, 6].map((qtd) => (
+            <button
+              key={qtd}
+              type="button"
+              className={`${styles.modeBtn} ${linhasPorParte === qtd ? styles.modeBtnActive : ""}`}
+              onClick={() => setLinhasPorParte(qtd)}
+            >
+              {qtd} linhas
+            </button>
+          ))}
         </div>
       </div>
 
@@ -249,13 +272,17 @@ export default function ProjetorMusica({ musica }: Props) {
             {index + 1} / {partes.length}
           </div>
 
+          {atual.isRefrao ? (
+            <div className={styles.refraoTag}>Refrão</div>
+          ) : null}
+
           <div
-            className={styles.letra}
+            className={`${styles.letra} ${atual.isRefrao ? styles.letraRefrao : ""}`}
             style={{
               fontSize: `calc(clamp(28px, 3vw, 50px) * ${fontScale})`,
             }}
           >
-            {atual.split("\n").map((linha, linhaIndex) => (
+            {atual.texto.split("\n").map((linha, linhaIndex) => (
               <div key={linhaIndex} className={styles.linha}>
                 {linha || "\u00A0"}
               </div>

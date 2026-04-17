@@ -156,10 +156,29 @@
   font-weight: 700;
 }
 
+.refraoTag {
+  margin-bottom: 16px;
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  background: rgba(250, 204, 21, 0.16);
+  color: #fde68a;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
 .letra {
   width: 100%;
   max-width: 1100px;
   text-align: center;
+}
+
+.letraRefrao .linha {
+  color: #fef3c7;
+  text-shadow: 0 0 18px rgba(250, 204, 21, 0.18);
 }
 
 .linha {
