@@ -14,6 +14,7 @@ import {
   Printer,
   Trash2,
   X,
+  Presentation,
 } from "lucide-react";
 import ConfirmModal from "@/components/ui/ConfirmModal/ConfirmModal";
 import { useToast } from "@/components/ui/Toast/useToast";
@@ -660,10 +661,16 @@ export default function EditorHinarioDepartamento({
                       <button
                         type="button"
                         className={styles.iconBtn}
-                        onClick={() => openCulto(index)}
-                        title="Modo culto"
+                        onClick={() =>
+                          window.open(
+                            `/secretaria/hinarios/projetor/${item.id}`,
+                            "_blank",
+                            "noopener,noreferrer",
+                          )
+                        }
+                        title="Projetar"
                       >
-                        <MonitorPlay size={16} />
+                        <Presentation size={16} />
                       </button>
 
                       <button

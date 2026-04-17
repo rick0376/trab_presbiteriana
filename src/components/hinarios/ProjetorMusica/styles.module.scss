@@ -1,0 +1,157 @@
+//src/components/hinarios/ProjetorMusica/styles.module.scss
+
+.page {
+  min-height: 100vh;
+  margin: 64px auto 0;
+  background: radial-gradient(circle at top, #0f172a 0%, #020617 70%);
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  padding: 18px 22px;
+}
+
+.topBar {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.topLeft {
+  min-width: 0;
+}
+
+.departamento {
+  color: rgba(191, 219, 254, 0.82);
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.titulo {
+  margin: 0;
+  font-size: clamp(24px, 2.6vw, 38px);
+  line-height: 1.1;
+  font-family: Georgia, "Times New Roman", serif;
+  color: #ffffff;
+}
+
+.topRight {
+  display: flex;
+  gap: 10px;
+}
+
+.iconBtn {
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.content {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 72px 1fr 72px;
+  gap: 12px;
+  align-items: center;
+}
+
+.navBtn {
+  width: 100%;
+  height: 84px;
+  border: none;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.navBtn:disabled {
+  opacity: 0.28;
+  cursor: not-allowed;
+}
+
+.letraWrap {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 24px 10px;
+}
+
+.contador {
+  margin-bottom: 18px;
+  color: rgba(226, 232, 240, 0.72);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.letra {
+  width: 100%;
+  max-width: 1100px;
+  text-align: center;
+}
+
+.linha {
+  font-size: clamp(28px, 3vw, 50px);
+  line-height: 1.45;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.bottomBar {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.bottomBtn {
+  min-height: 48px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.bottomBtn:disabled {
+  opacity: 0.28;
+  cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+  .content {
+    grid-template-columns: 1fr;
+  }
+
+  .navBtn {
+    display: none;
+  }
+
+  .letraWrap {
+    padding: 10px 0;
+  }
+
+  .linha {
+    font-size: clamp(24px, 5vw, 36px);
+  }
+}
