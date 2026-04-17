@@ -77,7 +77,7 @@ model Igreja {
   ebdTurmas           EscolaDominicalTurma[]
   departamentos       Departamento[]
   backupConfig        BackupConfig?
-  historia HistoriaIgreja?
+  historia            HistoriaIgreja?
   backupGlobalTargets BackupGlobalConfig[]   @relation("BackupGlobalTargetIgreja")
 
   @@map("igrejas")
@@ -168,7 +168,7 @@ model Evento {
 
   imagemUrl      String?
   imagemPublicId String?
-  
+
   imagens EventoImagem[]
 
   descricao   String?
@@ -232,17 +232,17 @@ model IgrejaPublico {
 }
 
 model HorarioPublico {
-  id              String        @id @default(cuid())
+  id              String @id @default(cuid())
   igrejaPublicoId String
 
-  texto           String
-  diaLabel        String?
-  hora            String?
-  tituloCard      String?
-  descricaoCard   String?
+  texto         String
+  diaLabel      String?
+  hora          String?
+  tituloCard    String?
+  descricaoCard String?
 
-  ordem           Int           @default(0)
-  igrejaPublico   IgrejaPublico @relation(fields: [igrejaPublicoId], references: [id], onDelete: Cascade)
+  ordem         Int           @default(0)
+  igrejaPublico IgrejaPublico @relation(fields: [igrejaPublicoId], references: [id], onDelete: Cascade)
 
   @@index([igrejaPublicoId])
   @@map("horarios_publico")
@@ -338,17 +338,17 @@ model RadioStatsHistory {
 }
 
 model RadioProgramacao {
-  id           String    @id @default(cuid())
-  diaSemana    DiaSemana
-  horaInicio   String
-  horaFim      String
-  titulo       String
-  subtitulo    String?
-  responsavel  String?
-  ativo        Boolean   @default(true)
-  ordem        Int       @default(0)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id          String    @id @default(cuid())
+  diaSemana   DiaSemana
+  horaInicio  String
+  horaFim     String
+  titulo      String
+  subtitulo   String?
+  responsavel String?
+  ativo       Boolean   @default(true)
+  ordem       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   @@index([diaSemana, ordem])
   @@map("radio_programacao")
@@ -415,7 +415,7 @@ model EscolaDominicalDomingo {
   oferta           Decimal? @db.Decimal(10, 2)
   revistasLivros   Int      @default(0)
   observacao       String?
-  isFolgaGeral     Boolean @default(false)
+  isFolgaGeral     Boolean  @default(false)
   motivoFolga      String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -451,26 +451,26 @@ model SiteCounter {
 }
 
 model SiteAccess {
-  id           String   @id @default(cuid())
-  createdAt    DateTime @default(now())
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
 
-  path         String?
-  referrer     String?
-  userAgent    String?
-  deviceType   String?
-  visitorId    String?
-  ipAddress    String?
-  ipHash       String?
-  ipCountry    String?
-  ipRegion     String?
-  ipCity       String?
+  path       String?
+  referrer   String?
+  userAgent  String?
+  deviceType String?
+  visitorId  String?
+  ipAddress  String?
+  ipHash     String?
+  ipCountry  String?
+  ipRegion   String?
+  ipCity     String?
 
-  displayMode  String?
-  utmSource    String?
-  utmMedium    String?
-  utmCampaign  String?
-  utmContent   String?
-  utmTerm      String?
+  displayMode String?
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  utmContent  String?
+  utmTerm     String?
 
   @@index([createdAt])
   @@index([deviceType])
@@ -503,9 +503,10 @@ model Departamento {
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 
-  igreja       Igreja                   @relation(fields: [igrejaId], references: [id], onDelete: Cascade)
+  igreja       Igreja                    @relation(fields: [igrejaId], references: [id], onDelete: Cascade)
   responsaveis DepartamentoResponsavel[]
   albuns       DepartamentoAlbum[]
+  musicas      DepartamentoMusica[]
 
   @@unique([igrejaId, slug])
   @@index([igrejaId, ativo])
@@ -513,19 +514,19 @@ model Departamento {
 }
 
 model DepartamentoAlbum {
-  id                 String   @id @default(cuid())
-  departamentoId     String
-  titulo             String
-  descricao          String?
-  dataEvento         DateTime?
-  capaUrl            String?
-  capaPublicId       String?
-  ordem              Int      @default(0)
-  ativo              Boolean  @default(true)
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  id             String    @id @default(cuid())
+  departamentoId String
+  titulo         String
+  descricao      String?
+  dataEvento     DateTime?
+  capaUrl        String?
+  capaPublicId   String?
+  ordem          Int       @default(0)
+  ativo          Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
-  departamento Departamento            @relation(fields: [departamentoId], references: [id], onDelete: Cascade)
+  departamento Departamento              @relation(fields: [departamentoId], references: [id], onDelete: Cascade)
   imagens      DepartamentoAlbumImagem[]
 
   @@index([departamentoId, ativo])
@@ -534,21 +535,22 @@ model DepartamentoAlbum {
 }
 
 model DepartamentoAlbumImagem {
-  id          String   @id @default(cuid())
-  albumId     String
-  titulo      String?
-  altText     String?
-  imageUrl    String
-  publicId    String
-  ordem       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  albumId   String
+  titulo    String?
+  altText   String?
+  imageUrl  String
+  publicId  String
+  ordem     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   album DepartamentoAlbum @relation(fields: [albumId], references: [id], onDelete: Cascade)
 
   @@index([albumId, ordem])
   @@map("departamento_album_imagens")
 }
+
 model DepartamentoResponsavel {
   id             String   @id @default(cuid())
   departamentoId String
@@ -570,32 +572,49 @@ model DepartamentoResponsavel {
   @@map("departamento_responsaveis")
 }
 
-model HistoriaIgreja {
-  id                  String               @id @default(cuid())
-  igrejaId            String               @unique
-  titulo              String
-  subtitulo           String?
-  texto               String?
-  imagemCapaUrl       String?
-  imagemCapaPublicId  String?
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
+model DepartamentoMusica {
+  id             String   @id @default(cuid())
+  departamentoId String
+  titulo         String
+  letra          String
+  ordem          Int      @default(0)
+  ativo          Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  igreja Igreja @relation(fields: [igrejaId], references: [id], onDelete: Cascade)
+  departamento Departamento @relation(fields: [departamentoId], references: [id], onDelete: Cascade)
+
+  @@index([departamentoId, ativo])
+  @@index([departamentoId, ordem])
+  @@map("departamento_musicas")
+}
+
+model HistoriaIgreja {
+  id                 String   @id @default(cuid())
+  igrejaId           String   @unique
+  titulo             String
+  subtitulo          String?
+  texto              String?
+  imagemCapaUrl      String?
+  imagemCapaPublicId String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  igreja Igreja                @relation(fields: [igrejaId], references: [id], onDelete: Cascade)
   marcos HistoriaIgrejaMarco[]
 
   @@map("historias_igreja")
 }
 
 model HistoriaIgrejaMarco {
-  id               String         @id @default(cuid())
+  id               String   @id @default(cuid())
   historiaIgrejaId String
   ano              String
   titulo           String
   descricao        String?
-  ordem            Int            @default(0)
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
+  ordem            Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   historia HistoriaIgreja @relation(fields: [historiaIgrejaId], references: [id], onDelete: Cascade)
 

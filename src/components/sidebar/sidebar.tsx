@@ -21,6 +21,7 @@ import {
   Radio,
   GraduationCap,
   Building2,
+  Music4,
 } from "lucide-react";
 
 type MenuChild = {
@@ -121,6 +122,11 @@ export default function Sidebar({
               label: "Escola Dominical",
               href: "/secretaria/escola-dominical",
               icon: GraduationCap,
+            },
+            {
+              label: "Hinários",
+              href: "/secretaria/hinarios",
+              icon: Music4,
             },
             {
               label: "Financeiro",

@@ -150,6 +150,19 @@ const RECURSOS: RecursoConfig[] = [
     },
   },
   {
+    value: "hinarios",
+    label: "🎵 Hinários",
+    description: "Gerenciar músicas e letras dos departamentos",
+    tipos: ["ler", "criar", "editar", "deletar", "compartilhar"],
+    labels: {
+      ler: "Visualizar",
+      criar: "Nova música",
+      editar: "Editar",
+      deletar: "Excluir",
+      compartilhar: "Imprimir / PDF",
+    },
+  },
+  {
     value: "cronograma_publico",
     label: "📝 Cronograma Público",
     description: "Cronograma semanal exibido no site",
