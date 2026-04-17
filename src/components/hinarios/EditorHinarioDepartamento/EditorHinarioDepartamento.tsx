@@ -200,45 +200,124 @@ export default function EditorHinarioDepartamento({
   }
 
   function handlePrint(musica: Musica) {
-    const popup = window.open("", "_blank", "width=900,height=700");
+    const popup = window.open("", "_blank", "width=1100,height=850");
     if (!popup) return;
 
+    const letraFormatada = musica.letra
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .split("\n\n")
+      .map((bloco) => `<p>${bloco.replace(/\n/g, "<br/>")}</p>`)
+      .join("");
+
     popup.document.write(`
-      <html>
-        <head>
-          <title>${musica.titulo}</title>
-          <style>
-            body {
-              font-family: Arial, sans-serif;
-              padding: 32px;
-              color: #111827;
-              line-height: 1.7;
+    <html>
+      <head>
+        <title>${musica.titulo}</title>
+        <style>
+          @page {
+            size: A4 portrait;
+            margin: 12mm 12mm 12mm 12mm;
+          }
+
+          * {
+            box-sizing: border-box;
+          }
+
+          html, body {
+            margin: 0;
+            padding: 0;
+            background: #ffffff;
+            color: #1e293b;
+            font-family: Arial, Helvetica, sans-serif;
+          }
+
+          body {
+            padding: 0;
+          }
+
+          .sheet {
+            padding: 0;
+          }
+
+          .header {
+            margin-bottom: 14px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 10px;
+          }
+
+          .title {
+            margin: 0;
+            font-size: 28px;
+            line-height: 1.1;
+            font-weight: 800;
+            color: #e85d04;
+          }
+
+          .subtitle {
+            margin: 6px 0 0;
+            font-size: 16px;
+            font-weight: 700;
+            color: #9ca300;
+          }
+
+          .meta {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #64748b;
+          }
+
+          .lyrics {
+            column-count: 2;
+            column-gap: 26px;
+            column-fill: auto;
+            font-size: 15px;
+            line-height: 1.48;
+          }
+
+          .lyrics p {
+            margin: 0 0 12px;
+            break-inside: avoid;
+          }
+
+          .footer {
+            margin-top: 14px;
+            padding-top: 8px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 11px;
+            color: #94a3b8;
+          }
+
+          @media print {
+            html, body {
+              width: auto;
+              height: auto;
+              overflow: visible;
             }
-            h1 {
-              margin: 0 0 18px;
-              font-size: 28px;
+
+            .sheet {
+              margin: 0;
+              padding: 0;
             }
-            .meta {
-              margin-bottom: 24px;
-              color: #475569;
-              font-size: 14px;
-            }
-            .letra {
-              white-space: pre-wrap;
-              font-size: 18px;
-            }
-          </style>
-        </head>
-        <body>
-          <h1>${musica.titulo}</h1>
-          <div class="meta">${departamentoNome}</div>
-          <div class="letra">${musica.letra
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")}</div>
-        </body>
-      </html>
-    `);
+          }
+        </style>
+      </head>
+      <body>
+        <div class="sheet">
+          <div class="header">
+            <h1 class="title">${musica.titulo}</h1>
+            <div class="subtitle">${departamentoNome}</div>
+            <div class="meta">Hinário do departamento • Igreja Presbiteriana Renovada</div>
+          </div>
+
+          <div class="lyrics">
+            ${letraFormatada}
+          </div>
+        </div>
+      </body>
+    </html>
+  `);
 
     popup.document.close();
     popup.focus();
@@ -246,57 +325,130 @@ export default function EditorHinarioDepartamento({
   }
 
   function handlePdf(musica: Musica) {
-    const popup = window.open("", "_blank", "width=900,height=700");
+    const popup = window.open("", "_blank", "width=1100,height=850");
     if (!popup) return;
 
-    popup.document.write(`
-      <html>
-        <head>
-          <title>${musica.titulo} - PDF</title>
-          <style>
-            body {
-              font-family: Arial, sans-serif;
-              padding: 32px;
-              color: #111827;
-              line-height: 1.7;
-            }
-            h1 {
-              margin: 0 0 18px;
-              font-size: 28px;
-            }
-            .meta {
-              margin-bottom: 24px;
-              color: #475569;
-              font-size: 14px;
-            }
-            .letra {
-              white-space: pre-wrap;
-              font-size: 18px;
-            }
-            @media print {
-              @page {
-                size: A4;
-                margin: 18mm;
-              }
-            }
-          </style>
-        </head>
-        <body>
-          <h1>${musica.titulo}</h1>
-          <div class="meta">${departamentoNome}</div>
-          <div class="letra">${musica.letra
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")}</div>
+    const letraFormatada = musica.letra
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .split("\n\n")
+      .map((bloco) => `<p>${bloco.replace(/\n/g, "<br/>")}</p>`)
+      .join("");
 
-          <script>
-            window.onload = () => {
-              window.print();
-            };
-          </script>
-        </body>
-      </html>
-    `);
+    popup.document.write(`
+    <html>
+      <head>
+        <title>${musica.titulo} - PDF</title>
+        <style>
+          @page {
+            size: A4 portrait;
+            margin: 12mm 12mm 12mm 12mm;
+          }
+
+          * {
+            box-sizing: border-box;
+          }
+
+          html, body {
+            margin: 0;
+            padding: 0;
+            background: #ffffff;
+            color: #1e293b;
+            font-family: Arial, Helvetica, sans-serif;
+          }
+
+          body {
+            padding: 0;
+          }
+
+          .sheet {
+            padding: 0;
+          }
+
+          .header {
+            margin-bottom: 14px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 10px;
+          }
+
+          .title {
+            margin: 0;
+            font-size: 28px;
+            line-height: 1.1;
+            font-weight: 800;
+            color: #e85d04;
+          }
+
+          .subtitle {
+            margin: 6px 0 0;
+            font-size: 16px;
+            font-weight: 700;
+            color: #9ca300;
+          }
+
+          .meta {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #64748b;
+          }
+
+          .lyrics {
+            column-count: 2;
+            column-gap: 26px;
+            column-fill: auto;
+            font-size: 15px;
+            line-height: 1.48;
+          }
+
+          .lyrics p {
+            margin: 0 0 12px;
+            break-inside: avoid;
+          }
+
+          .footer {
+            margin-top: 14px;
+            padding-top: 8px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 11px;
+            color: #94a3b8;
+          }
+
+          @media print {
+            html, body {
+              width: auto;
+              height: auto;
+              overflow: visible;
+            }
+
+            .sheet {
+              margin: 0;
+              padding: 0;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="sheet">
+          <div class="header">
+          <h1 class="title">${musica.titulo}</h1>
+          <div class="subtitle">${departamentoNome}</div>
+          <div class="meta">Hinário do departamento • Igreja Presbiteriana Renovada</div>
+        </div>
+
+        <div class="lyrics">
+          ${letraFormatada}
+        </div>
+        </div>
+
+        <script>
+          window.onload = () => {
+            window.print();
+          };
+        </script>
+      </body>
+    </html>
+  `);
 
     popup.document.close();
     popup.focus();
