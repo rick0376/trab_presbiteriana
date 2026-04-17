@@ -4,7 +4,17 @@
 
 import { useEffect, useMemo, useState } from "react";
 import styles from "./styles.module.scss";
-import { Eye, PencilLine, Printer, Trash2, X } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Eye,
+  FileText,
+  MonitorPlay,
+  PencilLine,
+  Printer,
+  Trash2,
+  X,
+} from "lucide-react";
 import ConfirmModal from "@/components/ui/ConfirmModal/ConfirmModal";
 import { useToast } from "@/components/ui/Toast/useToast";
 
@@ -47,7 +57,8 @@ export default function EditorHinarioDepartamento({
   const [ordem, setOrdem] = useState("0");
   const [ativo, setAtivo] = useState(true);
 
-  const [selected, setSelected] = useState<Musica | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [cultoIndex, setCultoIndex] = useState<number | null>(null);
   const [confirm, setConfirm] = useState<ConfirmState>({ open: false });
 
   async function load() {
@@ -173,7 +184,11 @@ export default function EditorHinarioDepartamento({
           }
 
           if (selected?.id === item.id) {
-            setSelected(null);
+            setSelectedIndex(null);
+          }
+
+          if (selectedCulto?.id === item.id) {
+            setCultoIndex(null);
           }
 
           await load();
@@ -217,7 +232,10 @@ export default function EditorHinarioDepartamento({
         <body>
           <h1>${musica.titulo}</h1>
           <div class="meta">${departamentoNome}</div>
-          <div class="letra">${musica.letra.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+          <div class="letra">${musica.letra
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")}</div>
         </body>
       </html>
     `);
@@ -227,6 +245,63 @@ export default function EditorHinarioDepartamento({
     popup.print();
   }
 
+  function handlePdf(musica: Musica) {
+    const popup = window.open("", "_blank", "width=900,height=700");
+    if (!popup) return;
+
+    popup.document.write(`
+      <html>
+        <head>
+          <title>${musica.titulo} - PDF</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              padding: 32px;
+              color: #111827;
+              line-height: 1.7;
+            }
+            h1 {
+              margin: 0 0 18px;
+              font-size: 28px;
+            }
+            .meta {
+              margin-bottom: 24px;
+              color: #475569;
+              font-size: 14px;
+            }
+            .letra {
+              white-space: pre-wrap;
+              font-size: 18px;
+            }
+            @media print {
+              @page {
+                size: A4;
+                margin: 18mm;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <h1>${musica.titulo}</h1>
+          <div class="meta">${departamentoNome}</div>
+          <div class="letra">${musica.letra
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")}</div>
+
+          <script>
+            window.onload = () => {
+              window.print();
+            };
+          </script>
+        </body>
+      </html>
+    `);
+
+    popup.document.close();
+    popup.focus();
+  }
+
   const ordered = useMemo(
     () =>
       [...items].sort(
@@ -234,6 +309,88 @@ export default function EditorHinarioDepartamento({
       ),
     [items],
   );
+
+  const selected =
+    selectedIndex !== null && ordered[selectedIndex]
+      ? ordered[selectedIndex]
+      : null;
+
+  const selectedCulto =
+    cultoIndex !== null && ordered[cultoIndex] ? ordered[cultoIndex] : null;
+
+  function openMusic(index: number) {
+    setSelectedIndex(index);
+  }
+
+  function closeMusic() {
+    setSelectedIndex(null);
+  }
+
+  function prevMusic() {
+    if (!ordered.length || selectedIndex === null) return;
+    setSelectedIndex((prev) => {
+      if (prev === null) return 0;
+      return prev === 0 ? ordered.length - 1 : prev - 1;
+    });
+  }
+
+  function nextMusic() {
+    if (!ordered.length || selectedIndex === null) return;
+    setSelectedIndex((prev) => {
+      if (prev === null) return 0;
+      return prev === ordered.length - 1 ? 0 : prev + 1;
+    });
+  }
+
+  function openCulto(index: number) {
+    setCultoIndex(index);
+  }
+
+  function closeCulto() {
+    setCultoIndex(null);
+  }
+
+  function prevCulto() {
+    if (!ordered.length || cultoIndex === null) return;
+    setCultoIndex((prev) => {
+      if (prev === null) return 0;
+      return prev === 0 ? ordered.length - 1 : prev - 1;
+    });
+  }
+
+  function nextCulto() {
+    if (!ordered.length || cultoIndex === null) return;
+    setCultoIndex((prev) => {
+      if (prev === null) return 0;
+      return prev === ordered.length - 1 ? 0 : prev + 1;
+    });
+  }
+
+  useEffect(() => {
+    if (selectedIndex === null) return;
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") closeMusic();
+      if (e.key === "ArrowLeft") prevMusic();
+      if (e.key === "ArrowRight") nextMusic();
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedIndex, ordered.length]);
+
+  useEffect(() => {
+    if (cultoIndex === null) return;
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") closeCulto();
+      if (e.key === "ArrowLeft") prevCulto();
+      if (e.key === "ArrowRight") nextCulto();
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [cultoIndex, ordered.length]);
 
   return (
     <main className={styles.container}>
@@ -327,7 +484,7 @@ export default function EditorHinarioDepartamento({
             <div className={styles.empty}>Carregando músicas...</div>
           ) : ordered.length ? (
             <div className={styles.list}>
-              {ordered.map((item) => (
+              {ordered.map((item, index) => (
                 <div key={item.id} className={styles.listCard}>
                   <div className={styles.listTop}>
                     <div>
@@ -342,10 +499,19 @@ export default function EditorHinarioDepartamento({
                       <button
                         type="button"
                         className={styles.iconBtn}
-                        onClick={() => setSelected(item)}
+                        onClick={() => openMusic(index)}
                         title="Visualizar"
                       >
                         <Eye size={16} />
+                      </button>
+
+                      <button
+                        type="button"
+                        className={styles.iconBtn}
+                        onClick={() => openCulto(index)}
+                        title="Modo culto"
+                      >
+                        <MonitorPlay size={16} />
                       </button>
 
                       <button
@@ -355,6 +521,15 @@ export default function EditorHinarioDepartamento({
                         title="Imprimir"
                       >
                         <Printer size={16} />
+                      </button>
+
+                      <button
+                        type="button"
+                        className={styles.iconBtn}
+                        onClick={() => handlePdf(item)}
+                        title="PDF"
+                      >
+                        <FileText size={16} />
                       </button>
 
                       <button
@@ -392,18 +567,20 @@ export default function EditorHinarioDepartamento({
       </div>
 
       {selected ? (
-        <div className={styles.modalOverlay} onClick={() => setSelected(null)}>
+        <div className={styles.modalOverlay} onClick={closeMusic}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <div>
                 <h3 className={styles.modalTitle}>{selected.titulo}</h3>
-                <p className={styles.modalMeta}>{departamentoNome}</p>
+                <p className={styles.modalMeta}>
+                  {departamentoNome} • {selectedIndex! + 1} / {ordered.length}
+                </p>
               </div>
 
               <button
                 type="button"
                 className={styles.modalClose}
-                onClick={() => setSelected(null)}
+                onClick={closeMusic}
                 aria-label="Fechar"
               >
                 <X size={18} />
@@ -411,6 +588,28 @@ export default function EditorHinarioDepartamento({
             </div>
 
             <div className={styles.modalBody}>
+              {ordered.length > 1 ? (
+                <div className={styles.navRow}>
+                  <button
+                    type="button"
+                    className={styles.navBtn}
+                    onClick={prevMusic}
+                  >
+                    <ChevronLeft size={18} />
+                    Anterior
+                  </button>
+
+                  <button
+                    type="button"
+                    className={styles.navBtn}
+                    onClick={nextMusic}
+                  >
+                    Próxima
+                    <ChevronRight size={18} />
+                  </button>
+                </div>
+              ) : null}
+
               <div className={styles.letraBox}>{selected.letra}</div>
 
               <div className={styles.modalActions}>
@@ -421,8 +620,64 @@ export default function EditorHinarioDepartamento({
                 >
                   Imprimir
                 </button>
+
+                <button
+                  type="button"
+                  className={styles.btnGreen}
+                  onClick={() => handlePdf(selected)}
+                >
+                  Gerar PDF
+                </button>
               </div>
             </div>
+          </div>
+        </div>
+      ) : null}
+
+      {selectedCulto ? (
+        <div className={styles.cultoOverlay} onClick={closeCulto}>
+          <div
+            className={styles.cultoModal}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className={styles.cultoClose}
+              onClick={closeCulto}
+              aria-label="Fechar"
+            >
+              <X size={20} />
+            </button>
+
+            {ordered.length > 1 ? (
+              <>
+                <button
+                  type="button"
+                  className={`${styles.cultoNavBtn} ${styles.cultoNavBtnLeft}`}
+                  onClick={prevCulto}
+                >
+                  <ChevronLeft size={26} />
+                </button>
+
+                <button
+                  type="button"
+                  className={`${styles.cultoNavBtn} ${styles.cultoNavBtnRight}`}
+                  onClick={nextCulto}
+                >
+                  <ChevronRight size={26} />
+                </button>
+              </>
+            ) : null}
+
+            <div className={styles.cultoHeader}>
+              <div className={styles.cultoDepartamento}>{departamentoNome}</div>
+              <h2 className={styles.cultoTitulo}>{selectedCulto.titulo}</h2>
+              <div className={styles.cultoCounter}>
+                {cultoIndex! + 1} / {ordered.length}
+              </div>
+            </div>
+
+            <div className={styles.cultoLetra}>{selectedCulto.letra}</div>
           </div>
         </div>
       ) : null}

@@ -224,6 +224,132 @@
   color: #ffffff;
 }
 
+/* MODO CULTO */
+
+.cultoOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.94);
+  z-index: 10001;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.cultoModal {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  height: calc(100vh - 40px);
+  border-radius: 24px;
+  background: linear-gradient(180deg, #020617 0%, #0f172a 100%);
+  overflow: auto;
+  padding: 40px 56px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+}
+
+.cultoClose {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 46px;
+  height: 46px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  cursor: pointer;
+  z-index: 4;
+}
+
+.cultoNavBtn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 52px;
+  height: 52px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 4;
+}
+
+.cultoNavBtnLeft {
+  left: 16px;
+}
+
+.cultoNavBtnRight {
+  right: 16px;
+}
+
+.cultoHeader {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.cultoDepartamento {
+  color: rgba(191, 219, 254, 0.86);
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.cultoTitulo {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(28px, 3vw, 44px);
+  line-height: 1.15;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.cultoCounter {
+  margin-top: 12px;
+  color: rgba(226, 232, 240, 0.78);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.cultoLetra {
+  white-space: pre-wrap;
+  color: #f8fafc;
+  font-size: clamp(28px, 2.5vw, 40px);
+  line-height: 1.8;
+  text-align: center;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+@media (max-width: 900px) {
+  .cultoModal {
+    padding: 56px 22px 28px;
+    border-radius: 18px;
+  }
+
+  .cultoNavBtn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .cultoNavBtnLeft {
+    left: 8px;
+  }
+
+  .cultoNavBtnRight {
+    right: 8px;
+  }
+
+  .cultoLetra {
+    font-size: clamp(22px, 5vw, 30px);
+    line-height: 1.7;
+  }
+}
+
 .modalOverlay {
   position: fixed;
   inset: 0;
@@ -282,6 +408,29 @@
   padding: 20px;
 }
 
+.navRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.navBtn {
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(21, 44, 76, 0.08);
+  background: #f8fafc;
+  color: #17375b;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
 .letraBox {
   white-space: pre-wrap;
   color: #334155;
@@ -319,6 +468,10 @@
   }
 
   .listTop {
+    flex-direction: column;
+  }
+
+  .navRow {
     flex-direction: column;
   }
 }
