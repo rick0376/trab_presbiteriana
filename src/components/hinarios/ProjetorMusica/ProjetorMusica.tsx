@@ -3,7 +3,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, Expand, Minimize, X } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Expand,
+  Minimize,
+  Type,
+  X,
+} from "lucide-react";
 import styles from "./styles.module.scss";
 
 type Props = {
@@ -15,28 +22,65 @@ type Props = {
   };
 };
 
-function splitEstrofes(letra: string) {
+function splitBlocos(letra: string) {
   return letra
     .split(/\n\s*\n/g)
     .map((bloco) => bloco.trim())
     .filter(Boolean);
 }
 
+function quebrarBlocoEmPartes(bloco: string, linhasPorParte = 3) {
+  const linhas = bloco
+    .split("\n")
+    .map((linha) => linha.trim())
+    .filter((linha) => linha.length > 0);
+
+  if (!linhas.length) return [];
+
+  const partes: string[] = [];
+
+  for (let i = 0; i < linhas.length; i += linhasPorParte) {
+    partes.push(linhas.slice(i, i + linhasPorParte).join("\n"));
+  }
+
+  return partes;
+}
+
+function gerarPaginasProjetor(letra: string, linhasPorParte = 3) {
+  const blocos = splitBlocos(letra);
+
+  return blocos.flatMap((bloco) => quebrarBlocoEmPartes(bloco, linhasPorParte));
+}
+
 export default function ProjetorMusica({ musica }: Props) {
-  const partes = useMemo(() => splitEstrofes(musica.letra), [musica.letra]);
   const [index, setIndex] = useState(0);
   const [fullscreen, setFullscreen] = useState(false);
+  const [fontScale, setFontScale] = useState(1);
+  const [linhasPorParte, setLinhasPorParte] = useState(3);
+
+  const partes = useMemo(
+    () => gerarPaginasProjetor(musica.letra, linhasPorParte),
+    [musica.letra, linhasPorParte],
+  );
 
   const atual = partes[index] ?? "";
 
   function prev() {
-    setIndex((prev) => (prev <= 0 ? 0 : prev - 1));
+    setIndex((prevIndex) => (prevIndex <= 0 ? 0 : prevIndex - 1));
   }
 
   function next() {
-    setIndex((prev) =>
-      prev >= partes.length - 1 ? partes.length - 1 : prev + 1,
+    setIndex((prevIndex) =>
+      prevIndex >= partes.length - 1 ? partes.length - 1 : prevIndex + 1,
     );
+  }
+
+  function increaseFont() {
+    setFontScale((prevValue) => Math.min(prevValue + 0.1, 2));
+  }
+
+  function decreaseFont() {
+    setFontScale((prevValue) => Math.max(prevValue - 0.1, 0.7));
   }
 
   async function toggleFullscreen() {
@@ -60,9 +104,20 @@ export default function ProjetorMusica({ musica }: Props) {
   }
 
   useEffect(() => {
+    setIndex(0);
+  }, [linhasPorParte, musica.id]);
+
+  useEffect(() => {
+    if (index > partes.length - 1) {
+      setIndex(Math.max(0, partes.length - 1));
+    }
+  }, [index, partes.length]);
+
+  useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "ArrowLeft") prev();
       if (e.key === "ArrowRight") next();
+
       if (e.key === "Escape") {
         if (document.fullscreenElement) {
           document.exitFullscreen().catch(() => {});
@@ -71,6 +126,13 @@ export default function ProjetorMusica({ musica }: Props) {
           fecharJanela();
         }
       }
+
+      if (e.key === "+") increaseFont();
+      if (e.key === "-") decreaseFont();
+
+      if (e.key === "1") setLinhasPorParte(2);
+      if (e.key === "2") setLinhasPorParte(3);
+      if (e.key === "3") setLinhasPorParte(4);
     }
 
     function handleFsChange() {
@@ -98,7 +160,28 @@ export default function ProjetorMusica({ musica }: Props) {
           <button
             type="button"
             className={styles.iconBtn}
+            onClick={decreaseFont}
+            title="Diminuir fonte"
+          >
+            <Type size={16} />
+            <span className={styles.iconBtnText}>-</span>
+          </button>
+
+          <button
+            type="button"
+            className={styles.iconBtn}
+            onClick={increaseFont}
+            title="Aumentar fonte"
+          >
+            <Type size={16} />
+            <span className={styles.iconBtnText}>+</span>
+          </button>
+
+          <button
+            type="button"
+            className={styles.iconBtn}
             onClick={toggleFullscreen}
+            title="Tela cheia"
           >
             {fullscreen ? <Minimize size={18} /> : <Expand size={18} />}
           </button>
@@ -107,8 +190,46 @@ export default function ProjetorMusica({ musica }: Props) {
             type="button"
             className={styles.iconBtn}
             onClick={fecharJanela}
+            title="Fechar"
           >
             <X size={18} />
+          </button>
+        </div>
+      </div>
+
+      <div className={styles.controlBar}>
+        <div className={styles.controlInfo}>
+          <span>
+            Parte {index + 1} / {partes.length}
+          </span>
+          <span>Fonte: {Math.round(fontScale * 100)}%</span>
+        </div>
+
+        <div className={styles.modeBox}>
+          <span className={styles.modeLabel}>Quebra:</span>
+
+          <button
+            type="button"
+            className={`${styles.modeBtn} ${linhasPorParte === 2 ? styles.modeBtnActive : ""}`}
+            onClick={() => setLinhasPorParte(2)}
+          >
+            2 linhas
+          </button>
+
+          <button
+            type="button"
+            className={`${styles.modeBtn} ${linhasPorParte === 3 ? styles.modeBtnActive : ""}`}
+            onClick={() => setLinhasPorParte(3)}
+          >
+            3 linhas
+          </button>
+
+          <button
+            type="button"
+            className={`${styles.modeBtn} ${linhasPorParte === 4 ? styles.modeBtnActive : ""}`}
+            onClick={() => setLinhasPorParte(4)}
+          >
+            4 linhas
           </button>
         </div>
       </div>
@@ -128,9 +249,14 @@ export default function ProjetorMusica({ musica }: Props) {
             {index + 1} / {partes.length}
           </div>
 
-          <div className={styles.letra}>
-            {atual.split("\n").map((linha, i) => (
-              <div key={i} className={styles.linha}>
+          <div
+            className={styles.letra}
+            style={{
+              fontSize: `calc(clamp(28px, 3vw, 50px) * ${fontScale})`,
+            }}
+          >
+            {atual.split("\n").map((linha, linhaIndex) => (
+              <div key={linhaIndex} className={styles.linha}>
                 {linha || "\u00A0"}
               </div>
             ))}
