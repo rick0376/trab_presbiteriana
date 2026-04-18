@@ -62,7 +62,7 @@ function parseJsonArray(value: FormDataEntryValue | null) {
 
 export async function GET(req: Request) {
   const user = await requireUser();
-  await requirePermission("publico", "ler");
+  await requirePermission("departamentos", "ler");
 
   const { searchParams } = new URL(req.url);
   const igrejaId = await resolveIgrejaId(user, searchParams.get("igrejaId"));
@@ -96,7 +96,7 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   const user = await requireUser();
-  await requirePermission("publico", "editar");
+  await requirePermission("departamentos", "criar");
 
   const { searchParams } = new URL(req.url);
   const igrejaId = await resolveIgrejaId(user, searchParams.get("igrejaId"));

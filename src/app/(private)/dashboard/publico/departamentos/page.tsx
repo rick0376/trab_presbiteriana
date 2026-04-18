@@ -8,7 +8,7 @@ import EditorDepartamentos from "@/components/igreja-publico/departamentos/Edito
 export const dynamic = "force-dynamic";
 
 export default async function DepartamentosPage() {
-  await requirePermission("publico", "ler");
+  await requirePermission("departamentos", "ler");
 
   const me = await requireUser();
 
@@ -17,7 +17,12 @@ export default async function DepartamentosPage() {
       ? true
       : !!(
           await prisma.permissao.findUnique({
-            where: { userId_recurso: { userId: me.id, recurso: "publico" } },
+            where: {
+              userId_recurso: {
+                userId: me.id,
+                recurso: "departamentos",
+              },
+            },
             select: { editar: true },
           })
         )?.editar;

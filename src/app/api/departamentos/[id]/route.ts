@@ -59,7 +59,7 @@ function parseJsonArray(value: FormDataEntryValue | null) {
 
 export async function PATCH(req: NextRequest) {
   const user = await requireUser();
-  await requirePermission("publico", "editar");
+  await requirePermission("departamentos", "editar");
 
   const id = getIdFromUrl(req);
   const { searchParams } = new URL(req.url);
@@ -269,7 +269,7 @@ export async function PATCH(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   const user = await requireUser();
-  await requirePermission("publico", "editar");
+  await requirePermission("departamentos", "deletar");
 
   const id = getIdFromUrl(req);
   const { searchParams } = new URL(req.url);

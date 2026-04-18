@@ -57,7 +57,7 @@ function parseDate(value: FormDataEntryValue | null) {
 
 export async function PATCH(req: NextRequest) {
   const user = await requireUser();
-  await requirePermission("publico", "editar");
+  await requirePermission("departamentos_albuns", "editar");
 
   const id = getIdFromUrl(req);
   const { searchParams } = new URL(req.url);
@@ -188,7 +188,7 @@ export async function PATCH(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   const user = await requireUser();
-  await requirePermission("publico", "editar");
+  await requirePermission("departamentos_albuns", "deletar");
 
   const id = getIdFromUrl(req);
   const { searchParams } = new URL(req.url);

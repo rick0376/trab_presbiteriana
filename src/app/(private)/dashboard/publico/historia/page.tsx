@@ -8,7 +8,7 @@ import EditorHistoriaIgreja from "@/components/igreja-publico/historia/EditorHis
 export const dynamic = "force-dynamic";
 
 export default async function HistoriaIgrejaPage() {
-  await requirePermission("publico", "ler");
+  await requirePermission("historia_igreja", "ler");
 
   const me = await requireUser();
 
@@ -17,7 +17,12 @@ export default async function HistoriaIgrejaPage() {
       ? true
       : !!(
           await prisma.permissao.findUnique({
-            where: { userId_recurso: { userId: me.id, recurso: "publico" } },
+            where: {
+              userId_recurso: {
+                userId: me.id,
+                recurso: "historia_igreja",
+              },
+            },
             select: { editar: true },
           })
         )?.editar;

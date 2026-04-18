@@ -1,4 +1,4 @@
-//src/app/api/departamentos/albuns/[albumId]/imagens/route.ts
+//src/app/api/departamentos/albuns/[Id]/imagens/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
@@ -39,7 +39,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const user = await requireUser();
-  await requirePermission("publico", "ler");
+  await requirePermission("departamentos_albuns", "ler");
 
   const { searchParams } = new URL(req.url);
   const igrejaId = await resolveIgrejaId(user, searchParams.get("igrejaId"));
@@ -79,7 +79,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const user = await requireUser();
-  await requirePermission("publico", "editar");
+  await requirePermission("departamentos_albuns", "criar");
 
   const { searchParams } = new URL(req.url);
   const igrejaId = await resolveIgrejaId(user, searchParams.get("igrejaId"));

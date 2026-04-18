@@ -183,6 +183,42 @@ const RECURSOS: RecursoConfig[] = [
     tipos: ["ler", "editar"],
     labels: { ler: "Visualizar", editar: "Editar/Salvar" },
   },
+
+  {
+    value: "departamentos",
+    label: "🏢 Departamentos",
+    description: "Gerenciar departamentos da igreja",
+    tipos: ["ler", "criar", "editar", "deletar"],
+    labels: {
+      ler: "Visualizar",
+      criar: "Criar",
+      editar: "Editar",
+      deletar: "Excluir",
+    },
+  },
+  {
+    value: "departamentos_albuns",
+    label: "🖼️ Álbuns Departamentos",
+    description: "Gerenciar álbuns e fotos dos departamentos",
+    tipos: ["ler", "criar", "editar", "deletar"],
+    labels: {
+      ler: "Visualizar",
+      criar: "Criar",
+      editar: "Editar",
+      deletar: "Excluir",
+    },
+  },
+  {
+    value: "historia_igreja",
+    label: "📜 História da Igreja",
+    description: "Gerenciar conteúdo da história da igreja",
+    tipos: ["ler", "editar"],
+    labels: {
+      ler: "Visualizar",
+      editar: "Editar",
+    },
+  },
+
   {
     value: "radio_live",
     label: "📻 Rádio - Transmissão",

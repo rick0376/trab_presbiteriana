@@ -49,7 +49,7 @@ function parseDate(value: FormDataEntryValue | null) {
 
 export async function GET(req: Request) {
   const user = await requireUser();
-  await requirePermission("publico", "ler");
+  await requirePermission("departamentos_albuns", "ler");
 
   const { searchParams } = new URL(req.url);
   const igrejaId = await resolveIgrejaId(user, searchParams.get("igrejaId"));
@@ -100,7 +100,7 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   const user = await requireUser();
-  await requirePermission("publico", "editar");
+  await requirePermission("departamentos_albuns", "criar");
 
   const { searchParams } = new URL(req.url);
   const igrejaId = await resolveIgrejaId(user, searchParams.get("igrejaId"));

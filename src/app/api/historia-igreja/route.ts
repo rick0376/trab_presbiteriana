@@ -44,7 +44,7 @@ function parseJsonArray(value: FormDataEntryValue | null) {
 
 export async function PUT(req: Request) {
   const user = await requireUser();
-  await requirePermission("publico", "editar");
+  await requirePermission("historia_igreja", "editar");
 
   const { searchParams } = new URL(req.url);
   const igrejaId = await resolveIgrejaId(user, searchParams.get("igrejaId"));
