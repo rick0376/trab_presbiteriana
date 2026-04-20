@@ -1,4 +1,4 @@
-//src/app/(private)/dashboard/publico/departamentos/albuns/[albumId]/fotos/page.tsx
+//src/app/(private)/dashboard/publico/departamentos/albuns/[id]/fotos/page.tsx
 
 import { prisma } from "@/lib/prisma";
 import { requirePermission } from "@/lib/permissions";
@@ -27,7 +27,7 @@ export default async function DepartamentoAlbumFotosPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await requirePermission("publico", "ler");
+  await requirePermission("departamentos_albuns", "ler");
 
   const me = await requireUser();
   const igrejaId = await resolveIgrejaId(me);
@@ -39,10 +39,30 @@ export default async function DepartamentoAlbumFotosPage({
       ? true
       : !!(
           await prisma.permissao.findUnique({
-            where: { userId_recurso: { userId: me.id, recurso: "publico" } },
+            where: {
+              userId_recurso: {
+                userId: me.id,
+                recurso: "departamentos_albuns",
+              },
+            },
             select: { editar: true },
           })
         )?.editar;
+
+  const canDelete =
+    me.role === "SUPERADMIN"
+      ? true
+      : !!(
+          await prisma.permissao.findUnique({
+            where: {
+              userId_recurso: {
+                userId: me.id,
+                recurso: "departamentos_albuns",
+              },
+            },
+            select: { deletar: true },
+          })
+        )?.deletar;
 
   const { id } = await params;
 
@@ -73,6 +93,7 @@ export default async function DepartamentoAlbumFotosPage({
       albumTitulo={album.titulo}
       departamentoNome={album.departamento.nome}
       canEdit={canEdit}
+      canDelete={canDelete}
     />
   );
 }

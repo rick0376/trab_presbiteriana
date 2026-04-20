@@ -3,7 +3,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ImagePlus, Trash2, X } from "lucide-react";
+import {
+  ArrowLeft,
+  ImagePlus,
+  PencilLine,
+  Save,
+  Trash2,
+  X,
+} from "lucide-react";
 import Link from "next/link";
 import ConfirmModal from "@/components/ui/ConfirmModal/ConfirmModal";
 import { useToast } from "@/components/ui/Toast/useToast";
@@ -26,6 +33,7 @@ type Props = {
   albumTitulo: string;
   departamentoNome: string;
   canEdit: boolean;
+  canDelete: boolean;
 };
 
 type ConfirmState =
@@ -43,12 +51,22 @@ function revokeBlobUrls(urls: string[]) {
   });
 }
 
+type EditState = {
+  [id: string]: {
+    ordem: string;
+    file: File | null;
+    previewUrl: string | null;
+    saving: boolean;
+  };
+};
+
 export default function EditorAlbumFotos({
   igrejaId,
   albumId,
   albumTitulo,
   departamentoNome,
   canEdit,
+  canDelete,
 }: Props) {
   const toast = useToast();
 
@@ -61,6 +79,7 @@ export default function EditorAlbumFotos({
   const [ordemInicial, setOrdemInicial] = useState("");
 
   const [confirm, setConfirm] = useState<ConfirmState>({ open: false });
+  const [editMap, setEditMap] = useState<EditState>({});
 
   async function load() {
     setLoading(true);
@@ -74,9 +93,32 @@ export default function EditorAlbumFotos({
       );
 
       const j = await r.json().catch(() => ({}));
-      setItems(Array.isArray(j?.items) ? j.items : []);
+      const nextItems = Array.isArray(j?.items) ? j.items : [];
+      setItems(nextItems);
+
+      setEditMap((prev) => {
+        const next: EditState = {};
+
+        nextItems.forEach((item: Item) => {
+          next[item.id] = {
+            ordem: prev[item.id]?.ordem ?? String(item.ordem ?? 1),
+            file: null,
+            previewUrl: null,
+            saving: false,
+          };
+        });
+
+        Object.values(prev).forEach((state) => {
+          if (state.previewUrl?.startsWith("blob:")) {
+            URL.revokeObjectURL(state.previewUrl);
+          }
+        });
+
+        return next;
+      });
     } catch {
       setItems([]);
+      setEditMap({});
     } finally {
       setLoading(false);
     }
@@ -89,8 +131,14 @@ export default function EditorAlbumFotos({
   useEffect(() => {
     return () => {
       revokeBlobUrls(previewUrls);
+
+      Object.values(editMap).forEach((state) => {
+        if (state.previewUrl?.startsWith("blob:")) {
+          URL.revokeObjectURL(state.previewUrl);
+        }
+      });
     };
-  }, [previewUrls]);
+  }, [previewUrls, editMap]);
 
   const proximaOrdem = useMemo(() => {
     if (!items.length) return 1;
@@ -118,6 +166,93 @@ export default function EditorAlbumFotos({
 
     setFiles(nextFiles);
     setPreviewUrls(nextPreviews);
+  }
+
+  function updateEditOrdem(id: string, value: string) {
+    setEditMap((prev) => ({
+      ...prev,
+      [id]: {
+        ...prev[id],
+        ordem: value,
+      },
+    }));
+  }
+
+  function updateEditFile(id: string, file: File | null) {
+    setEditMap((prev) => {
+      const current = prev[id];
+
+      if (current?.previewUrl?.startsWith("blob:")) {
+        URL.revokeObjectURL(current.previewUrl);
+      }
+
+      return {
+        ...prev,
+        [id]: {
+          ...current,
+          file,
+          previewUrl: file ? URL.createObjectURL(file) : null,
+        },
+      };
+    });
+  }
+
+  async function handleSaveFoto(item: Item) {
+    if (!canEdit) return;
+
+    const state = editMap[item.id];
+    if (!state || state.saving) return;
+
+    setEditMap((prev) => ({
+      ...prev,
+      [item.id]: {
+        ...prev[item.id],
+        saving: true,
+      },
+    }));
+
+    try {
+      const fd = new FormData();
+      fd.append("ordem", String(Number(state.ordem || item.ordem || 1)));
+
+      if (state.file) {
+        fd.append("imagem", state.file);
+      }
+
+      const res = await fetch(
+        `/api/departamentos/albuns/imagens/${item.id}?igrejaId=${igrejaId}`,
+        {
+          method: "PATCH",
+          body: fd,
+        },
+      );
+
+      const j = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        toast.error(j?.error || "Erro ao salvar foto.");
+        setEditMap((prev) => ({
+          ...prev,
+          [item.id]: {
+            ...prev[item.id],
+            saving: false,
+          },
+        }));
+        return;
+      }
+
+      toast.success("Foto atualizada ✅");
+      await load();
+    } catch {
+      toast.error("Erro de conexão.");
+      setEditMap((prev) => ({
+        ...prev,
+        [item.id]: {
+          ...prev[item.id],
+          saving: false,
+        },
+      }));
+    }
   }
 
   async function handleUpload(e: React.FormEvent) {
@@ -217,7 +352,7 @@ export default function EditorAlbumFotos({
           <strong>{albumTitulo}</strong> — {departamentoNome}
         </p>
 
-        {!canEdit && (
+        {!canEdit && !canDelete && (
           <div className={styles.msg}>🔒 Você está em modo visualização.</div>
         )}
 
@@ -312,34 +447,89 @@ export default function EditorAlbumFotos({
             </div>
           ) : (
             <div className={styles.galleryGrid}>
-              {items.map((item) => (
-                <article key={item.id} className={styles.imageCard}>
-                  <div className={styles.imageWrap}>
-                    <img
-                      src={item.imageUrl}
-                      alt={item.altText || item.titulo || "Foto do álbum"}
-                      className={styles.image}
-                    />
-                  </div>
+              {items.map((item) => {
+                const state = editMap[item.id];
 
-                  <div className={styles.imageBody}>
-                    <div className={styles.imageMeta}>
-                      <span>Ordem: {item.ordem}</span>
+                return (
+                  <article key={item.id} className={styles.imageCard}>
+                    <div className={styles.imageWrap}>
+                      <img
+                        src={state?.previewUrl || item.imageUrl}
+                        alt={item.altText || item.titulo || "Foto do álbum"}
+                        className={styles.image}
+                      />
                     </div>
 
-                    {canEdit && (
-                      <button
-                        type="button"
-                        className={styles.deleteButton}
-                        onClick={() => handleDelete(item)}
-                      >
-                        <Trash2 size={16} />
-                        <span>Excluir</span>
-                      </button>
-                    )}
-                  </div>
-                </article>
-              ))}
+                    <div className={styles.imageBody}>
+                      <div className={styles.imageMeta}>
+                        <label className={styles.smallLabel}>Ordem</label>
+                        <input
+                          type="number"
+                          className={styles.smallInput}
+                          value={state?.ordem ?? String(item.ordem)}
+                          onChange={(e) =>
+                            updateEditOrdem(item.id, e.target.value)
+                          }
+                          disabled={!canEdit || state?.saving}
+                        />
+                      </div>
+
+                      {canEdit && (
+                        <div className={styles.fileRow}>
+                          <input
+                            id={`trocar-foto-${item.id}`}
+                            className={styles.fileInput}
+                            type="file"
+                            accept="image/*"
+                            disabled={state?.saving}
+                            onChange={(e) =>
+                              updateEditFile(
+                                item.id,
+                                e.target.files?.[0] ?? null,
+                              )
+                            }
+                          />
+
+                          <label
+                            htmlFor={`trocar-foto-${item.id}`}
+                            className={styles.fileBtn}
+                          >
+                            <ImagePlus size={16} />
+                            <span>Trocar foto</span>
+                          </label>
+                        </div>
+                      )}
+
+                      <div className={styles.imageActions}>
+                        {canEdit && (
+                          <button
+                            type="button"
+                            className={styles.editButton}
+                            onClick={() => handleSaveFoto(item)}
+                            disabled={state?.saving}
+                          >
+                            <Save size={16} />
+                            <span>
+                              {state?.saving ? "Salvando..." : "Salvar"}
+                            </span>
+                          </button>
+                        )}
+
+                        {canDelete && (
+                          <button
+                            type="button"
+                            className={styles.deleteButton}
+                            onClick={() => handleDelete(item)}
+                          >
+                            <Trash2 size={16} />
+                            <span>Excluir</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
             </div>
           )}
         </div>

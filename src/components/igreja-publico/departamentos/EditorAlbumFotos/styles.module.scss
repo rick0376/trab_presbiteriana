@@ -16,7 +16,10 @@
 }
 
 .topBar {
-  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 14px;
 }
 
 .backButton {
@@ -74,6 +77,12 @@
   font-weight: 800;
 }
 
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
 .label {
   display: block;
   margin-bottom: 8px;
@@ -96,19 +105,12 @@
   box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.08);
 }
 
-.grid2 {
-  display: grid;
-  grid-template-columns: 220px 1fr;
-  gap: 12px;
-  margin-bottom: 14px;
-}
-
 .fileInput {
   display: none;
 }
 
 .fileBtn {
-  min-height: 46px;
+  min-height: 44px;
   padding: 0 14px;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.12);
@@ -120,7 +122,6 @@
   cursor: pointer;
   font-size: 14px;
   font-weight: 700;
-  width: fit-content;
 }
 
 .fileBtnSelected {
@@ -128,18 +129,25 @@
   border-color: transparent;
 }
 
+.fileRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .previewGrid {
+  margin-top: 16px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
-  margin-bottom: 16px;
 }
 
 .previewCard {
-  border-radius: 16px;
+  border-radius: 14px;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.08);
-  aspect-ratio: 1 / 1;
+  height: 180px;
 }
 
 .previewImage {
@@ -152,11 +160,11 @@
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+  margin-top: 16px;
 }
 
 .btnGreen,
-.btnSecondary,
-.deleteButton {
+.btnSecondary {
   min-height: 46px;
   padding: 0 18px;
   border: none;
@@ -177,15 +185,6 @@
   border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-.deleteButton {
-  background: #ef4444;
-  color: #ffffff;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
 .empty {
   padding: 16px;
   border-radius: 16px;
@@ -196,19 +195,22 @@
 
 .galleryGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
 }
 
 .imageCard {
   border-radius: 18px;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
 }
 
 .imageWrap {
-  aspect-ratio: 1 / 1;
+  width: 100%;
+  height: 260px;
   background: rgba(255, 255, 255, 0.08);
 }
 
@@ -219,18 +221,81 @@
 }
 
 .imageBody {
-  padding: 12px;
-  display: grid;
-  gap: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .imageMeta {
-  color: #dbeafe;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.smallLabel {
+  color: #e2f1f8;
   font-size: 13px;
   font-weight: 700;
 }
 
-@media (max-width: 900px) {
+.smallInput {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: none;
+  outline: none;
+  background: #f3f4f6;
+  color: #0f172a;
+  font-size: 14px;
+}
+
+.imageActions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.editButton,
+.deleteButton {
+  min-height: 42px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.editButton {
+  background: #0ea5e9;
+  color: #ffffff;
+}
+
+.deleteButton {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+@media (max-width: 980px) {
+  .grid2 {
+    grid-template-columns: 1fr;
+  }
+
+  .previewGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .galleryGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 640px) {
   .container {
     padding: 12px;
   }
@@ -240,23 +305,21 @@
     border-radius: 18px;
   }
 
-  .grid2 {
+  .previewGrid,
+  .galleryGrid {
     grid-template-columns: 1fr;
   }
 
-  .previewGrid,
-  .galleryGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .actionRow {
+  .actionRow,
+  .imageActions {
     flex-direction: column;
   }
-}
 
-@media (max-width: 560px) {
-  .previewGrid,
-  .galleryGrid {
-    grid-template-columns: 1fr;
+  .btnGreen,
+  .btnSecondary,
+  .editButton,
+  .deleteButton {
+    width: 100%;
+    justify-content: center;
   }
 }
