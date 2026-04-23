@@ -142,6 +142,214 @@
   border: 1px solid rgba(255, 255, 255, 0.12);
   margin-top: auto;
 }
+/********************************************************************************************/
+
+.hinarioWrap {
+  margin: 14px 0 16px;
+}
+
+.hinarioTrigger {
+  width: 100%;
+  min-height: 46px;
+  margin: 0;
+  padding: 0 14px;
+  border: 1px solid rgba(125, 211, 252, 0.28);
+  border-radius: 14px;
+  background: linear-gradient(
+    180deg,
+    rgba(59, 130, 246, 0.28) 0%,
+    rgba(37, 99, 235, 0.18) 100%
+  );
+  color: #eff6ff;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.hinarioTrigger:hover {
+  transform: translateY(-1px);
+  border-color: rgba(125, 211, 252, 0.42);
+  background: linear-gradient(
+    180deg,
+    rgba(59, 130, 246, 0.34) 0%,
+    rgba(37, 99, 235, 0.24) 100%
+  );
+}
+
+.hinarioBox {
+  margin-top: 10px;
+  padding: 14px;
+  border-radius: 18px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.hinarioTitle {
+  margin: 0 0 10px;
+  color: #fde68a;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.musicasList {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.musicaBtn {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(255, 255, 255, 0.12) 100%
+  );
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.musicaBtn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(253, 230, 138, 0.26);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.24) 0%,
+    rgba(255, 255, 255, 0.16) 100%
+  );
+}
+
+/********************************************************************************************/
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.7);
+  backdrop-filter: blur(6px);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 18px;
+}
+
+.modal {
+  width: 100%;
+  max-width: 900px;
+  max-height: 88vh;
+  overflow: auto;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.28);
+}
+
+.modalHeader {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 20px;
+  border-bottom: 1px solid rgba(21, 44, 76, 0.08);
+}
+
+.modalTitle {
+  margin: 0;
+  color: #17375b;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.modalMeta {
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.modalClose {
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(20, 53, 92, 0.08);
+  color: #17375b;
+  cursor: pointer;
+}
+
+.modalBody {
+  padding: 20px;
+}
+
+.navRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.navBtn {
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(21, 44, 76, 0.08);
+  background: #f8fafc;
+  color: #17375b;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.letraBox {
+  white-space: pre-wrap;
+  color: #334155;
+  font-size: 18px;
+  line-height: 1.9;
+  background: #f8fafc;
+  border-radius: 18px;
+  padding: 20px;
+  border: 1px solid rgba(21, 44, 76, 0.08);
+}
+
+.modalLoading,
+.modalEmpty {
+  padding: 16px;
+  border-radius: 16px;
+  background: #f8fafc;
+  color: #334155;
+  font-weight: 600;
+  border: 1px solid rgba(21, 44, 76, 0.08);
+}
+
+@media (max-width: 900px) {
+  .navRow {
+    flex-direction: column;
+  }
+}
+/********************************************************************************************/
 
 @media (max-width: 1200px) {
   .grid {
