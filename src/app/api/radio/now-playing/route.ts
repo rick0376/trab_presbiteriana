@@ -1,4 +1,4 @@
-// src/app/api/radio/listeners/route.ts
+//src/app/api/radio/now-playing/route.ts
 
 import { NextResponse } from "next/server";
 
@@ -7,19 +7,6 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 const INFO_URL = "https://stream3.svrdedicado.org/cp/get_info.php?p=8100";
-
-function toNumber(value: unknown) {
-  const n = Number(value);
-  return Number.isFinite(n) ? n : 0;
-}
-
-function toOnline(j: any) {
-  const listeners = toNumber(j.listeners ?? j.ulistener ?? 0);
-  const bitrate = toNumber(j.bitrate ?? 0);
-  const title = String(j.title ?? "").trim();
-
-  return listeners > 0 || bitrate > 0 || title.length > 0;
-}
 
 export async function GET() {
   const controller = new AbortController();
@@ -33,7 +20,12 @@ export async function GET() {
 
     if (!r.ok) {
       return NextResponse.json(
-        { current: 0, peak: 0, max: 0, uptime: 0, online: false },
+        {
+          title: "",
+          art: "",
+          djusername: "",
+          history: [],
+        },
         {
           status: 200,
           headers: { "Cache-Control": "no-store, no-cache, must-revalidate" },
@@ -45,11 +37,10 @@ export async function GET() {
 
     return NextResponse.json(
       {
-        current: toNumber(j.listeners ?? j.ulistener ?? 0),
-        peak: 0,
-        max: 0,
-        uptime: 0,
-        online: toOnline(j),
+        title: String(j.title ?? "").trim(),
+        art: String(j.art ?? "").trim(),
+        djusername: String(j.djusername ?? "").trim(),
+        history: Array.isArray(j.history) ? j.history : [],
       },
       {
         headers: { "Cache-Control": "no-store, no-cache, must-revalidate" },
@@ -57,7 +48,12 @@ export async function GET() {
     );
   } catch {
     return NextResponse.json(
-      { current: 0, peak: 0, max: 0, uptime: 0, online: false },
+      {
+        title: "",
+        art: "",
+        djusername: "",
+        history: [],
+      },
       {
         status: 200,
         headers: { "Cache-Control": "no-store, no-cache, must-revalidate" },

@@ -28,113 +28,173 @@
 /* RADIO */
 .radioCard {
   width: 100%;
-  max-width: 430px;
-  margin-bottom: 22px;
+  max-width: 470px;
+  margin-bottom: 20px;
   padding: 14px;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 20px;
+  border-radius: 22px;
   color: #fff;
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.32);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px);
 }
 
-.radioHeader {
+.radioTopRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 10px;
+  gap: 14px;
+  margin-bottom: 14px;
 }
 
-.radioTitle {
-  font-size: 16px;
-  font-weight: 700;
-  margin: 0;
-  color: #ffffff;
-}
-
-.radioLive {
-  color: #22c55e;
-  font-weight: 800;
-  font-size: 13px;
-}
-
-.radioOffline {
-  color: #f87171;
-  font-weight: 800;
-  font-size: 13px;
-}
-
-.radioBtn {
-  width: 100%;
-  margin-top: 10px;
+.radioTopLeft {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
-  padding: 12px 14px;
-  border-radius: 16px;
-  border: none;
-  background: rgba(0, 0, 0, 0.25);
-  color: #fff;
-  font-size: 16px;
-  font-weight: 800;
-  cursor: pointer;
-  transition:
-    transform 0.08s ease,
-    opacity 0.08s ease,
-    background 0.08s ease;
-}
-
-.radioBtn:hover {
-  transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.12);
-  opacity: 0.95;
-}
-
-.radioNotice {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 14px 16px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.radioNoticeTop {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.radioIcon {
-  font-size: 20px;
-  line-height: 1;
-  flex-shrink: 0;
-}
-
-.radioText {
-  flex: 1;
-  text-align: left;
-  color: #ffffff;
   min-width: 0;
 }
 
-.radioBadge {
-  background: rgba(255, 255, 255, 0.15);
-  padding: 4px 10px;
+.radioMiniLogo {
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  flex-shrink: 0;
+}
+
+.radioTopMeta {
+  min-width: 0;
+}
+
+.radioTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.radioStationName {
+  margin-top: 2px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.72);
+  font-weight: 600;
+}
+
+.radioTopBadges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.radioLiveBadge,
+.radioOfflineBadge,
+.radioBadgeSoft {
+  padding: 6px 12px;
   border-radius: 999px;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 800;
   white-space: nowrap;
 }
 
+.radioLiveBadge {
+  background: #ff4d4f;
+  color: #fff;
+}
+
+.radioOfflineBadge {
+  background: #64748b;
+  color: #fff;
+}
+
+.radioBadgeSoft {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.radioNowCard,
+.radioNowCardDisabled {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.radioNowCardDisabled {
+  opacity: 0.88;
+}
+
+.radioCover {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.radioNowMeta {
+  flex: 1;
+  min-width: 0;
+}
+
+.radioNowLabel {
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.72);
+  letter-spacing: 0.04em;
+}
+
+.radioNowTitle {
+  margin-top: 4px;
+  font-size: 19px;
+  line-height: 1.1;
+  font-weight: 900;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.radioPlayBtn {
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  border: none;
+  background: #ffffff;
+  color: #1f2f49;
+  font-size: 21px;
+  font-weight: 800;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    transform 0.16s ease,
+    filter 0.16s ease,
+    background 0.16s ease;
+}
+
+.radioPlayBtn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.03);
+}
+
 .radioSubText {
-  margin: 0;
-  font-size: 14px;
+  margin: 8px 0 0;
+  font-size: 13px;
   line-height: 1.5;
   color: rgba(255, 255, 255, 0.78);
 }
@@ -144,6 +204,34 @@
   font-size: 13px;
   color: #fecaca;
   font-weight: 600;
+}
+
+.radioActions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.radioSecondaryBtn {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    filter 0.18s ease;
+}
+
+.radioSecondaryBtn:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.14);
+  filter: brightness(1.03);
 }
 
 /* BRAND */
@@ -436,19 +524,37 @@
 
   .radioCard {
     max-width: 100%;
+    padding: 14px;
   }
 
-  .radioBtn {
-    padding: 10px 12px;
-    gap: 8px;
+  .radioTopRow {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
-  .radioText {
-    font-size: 14px;
+  .radioTopBadges {
+    justify-content: flex-start;
   }
 
-  .radioBadge {
-    font-size: 10px;
-    padding: 3px 8px;
+  .radioNowCard,
+  .radioNowCardDisabled {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .radioCover {
+    width: 52px;
+    height: 52px;
+    font-size: 20px;
+  }
+
+  .radioNowTitle {
+    font-size: 18px;
+  }
+
+  .radioPlayBtn {
+    width: 52px;
+    height: 52px;
+    font-size: 20px;
   }
 }

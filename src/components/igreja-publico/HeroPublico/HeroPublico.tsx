@@ -72,44 +72,79 @@ export default function HeroPublico({
         <div className={styles.content}>
           <div className={styles.copy}>
             <div className={styles.radioCard}>
-              <div className={styles.radioHeader}>
-                <h3 className={styles.radioTitle}>📻 Rádio Renovada</h3>
-                <span
-                  className={
-                    radioStatusLabel === "AO VIVO"
-                      ? styles.radioLive
-                      : styles.radioOffline
-                  }
-                >
-                  {radioStatusLabel}
-                </span>
+              <div className={styles.radioTopRow}>
+                <div className={styles.radioTopLeft}>
+                  <div className={styles.radioMiniLogo}>📻</div>
+
+                  <div className={styles.radioTopMeta}>
+                    <h3 className={styles.radioTitle}>Rádio Renovada</h3>
+                    <div className={styles.radioStationName}>
+                      Presbiteriana Renovada - MC
+                    </div>
+                  </div>
+                </div>
+
+                <div className={styles.radioTopBadges}>
+                  <span
+                    className={
+                      radioStatusLabel === "AO VIVO"
+                        ? styles.radioLiveBadge
+                        : styles.radioOfflineBadge
+                    }
+                  >
+                    {radioStatusLabel}
+                  </span>
+
+                  <span className={styles.radioBadgeSoft}>
+                    {radioIsPlaying ? "Tocando" : radioBadgeText}
+                  </span>
+                </div>
               </div>
 
               {radioCanPlay ? (
-                <button
-                  type="button"
-                  className={styles.radioBtn}
-                  onClick={onPlayRadio}
-                >
-                  <span className={styles.radioIcon}>
-                    {radioIsPlaying ? "⏸" : "▶"}
-                  </span>
-                  <span className={styles.radioText}>{radioMainText}</span>
-                  <span className={styles.radioBadge}>
-                    {radioIsPlaying ? "Tocando" : radioBadgeText}
-                  </span>
-                </button>
-              ) : (
-                <div className={styles.radioNotice}>
-                  <div className={styles.radioNoticeTop}>
-                    <span className={styles.radioIcon}>📻</span>
-                    <span className={styles.radioText}>{radioMainText}</span>
-                    <span className={styles.radioBadge}>{radioBadgeText}</span>
+                <div className={styles.radioNowCard}>
+                  <div className={styles.radioCover} aria-hidden="true">
+                    🎵
                   </div>
 
-                  {radioSubText ? (
-                    <p className={styles.radioSubText}>{radioSubText}</p>
-                  ) : null}
+                  <div className={styles.radioNowMeta}>
+                    <div className={styles.radioNowLabel}>
+                      {radioStatusLabel === "AO VIVO"
+                        ? "TOCANDO AGORA"
+                        : "RÁDIO"}
+                    </div>
+
+                    <div className={styles.radioNowTitle}>{radioMainText}</div>
+
+                    {radioSubText ? (
+                      <p className={styles.radioSubText}>{radioSubText}</p>
+                    ) : null}
+                  </div>
+
+                  <button
+                    type="button"
+                    className={styles.radioPlayBtn}
+                    onClick={onPlayRadio}
+                    aria-label={radioIsPlaying ? "Pausar rádio" : "Ouvir rádio"}
+                    title={radioIsPlaying ? "Pausar rádio" : "Ouvir rádio"}
+                  >
+                    {radioIsPlaying ? "❚❚" : "▶"}
+                  </button>
+                </div>
+              ) : (
+                <div className={styles.radioNowCardDisabled}>
+                  <div className={styles.radioCover} aria-hidden="true">
+                    📻
+                  </div>
+
+                  <div className={styles.radioNowMeta}>
+                    <div className={styles.radioNowLabel}>RÁDIO</div>
+                    <div className={styles.radioNowTitle}>{radioMainText}</div>
+
+                    {radioSubText ? (
+                      <p className={styles.radioSubText}>{radioSubText}</p>
+                    ) : null}
+                  </div>
                 </div>
               )}
 

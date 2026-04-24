@@ -15,10 +15,24 @@ type Listeners = {
   online?: boolean;
 };
 
+type NowPlaying = {
+  title: string;
+  art: string;
+  djusername: string;
+  history: string[];
+};
+
 const STATION_NAME = "Radio Presbiteriana";
-const ACCOUNT_NAME = "Á Hora do Milagre";
+const ACCOUNT_NAME = "Rádio Renovada - LHP";
 const BG_IMAGE = "/logo.png";
-const COVER_IMAGE = "/pastor.png";
+const FALLBACK_COVER = "/pastor.png";
+
+function cleanHistoryItem(text: string) {
+  return text
+    .replace(/<br\s*\/?>/gi, "")
+    .replace(/^\d+\.\)\s*/g, "")
+    .trim();
+}
 
 export default function OuvirPage() {
   const router = useRouter();
@@ -26,6 +40,7 @@ export default function OuvirPage() {
     useRadioPlayer();
 
   const [listeners, setListeners] = useState<Listeners | null>(null);
+  const [nowPlaying, setNowPlaying] = useState<NowPlaying | null>(null);
 
   async function loadListeners() {
     try {
@@ -37,10 +52,27 @@ export default function OuvirPage() {
     } catch {}
   }
 
+  async function loadNowPlaying() {
+    try {
+      const r = await fetch("/api/radio/now-playing", { cache: "no-store" });
+      if (!r.ok) return;
+
+      const j = (await r.json()) as NowPlaying;
+      setNowPlaying(j);
+    } catch {}
+  }
+
   useEffect(() => {
     loadListeners();
-    const t = setInterval(loadListeners, 10000);
-    return () => clearInterval(t);
+    loadNowPlaying();
+
+    const t1 = setInterval(loadListeners, 10000);
+    const t2 = setInterval(loadNowPlaying, 10000);
+
+    return () => {
+      clearInterval(t1);
+      clearInterval(t2);
+    };
   }, []);
 
   useEffect(() => {
@@ -57,6 +89,16 @@ export default function OuvirPage() {
   }, []);
 
   const hasUrl = !!streamUrl;
+  const currentTrack = nowPlaying?.title?.trim() || STATION_NAME;
+  const currentArt = nowPlaying?.art?.trim() || FALLBACK_COVER;
+  const currentDj =
+    nowPlaying?.djusername?.trim() === "No DJ"
+      ? "AutoDJ"
+      : nowPlaying?.djusername?.trim() || "AutoDJ";
+
+  const history =
+    nowPlaying?.history?.map(cleanHistoryItem).filter(Boolean).slice(0, 5) ||
+    [];
 
   return (
     <main className={styles.container}>
@@ -110,9 +152,9 @@ export default function OuvirPage() {
                 <div className={styles.badges}>
                   <span className={styles.badgeLive}>
                     <span className={styles.badgeDot} />
-                    Live
+                    {isLive ? "Live" : "Offline"}
                   </span>
-                  <span className={styles.badgeEvent}>Event</span>
+                  <span className={styles.badgeEvent}>{currentDj}</span>
                 </div>
               </div>
             </div>
@@ -120,15 +162,16 @@ export default function OuvirPage() {
             <div className={styles.nowCard}>
               <div
                 className={styles.cover}
-                style={{ ["--cover" as any]: `url(${COVER_IMAGE})` }}
+                style={{ ["--cover" as any]: `url(${currentArt})` }}
                 aria-hidden="true"
               />
 
               <div className={styles.nowMeta}>
                 <div className={styles.nowLabel}>
-                  {isLive ? "LIVE NOW" : "OFFLINE"}
+                  {isLive ? "TOCANDO AGORA" : "OFFLINE"}
                 </div>
-                <div className={styles.nowTitle}>{STATION_NAME}</div>
+
+                <div className={styles.nowTitle}>{currentTrack}</div>
 
                 <div
                   className={`${styles.wave} ${!isLive ? styles.wavePaused : ""}`}
@@ -157,6 +200,19 @@ export default function OuvirPage() {
                 {isPlaying ? "❚❚" : "▶"}
               </button>
             </div>
+
+            {history.length > 0 && (
+              <div className={styles.historyBox}>
+                <div className={styles.historyTitle}>Últimas músicas</div>
+                <ul className={styles.historyList}>
+                  {history.map((item, index) => (
+                    <li key={`${item}-${index}`} className={styles.historyItem}>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {!isLive && (
               <p className={styles.muted}>A transmissão ainda não começou.</p>
