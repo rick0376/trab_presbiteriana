@@ -44,3 +44,10 @@ next-env.d.ts
 # src/app/(public)/login/page.tsx
 # src/app/(public)/login-superadmin/page.tsx
 # src/app/(private)/radio/admin/login/page.tsx
+
+# local backups / database dumps
+/backups
+*.sql
+*.dump
+*.backup
+*.bak
