@@ -188,6 +188,23 @@
   color: #fff;
 }
 
+.testMode {
+  color: #facc15;
+}
+
+.statusDescription {
+  margin: 8px 0 0;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.warningText {
+  margin: -4px 0 12px;
+  font-size: 14px;
+  color: #facc15;
+  font-weight: 700;
+}
+
 @media (max-width: 768px) {
   .container {
     padding: 16px 12px 24px;

@@ -165,7 +165,7 @@ export default function IgrejasPageClient({ igrejas, initialPublico }: Props) {
     "Transformando Vidas pelo Amor de Cristo";
 
   const pastorPrincipal = {
-    nome: (publico?.pastorNome ?? "").trim() || "Pr. Rafael Popovski",
+    nome: (publico?.pastorNome ?? "").trim() || "Pr. Rodolfo Camargo",
     cargo: (publico?.pastorCargo ?? "").trim() || "Pastor",
     subtitulo:
       (publico?.pastorSubtitle ?? "").trim() ||

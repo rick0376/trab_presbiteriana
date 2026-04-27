@@ -71,9 +71,6 @@ export default function AdminRadioPage() {
   const [permRadioUrl, setPermRadioUrl] = useState<Permissao | null>(null);
   const [permRadioLive, setPermRadioLive] = useState<Permissao | null>(null);
 
-  // =========================
-  // 🔐 Buscar permissões
-  // =========================
   useEffect(() => {
     const fetchPerms = async () => {
       try {
@@ -87,7 +84,6 @@ export default function AdminRadioPage() {
 
         const meData: MeResponse = await r.json();
 
-        // SUPERADMIN = total
         if (meData.role === "SUPERADMIN") {
           const full = {
             recurso: "",
@@ -134,9 +130,6 @@ export default function AdminRadioPage() {
   const canEditUrl = !!permRadioUrl?.editar;
   const canToggleRadio = !!permRadioLive?.editar;
 
-  // =========================
-  // 🔄 Carrega status
-  // =========================
   async function load() {
     setLoading(true);
     setMsg("");
@@ -172,9 +165,7 @@ export default function AdminRadioPage() {
 
       const j = await r.json();
 
-      if (!r.ok) {
-        return;
-      }
+      if (!r.ok) return;
 
       setRadioConfig({
         status: j.status ?? "OFFLINE",
@@ -200,7 +191,6 @@ export default function AdminRadioPage() {
     } catch {}
   }
 
-  // 🔴 Liga / Desliga
   async function setLive(live: boolean) {
     if (!canToggleRadio) return;
 
@@ -225,7 +215,12 @@ export default function AdminRadioPage() {
       }
 
       setStatus(j);
-      setMsg(live ? "Rádio ligada ✅" : "Rádio desligada ✅");
+
+      setMsg(
+        live
+          ? "Sinal da rádio ligado para teste ✅"
+          : "Sinal da rádio desligado ✅",
+      );
     } catch {
       setMsg("Falha de conexão");
     } finally {
@@ -253,7 +248,7 @@ export default function AdminRadioPage() {
         return;
       }
 
-      setMsg("Configuração da rádio salva ✅");
+      setMsg("Configuração pública da rádio salva ✅");
     } catch {
       setMsg("Falha de conexão ao salvar configuração");
     } finally {
@@ -271,6 +266,25 @@ export default function AdminRadioPage() {
     const interval = setInterval(loadListeners, 10000);
     return () => clearInterval(interval);
   }, []);
+
+  const radioPainelStatus = !status?.live
+    ? {
+        label: "OFFLINE",
+        className: styles.offline,
+        description: "A rádio está desligada.",
+      }
+    : radioConfig.allowPlay
+      ? {
+          label: "AO VIVO PÚBLICO",
+          className: styles.live,
+          description: "A rádio está ligada e liberada para o público.",
+        }
+      : {
+          label: "ONLINE EM TESTE",
+          className: styles.testMode,
+          description:
+            "A rádio está ligada, mas ainda não foi liberada para o público.",
+        };
 
   if (!permRadioUrl || !permRadioLive) {
     return (
@@ -295,11 +309,10 @@ export default function AdminRadioPage() {
 
         <h1 className={styles.title}>Admin Rádio</h1>
 
-        {/* 🔐 URL */}
         {canEditUrl && (
           <input
             className={styles.input}
-            placeholder="URL do áudio (stream)"
+            placeholder="URL do áudio da rádio"
             value={streamUrl}
             onChange={(e) => setStreamUrl(e.target.value)}
             disabled={loading}
@@ -308,10 +321,9 @@ export default function AdminRadioPage() {
 
         <div className={styles.row}>
           <button className={styles.btn} onClick={load} disabled={loading}>
-            Ver status
+            Atualizar status
           </button>
 
-          {/* 🔐 Ligar/Desligar */}
           {canToggleRadio && (
             <>
               <button
@@ -319,7 +331,7 @@ export default function AdminRadioPage() {
                 onClick={() => setLive(true)}
                 disabled={loading || !streamUrl}
               >
-                Ligar
+                Ligar sinal
               </button>
 
               <button
@@ -327,17 +339,20 @@ export default function AdminRadioPage() {
                 onClick={() => setLive(false)}
                 disabled={loading}
               >
-                Desligar
+                Desligar sinal
               </button>
             </>
           )}
         </div>
 
         <div className={styles.status}>
-          <span>Status:</span>{" "}
-          <strong className={status?.live ? styles.live : styles.offline}>
-            {status ? (status.live ? "AO VIVO" : "OFFLINE") : "—"}
+          <span>Status da rádio:</span>{" "}
+          <strong className={radioPainelStatus.className}>
+            {radioPainelStatus.label}
           </strong>
+          <p className={styles.statusDescription}>
+            {radioPainelStatus.description}
+          </p>
           {listeners && (
             <div className={styles.listeners}>
               <div>
@@ -354,7 +369,7 @@ export default function AdminRadioPage() {
         </div>
 
         <div className={styles.configBox}>
-          <h2 className={styles.sectionTitle}>Configuração visual da rádio</h2>
+          <h2 className={styles.sectionTitle}>Configuração pública da rádio</h2>
 
           <select
             className={styles.input}
@@ -408,11 +423,11 @@ export default function AdminRadioPage() {
             }}
             disabled={loading}
           >
-            <option value="AO_VIVO">AO_VIVO</option>
+            <option value="AO_VIVO">AO VIVO</option>
             <option value="OFFLINE">OFFLINE</option>
-            <option value="MANUTENCAO">MANUTENCAO</option>
+            <option value="MANUTENCAO">MANUTENÇÃO</option>
             <option value="AGUARDANDO_PROGRAMACAO">
-              AGUARDANDO_PROGRAMACAO
+              AGUARDANDO PROGRAMAÇÃO
             </option>
           </select>
 
@@ -457,7 +472,7 @@ export default function AdminRadioPage() {
 
           <input
             className={styles.input}
-            placeholder="Texto do badge. Ex: Manutenção"
+            placeholder="Texto do badge. Ex: Ao vivo"
             value={radioConfig.badgeLabel ?? ""}
             onChange={(e) =>
               setRadioConfig((prev) => ({
@@ -476,12 +491,20 @@ export default function AdminRadioPage() {
                 setRadioConfig((prev) => ({
                   ...prev,
                   allowPlay: e.target.checked,
+                  status: e.target.checked ? "AO_VIVO" : prev.status,
+                  badgeLabel: e.target.checked ? "Ao vivo" : prev.badgeLabel,
                 }))
               }
-              disabled={loading}
+              disabled={loading || !status?.live}
             />
-            <span>Liberar botão de ouvir rádio no site</span>
+            <span>Liberar rádio para o público ouvir no site</span>
           </label>
+
+          {!status?.live && (
+            <p className={styles.warningText}>
+              Ligue o sinal da rádio antes de liberar para o público.
+            </p>
+          )}
 
           <div className={styles.row}>
             <button
@@ -490,7 +513,7 @@ export default function AdminRadioPage() {
               onClick={saveRadioConfig}
               disabled={loading}
             >
-              Salvar configuração
+              Salvar configuração pública
             </button>
           </div>
         </div>

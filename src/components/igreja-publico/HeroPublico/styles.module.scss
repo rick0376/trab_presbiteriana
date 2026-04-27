@@ -104,7 +104,7 @@
 }
 
 .radioLiveBadge {
-  background: #ff4d4f;
+  background: #22c55e;
   color: #fff;
 }
 
@@ -170,6 +170,64 @@
   text-overflow: ellipsis;
 }
 
+.radioWave {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  height: 16px;
+  opacity: 0.7;
+}
+
+.radioWave span {
+  width: 4px;
+  height: 13px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  animation: radioWaveAnim 900ms ease-in-out infinite;
+}
+
+.radioWave span:nth-child(2) {
+  animation-delay: 80ms;
+}
+
+.radioWave span:nth-child(3) {
+  animation-delay: 160ms;
+}
+
+.radioWave span:nth-child(4) {
+  animation-delay: 240ms;
+}
+
+.radioWave span:nth-child(5) {
+  animation-delay: 320ms;
+}
+
+.radioWave span:nth-child(6) {
+  animation-delay: 400ms;
+}
+
+.radioWave span:nth-child(7) {
+  animation-delay: 480ms;
+}
+
+.radioWavePaused span {
+  animation: none !important;
+  opacity: 0.35;
+  transform: scaleY(0.7);
+}
+
+@keyframes radioWaveAnim {
+  0%,
+  100% {
+    transform: scaleY(0.65);
+  }
+
+  50% {
+    transform: scaleY(1.8);
+  }
+}
+
 .radioPlayBtn {
   width: 56px;
   height: 56px;
@@ -193,9 +251,9 @@
 }
 
 .radioSubText {
-  margin: 8px 0 0;
+  margin: 6px 0 0;
   font-size: 13px;
-  line-height: 1.5;
+  line-height: 1.4;
   color: rgba(255, 255, 255, 0.78);
 }
 
@@ -210,28 +268,52 @@
   margin-top: 12px;
   display: flex;
   justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-.radioSecondaryBtn {
-  min-height: 40px;
-  padding: 0 14px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
+.radioSecondaryBtn,
+.radioFullBtn {
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 10px;
   font-size: 13px;
   font-weight: 800;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
   transition:
     transform 0.18s ease,
     background 0.18s ease,
     filter 0.18s ease;
 }
 
-.radioSecondaryBtn:hover {
+.radioSecondaryBtn {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.radioFullBtn {
+  border: 1px solid rgba(217, 176, 113, 0.55);
+  background: rgba(217, 176, 113, 0.2);
+  color: #ffffff;
+}
+
+.radioSecondaryBtn:hover,
+.radioFullBtn:hover {
   transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.14);
   filter: brightness(1.03);
+}
+
+.radioSecondaryBtn:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.radioFullBtn:hover {
+  background: rgba(217, 176, 113, 0.3);
 }
 
 /* BRAND */
@@ -315,19 +397,19 @@
 }
 
 .lightButton {
-  background: linear-gradient(180deg, #f4ede4 0%, #e7dfd4 100%);
+  background: linear-gradient(180deg, #eed9bd 0%, #fca122 100%);
   color: #22334b;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
 }
 
 .darkButton {
-  background: linear-gradient(180deg, #1b4d84 0%, #123a66 100%);
+  background: linear-gradient(180deg, #4d78a7 0%, #123a66 100%);
   color: #ffffff;
   box-shadow: 0 10px 28px rgba(9, 32, 58, 0.3);
 }
 
 .accessButton {
-  background: linear-gradient(180deg, #0c7ac4 0%, #075e98 100%);
+  background: linear-gradient(180deg, #71afd8 0%, #075e98 100%);
   color: #ffffff;
   box-shadow: 0 10px 28px rgba(9, 32, 58, 0.28);
 }
@@ -420,34 +502,7 @@
   font-size: 16px;
 }
 
-.radioActions {
-  margin-top: 10px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.radioSecondaryBtn {
-  min-height: 38px;
-  padding: 0 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 800;
-  cursor: pointer;
-  transition:
-    transform 0.18s ease,
-    background 0.18s ease,
-    filter 0.18s ease;
-}
-
-.radioSecondaryBtn:hover {
-  transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.14);
-  filter: brightness(1.03);
-}
-
+/* RESPONSIVO */
 @media (max-width: 980px) {
   .content {
     grid-template-columns: 1fr;
@@ -485,8 +540,8 @@
   }
 
   .logo {
-    width: 34px;
-    height: 34px;
+    width: 54px;
+    height: 54px;
   }
 
   .actions {
@@ -556,5 +611,9 @@
     width: 52px;
     height: 52px;
     font-size: 20px;
+  }
+
+  .radioActions {
+    justify-content: flex-start;
   }
 }

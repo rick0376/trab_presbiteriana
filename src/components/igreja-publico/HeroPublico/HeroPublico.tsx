@@ -94,10 +94,6 @@ export default function HeroPublico({
                   >
                     {radioStatusLabel}
                   </span>
-
-                  <span className={styles.radioBadgeSoft}>
-                    {radioIsPlaying ? "Tocando" : radioBadgeText}
-                  </span>
                 </div>
               </div>
 
@@ -115,6 +111,23 @@ export default function HeroPublico({
                     </div>
 
                     <div className={styles.radioNowTitle}>{radioMainText}</div>
+
+                    <div
+                      className={`${styles.radioWave} ${
+                        !radioCanPlay || !radioIsPlaying
+                          ? styles.radioWavePaused
+                          : ""
+                      }`}
+                      aria-hidden="true"
+                    >
+                      <span />
+                      <span />
+                      <span />
+                      <span />
+                      <span />
+                      <span />
+                      <span />
+                    </div>
 
                     {radioSubText ? (
                       <p className={styles.radioSubText}>{radioSubText}</p>
@@ -153,6 +166,10 @@ export default function HeroPublico({
               ) : null}
 
               <div className={styles.radioActions}>
+                <Link href="/radio/ouvir" className={styles.radioFullBtn}>
+                  Rádio completa
+                </Link>
+
                 <button
                   type="button"
                   className={styles.radioSecondaryBtn}

@@ -22,8 +22,8 @@ type NowPlaying = {
   history: string[];
 };
 
-const STATION_NAME = "Radio Presbiteriana";
-const ACCOUNT_NAME = "Rádio Renovada - LHP";
+const STATION_NAME = "Rádio Renovada";
+const ACCOUNT_NAME = "Rádio Renovada - MC";
 const BG_IMAGE = "/logo.png";
 const FALLBACK_COVER = "/pastor.png";
 
@@ -36,8 +36,15 @@ function cleanHistoryItem(text: string) {
 
 export default function OuvirPage() {
   const router = useRouter();
-  const { isLive, isPlaying, playError, togglePlay, title, streamUrl } =
-    useRadioPlayer();
+  const {
+    isLive,
+    isPlaying,
+    playError,
+    togglePlay,
+    title,
+    streamUrl,
+    canPlay,
+  } = useRadioPlayer();
 
   const [listeners, setListeners] = useState<Listeners | null>(null);
   const [nowPlaying, setNowPlaying] = useState<NowPlaying | null>(null);
@@ -89,16 +96,23 @@ export default function OuvirPage() {
   }, []);
 
   const hasUrl = !!streamUrl;
-  const currentTrack = nowPlaying?.title?.trim() || STATION_NAME;
+
+  const publicIsLive = isLive && canPlay;
+  const publicCanPlay = publicIsLive && hasUrl;
+
+  const currentTrack = publicIsLive
+    ? nowPlaying?.title?.trim() || title || "Transmitindo agora"
+    : "Rádio Offline";
+
   const currentArt = nowPlaying?.art?.trim() || FALLBACK_COVER;
   const currentDj =
     nowPlaying?.djusername?.trim() === "No DJ"
       ? "AutoDJ"
       : nowPlaying?.djusername?.trim() || "AutoDJ";
 
-  const history =
-    nowPlaying?.history?.map(cleanHistoryItem).filter(Boolean).slice(0, 5) ||
-    [];
+  const history = Array.from(
+    new Set(nowPlaying?.history?.map(cleanHistoryItem).filter(Boolean) || []),
+  ).slice(0, 5);
 
   return (
     <main className={styles.container}>
@@ -117,12 +131,14 @@ export default function OuvirPage() {
 
         <div className={styles.statusRow}>
           <span
-            className={isLive ? styles.statusLiveText : styles.statusOffText}
+            className={
+              publicIsLive ? styles.statusLiveText : styles.statusOffText
+            }
           >
-            {isLive ? "AO VIVO" : "OFFLINE"}
+            {publicIsLive ? "AO VIVO" : "OFFLINE"}
           </span>
 
-          <span className={isLive ? styles.dotLive : styles.dotOff} />
+          <span className={publicIsLive ? styles.dotLive : styles.dotOff} />
         </div>
 
         {listeners && (
@@ -150,11 +166,18 @@ export default function OuvirPage() {
                 <div className={styles.accountName}>{ACCOUNT_NAME}</div>
 
                 <div className={styles.badges}>
-                  <span className={styles.badgeLive}>
+                  <span
+                    className={
+                      publicIsLive ? styles.badgeLive : styles.badgeOffline
+                    }
+                  >
                     <span className={styles.badgeDot} />
-                    {isLive ? "Live" : "Offline"}
+                    {publicIsLive ? "AO VIVO" : "OFFLINE"}
                   </span>
-                  <span className={styles.badgeEvent}>{currentDj}</span>
+
+                  {publicIsLive ? (
+                    <span className={styles.badgeEvent}>{currentDj}</span>
+                  ) : null}
                 </div>
               </div>
             </div>
@@ -174,7 +197,9 @@ export default function OuvirPage() {
                 <div className={styles.nowTitle}>{currentTrack}</div>
 
                 <div
-                  className={`${styles.wave} ${!isLive ? styles.wavePaused : ""}`}
+                  className={`${styles.wave} ${
+                    !publicIsLive || !isPlaying ? styles.wavePaused : ""
+                  }`}
                   aria-hidden="true"
                 >
                   <span className={styles.bar} />
@@ -190,7 +215,7 @@ export default function OuvirPage() {
               <button
                 type="button"
                 className={`${styles.playBtn} ${
-                  !isLive || !hasUrl ? styles.playDisabled : ""
+                  !publicCanPlay ? styles.playDisabled : ""
                 }`}
                 onClick={togglePlay}
                 disabled={!isLive || !hasUrl}
@@ -214,11 +239,13 @@ export default function OuvirPage() {
               </div>
             )}
 
-            {!isLive && (
-              <p className={styles.muted}>A transmissão ainda não começou.</p>
+            {!publicIsLive && (
+              <p className={styles.muted}>
+                A transmissão ainda não está liberada para o público.
+              </p>
             )}
 
-            {isLive && !hasUrl && (
+            {publicIsLive && !hasUrl && (
               <p className={styles.muted}>
                 Rádio ligada, mas nenhuma URL de áudio foi informada.
               </p>
