@@ -20,8 +20,10 @@ export default function PublicHeader() {
           />
 
           <div className={styles.brandText}>
-            <span className={styles.brandTop}>Igreja Presbiteriana</span>
-            <span className={styles.brandBottom}>Renovada - Moreira César</span>
+            <span className={styles.brandTop}>IPR - Igreja</span>
+            <span className={styles.brandBottom}>
+              Presbiteriana Renovada - MC
+            </span>
           </div>
         </Link>
 

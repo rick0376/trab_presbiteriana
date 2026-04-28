@@ -105,6 +105,7 @@ export default function PublicFooter() {
               </p>
             </div>
 
+            {/*
             <div className={styles.socialRow}>
               {data.instagramUrl ? (
                 <a
@@ -142,6 +143,7 @@ export default function PublicFooter() {
                 </a>
               ) : null}
             </div>
+            */}
           </div>
         </div>
 
