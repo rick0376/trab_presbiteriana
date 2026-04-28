@@ -40,9 +40,11 @@ function formatPhone(value?: string | null) {
   const digits = String(value ?? "").replace(/\D/g, "");
 
   if (!digits) return "Telefone não informado";
+
   if (digits.length === 11) {
     return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
   }
+
   if (digits.length === 10) {
     return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
   }
@@ -75,6 +77,15 @@ export default function PublicFooter() {
     [data.telefonePublico, data.whatsappUrl],
   );
 
+  const horariosResumo =
+    data.horarios?.length > 0
+      ? data.horarios.slice(0, 3)
+      : [
+          { id: "quarta", texto: "Quarta-feira: 19:30", ordem: 1 },
+          { id: "sexta", texto: "Sexta-feira: 19:30", ordem: 2 },
+          { id: "domingo", texto: "Domingo: 19:15", ordem: 3 },
+        ];
+
   return (
     <footer className={styles.footer}>
       <div className={styles.inner}>
@@ -85,48 +96,52 @@ export default function PublicFooter() {
               alt={`Logo ${data.churchName}`}
               className={styles.logo}
             />
+
             <div>
               <h3 className={styles.title}>{data.churchName}</h3>
-              <p className={styles.text}>{data.footerDescricao}</p>
+
+              <p className={`${styles.text} ${styles.desktopOnly}`}>
+                {data.footerDescricao}
+              </p>
             </div>
-          </div>
 
-          <div className={styles.socialRow}>
-            {data.instagramUrl ? (
-              <a
-                href={data.instagramUrl}
-                target="_blank"
-                rel="noreferrer"
-                className={styles.socialInstagram}
-                aria-label="Instagram"
-              >
-                <FaInstagram />
-              </a>
-            ) : null}
+            <div className={styles.socialRow}>
+              {data.instagramUrl ? (
+                <a
+                  href={data.instagramUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={styles.socialInstagram}
+                  aria-label="Instagram"
+                >
+                  <FaInstagram />
+                </a>
+              ) : null}
 
-            {data.facebookUrl ? (
-              <a
-                href={data.facebookUrl}
-                target="_blank"
-                rel="noreferrer"
-                className={styles.socialFacebook}
-                aria-label="Facebook"
-              >
-                <FaFacebookF />
-              </a>
-            ) : null}
+              {data.facebookUrl ? (
+                <a
+                  href={data.facebookUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={styles.socialFacebook}
+                  aria-label="Facebook"
+                >
+                  <FaFacebookF />
+                </a>
+              ) : null}
 
-            {data.whatsappUrl ? (
-              <a
-                href={data.whatsappUrl}
-                target="_blank"
-                rel="noreferrer"
-                className={styles.socialWhatsapp}
-                aria-label="WhatsApp"
-              >
-                <FaWhatsapp />
-              </a>
-            ) : null}
+              {data.whatsappUrl ? (
+                <a
+                  href={data.whatsappUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={styles.socialWhatsapp}
+                  aria-label="WhatsApp"
+                >
+                  <FaWhatsapp />
+                </a>
+              ) : null}
+            </div>
           </div>
         </div>
 
@@ -143,7 +158,7 @@ export default function PublicFooter() {
             <span>{telefoneLabel}</span>
           </div>
 
-          <div className={styles.item}>
+          <div className={`${styles.item} ${styles.desktopOnly}`}>
             <Mail size={16} />
             <a href={`mailto:${data.email}`}>{data.email}</a>
           </div>
@@ -152,22 +167,16 @@ export default function PublicFooter() {
         <div className={styles.col}>
           <h4 className={styles.subtitle}>Cultos e horários</h4>
 
-          {data.horarios?.length ? (
-            data.horarios.map((item) => (
+          <div className={styles.scheduleList}>
+            {horariosResumo.map((item) => (
               <p key={item.id} className={styles.textSmall}>
                 {item.texto}
               </p>
-            ))
-          ) : (
-            <>
-              <p className={styles.textSmall}>Quarta-feira</p>
-              <p className={styles.textSmall}>Sexta-feira</p>
-              <p className={styles.textSmall}>Domingo</p>
-            </>
-          )}
+            ))}
+          </div>
         </div>
 
-        <div className={styles.col}>
+        <div className={`${styles.col} ${styles.desktopOnly}`}>
           <h4 className={styles.subtitle}>Links rápidos</h4>
 
           <Link href="/igrejas" className={styles.linkItem}>
@@ -178,13 +187,13 @@ export default function PublicFooter() {
             Departamentos
           </Link>
 
-          <a href="/igrejas#eventos" className={styles.linkItem}>
+          <Link href="/igrejas#eventos" className={styles.linkItem}>
             Eventos
-          </a>
+          </Link>
 
-          <a href="/igrejas#cronograma" className={styles.linkItem}>
+          <Link href="/igrejas#cronograma" className={styles.linkItem}>
             Cronogramas
-          </a>
+          </Link>
 
           <Link href="/login" className={styles.linkItem}>
             Área de acesso
@@ -196,6 +205,7 @@ export default function PublicFooter() {
         <span>
           © {new Date().getFullYear()} {data.churchName}
         </span>
+
         <span>
           Desenvolvido por <strong>Rick Pereira</strong>
         </span>

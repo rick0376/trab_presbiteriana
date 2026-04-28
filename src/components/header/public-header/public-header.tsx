@@ -1,8 +1,11 @@
 //components/header/public-header/public-header.tsx
 
+//components/header/public-header/public-header.tsx
+
 "use client";
 
 import Link from "next/link";
+import { ShieldCheck } from "lucide-react";
 import styles from "./styles.module.scss";
 
 export default function PublicHeader() {
@@ -23,20 +26,28 @@ export default function PublicHeader() {
         </Link>
 
         <nav className={styles.nav}>
-          <a href="/igrejas" className={styles.navLink}>
+          <Link href="/igrejas" className={styles.navLink}>
             Início
-          </a>
-          <a href="#eventos" className={styles.navLink}>
+          </Link>
+
+          <Link href="/igrejas#eventos" className={styles.navLink}>
             Eventos
-          </a>
-          <a href="#cronograma" className={styles.navLink}>
+          </Link>
+
+          <Link href="/igrejas#cronograma" className={styles.navLink}>
             Cronograma
-          </a>
+          </Link>
         </nav>
 
         <div className={styles.actions}>
-          <Link href="/login-superadmin" className={styles.superadminBtn}>
-            Área administrativa
+          <Link
+            href="/login-superadmin"
+            className={styles.superadminBtn}
+            title="Área administrativa"
+            aria-label="Área administrativa"
+          >
+            <ShieldCheck size={18} className={styles.superadminIcon} />
+            <span className={styles.superadminText}>Área administrativa</span>
           </Link>
         </div>
       </div>

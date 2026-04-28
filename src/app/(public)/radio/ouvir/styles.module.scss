@@ -50,7 +50,7 @@
   box-shadow: 0 16px 28px rgba(2, 6, 23, 0.12);
 }
 
-/* LOGO DO TOPO */
+/* BANNER LATERAL EXIBIDO NO TOPO */
 .logoTopArea {
   width: 100%;
   display: flex;
@@ -58,13 +58,20 @@
   margin: 0 0 16px;
 }
 
-.logoTop {
-  width: 360px;
-  max-width: 100%;
+/* esse é o banner LATERAL que você colocou em cima usando variant="bottom" */
+.logoTopArea .adBox_bottom {
+  width: 100%;
+  aspect-ratio: 728 / 90;
   height: auto;
-  object-fit: contain;
-  display: block;
-  filter: drop-shadow(0 12px 26px rgba(0, 0, 0, 0.35));
+  min-height: 90px;
+  margin: 0;
+}
+
+.logoTopArea .adBox_bottom .adImage {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  object-position: center;
 }
 
 /* TÍTULO */
@@ -248,17 +255,20 @@
   opacity: 0.9;
 }
 
-/* GRID PLAYER + BANNER LATERAL */
+/* ÁREA DO PLAYER SEM LATERAL */
 .mainGrid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 300px;
+  grid-template-columns: 1fr;
   gap: 18px;
   align-items: start;
 }
 
-.leftColumn,
-.sideColumn {
+.leftColumn {
   min-width: 0;
+}
+
+.sideColumn {
+  display: none;
 }
 
 /* PLAYER */
@@ -306,14 +316,16 @@
 
 .wave {
   display: flex;
-  gap: 4px;
+  align-items: center;
+  gap: 5px;
   margin-top: 10px;
-  opacity: 0.55;
+  opacity: 0.65;
+  min-width: 120px;
 }
 
 .bar {
-  width: 4px;
-  height: 14px;
+  width: 5px;
+  height: 15px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.9);
   animation: wave 900ms ease-in-out infinite;
@@ -434,23 +446,19 @@
   width: 100%;
   aspect-ratio: 8 / 2.2;
   height: auto;
-  min-height: 220px;
-}
-
-.adBox_side {
-  width: 100%;
-  max-width: 300px;
-  aspect-ratio: 300 / 250;
-  height: auto;
-  margin: 0 auto;
+  min-height: 190px;
 }
 
 .adBox_bottom {
   width: 100%;
-  aspect-ratio: 728 / 90;
+  aspect-ratio: 7 / 2;
   height: auto;
-  min-height: 90px;
+  min-height: 160px;
   margin: 18px 0 0;
+}
+
+.adBox_side {
+  display: none;
 }
 
 .adImage,
@@ -461,8 +469,6 @@
 }
 
 .adImage {
-  width: 100%;
-  height: 100%;
   object-position: center;
 }
 
@@ -472,11 +478,6 @@
 
 .adBox_bottom .adImage {
   object-fit: fill;
-}
-
-.adBox_side .adImage {
-  object-fit: contain;
-  background: rgba(15, 23, 42, 0.3);
 }
 
 /* PLACEHOLDER DOS BANNERS */
@@ -490,6 +491,9 @@
   color: rgba(226, 232, 240, 0.78);
   text-align: center;
   text-transform: uppercase;
+  border: 1px dashed rgba(148, 163, 184, 0.42);
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.3);
 }
 
 .adPlaceholder span {
@@ -542,24 +546,21 @@
 
 /* TABLET */
 @media (max-width: 900px) {
-  .mainGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .sideColumn {
-    width: 100%;
-  }
-
+  .sideColumn,
   .adBox_side {
-    width: 100%;
-    max-width: 100%;
-    aspect-ratio: 4 / 3;
-    height: auto;
-    margin: 0;
+    display: none;
   }
 
-  .adBox_side .adImage {
-    object-fit: cover;
+  .adBox_top {
+    min-height: 160px;
+  }
+
+  .adBox_bottom {
+    min-height: 130px;
+  }
+
+  .logoTopArea .adBox_bottom {
+    min-height: 78px;
   }
 }
 
@@ -571,10 +572,6 @@
 
   .card {
     padding: 10px;
-  }
-
-  .logoTop {
-    width: 240px;
   }
 
   .pageTitle {
@@ -640,28 +637,25 @@
     min-height: 110px;
   }
 
-  .adBox_side {
-    width: 100%;
-    max-width: 100%;
-    aspect-ratio: 4 / 3;
-    height: auto;
-    margin: 0;
-    border: none;
-  }
-
-  .adBox_side .adImage {
-    object-fit: cover;
-  }
-
   .adBox_bottom {
     width: 100%;
-    aspect-ratio: 728 / 90;
+    aspect-ratio: 7 / 2;
     height: auto;
-    min-height: 58px;
+    min-height: 86px;
     margin-top: 14px;
   }
 
   .adBox_bottom .adImage {
     object-fit: fill;
+  }
+
+  .logoTopArea {
+    margin-bottom: 12px;
+  }
+
+  .logoTopArea .adBox_bottom {
+    aspect-ratio: 728 / 90;
+    min-height: 58px;
+    margin: 0;
   }
 }

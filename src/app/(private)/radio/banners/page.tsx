@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./styles.module.scss";
 
@@ -31,6 +31,13 @@ type MeResponse = {
   role: string;
 };
 
+type PosicaoOption = {
+  value: "LATERAL" | "TOPO" | "INFERIOR";
+  label: string;
+  description: string;
+  recommended: string;
+};
+
 const PERM_DEFAULT: Permissao = {
   recurso: "radio_banners",
   ler: false,
@@ -40,11 +47,38 @@ const PERM_DEFAULT: Permissao = {
   compartilhar: false,
 };
 
-const POSICOES = [
-  { value: "TOPO", label: "Topo da rádio" },
-  { value: "LATERAL", label: "Lateral da rádio" },
-  { value: "INFERIOR", label: "Inferior da rádio" },
+const POSICOES: PosicaoOption[] = [
+  {
+    value: "LATERAL",
+    label: "Banner superior da página",
+    description:
+      "Aparece acima da rádio, no formato largo igual ao antigo banner de baixo.",
+    recommended: "Recomendado: 728x90 ou banner largo horizontal",
+  },
+  {
+    value: "TOPO",
+    label: "Banner principal dentro da rádio",
+    description: "Aparece dentro do card da rádio, acima do player.",
+    recommended: "Recomendado: banner horizontal grande",
+  },
+  {
+    value: "INFERIOR",
+    label: "Banner inferior da rádio",
+    description: "Aparece abaixo da lista de músicas.",
+    recommended: "Recomendado: banner horizontal largo",
+  },
 ];
+
+function getPosicaoInfo(posicao: string) {
+  return (
+    POSICOES.find((item) => item.value === posicao) ?? {
+      value: "TOPO",
+      label: posicao,
+      description: "Posição personalizada.",
+      recommended: "Use uma imagem proporcional ao espaço.",
+    }
+  );
+}
 
 export default function RadioBannersPage() {
   const router = useRouter();
@@ -58,7 +92,7 @@ export default function RadioBannersPage() {
 
   const [editId, setEditId] = useState<string | null>(null);
   const [titulo, setTitulo] = useState("");
-  const [posicao, setPosicao] = useState("TOPO");
+  const [posicao, setPosicao] = useState<PosicaoOption["value"]>("LATERAL");
   const [linkUrl, setLinkUrl] = useState("");
   const [ordem, setOrdem] = useState("0");
   const [ativo, setAtivo] = useState(true);
@@ -72,6 +106,8 @@ export default function RadioBannersPage() {
 
   const isEditing = !!editId;
   const canSaveCurrent = isEditing ? canEdit : canCreate;
+
+  const posicaoAtual = useMemo(() => getPosicaoInfo(posicao), [posicao]);
 
   async function loadPermissao() {
     try {
@@ -151,7 +187,7 @@ export default function RadioBannersPage() {
   function resetForm() {
     setEditId(null);
     setTitulo("");
-    setPosicao("TOPO");
+    setPosicao("LATERAL");
     setLinkUrl("");
     setOrdem("0");
     setAtivo(true);
@@ -177,7 +213,7 @@ export default function RadioBannersPage() {
 
     setEditId(item.id);
     setTitulo(item.titulo);
-    setPosicao(item.posicao);
+    setPosicao(item.posicao as PosicaoOption["value"]);
     setLinkUrl(item.linkUrl ?? "");
     setOrdem(String(item.ordem ?? 0));
     setAtivo(item.ativo);
@@ -321,7 +357,7 @@ export default function RadioBannersPage() {
 
         <h1 className={styles.title}>Banners da Rádio</h1>
         <p className={styles.subtitle}>
-          Cadastre propagandas para aparecerem na página completa da rádio.
+          Cadastre banners para aparecerem na página completa da rádio.
         </p>
 
         <form className={styles.form} onSubmit={handleSubmit}>
@@ -332,17 +368,19 @@ export default function RadioBannersPage() {
                 className={styles.input}
                 value={titulo}
                 onChange={(e) => setTitulo(e.target.value)}
-                placeholder="Ex: Oferta especial"
+                placeholder="Ex: Culto de Curas e Libertação"
                 disabled={!canSaveCurrent || saving}
               />
             </div>
 
             <div>
-              <label className={styles.label}>Posição</label>
+              <label className={styles.label}>Onde o banner vai aparecer</label>
               <select
                 className={styles.input}
                 value={posicao}
-                onChange={(e) => setPosicao(e.target.value)}
+                onChange={(e) =>
+                  setPosicao(e.target.value as PosicaoOption["value"])
+                }
                 disabled={!canSaveCurrent || saving}
               >
                 {POSICOES.map((item) => (
@@ -376,6 +414,14 @@ export default function RadioBannersPage() {
             </div>
           </div>
 
+          <div className={styles.empty}>
+            <strong>{posicaoAtual.label}</strong>
+            <br />
+            {posicaoAtual.description}
+            <br />
+            <small>{posicaoAtual.recommended}</small>
+          </div>
+
           <label className={styles.check}>
             <input
               type="checkbox"
@@ -407,8 +453,8 @@ export default function RadioBannersPage() {
             </span>
 
             <p className={styles.fileHelp}>
-              Formatos: JPG, PNG ou WEBP. Tamanho recomendado conforme a posição
-              do banner.
+              Para o banner superior que criamos, escolha{" "}
+              <strong>Banner superior da página</strong>.
             </p>
           </div>
 
@@ -453,44 +499,51 @@ export default function RadioBannersPage() {
             <div className={styles.empty}>Nenhum banner cadastrado.</div>
           ) : (
             <div className={styles.bannerGrid}>
-              {items.map((item) => (
-                <article key={item.id} className={styles.bannerCard}>
-                  <img
-                    src={item.imageUrl}
-                    alt={item.titulo}
-                    className={styles.bannerImg}
-                  />
+              {items.map((item) => {
+                const info = getPosicaoInfo(item.posicao);
 
-                  <div className={styles.bannerBody}>
-                    <strong>{item.titulo}</strong>
+                return (
+                  <article key={item.id} className={styles.bannerCard}>
+                    <img
+                      src={item.imageUrl}
+                      alt={item.titulo}
+                      className={styles.bannerImg}
+                    />
 
-                    <span>
-                      {item.posicao} · ordem {item.ordem}
-                    </span>
+                    <div className={styles.bannerBody}>
+                      <strong>{item.titulo}</strong>
 
-                    <span>{item.ativo ? "Ativo" : "Inativo"}</span>
+                      <span>
+                        {info.label} · ordem {item.ordem}
+                      </span>
 
-                    {(canEdit || canDelete) && (
-                      <div className={styles.bannerActions}>
-                        {canEdit && (
-                          <button type="button" onClick={() => startEdit(item)}>
-                            Editar
-                          </button>
-                        )}
+                      <span>{item.ativo ? "Ativo" : "Inativo"}</span>
 
-                        {canDelete && (
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(item)}
-                          >
-                            Excluir
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </article>
-              ))}
+                      {(canEdit || canDelete) && (
+                        <div className={styles.bannerActions}>
+                          {canEdit && (
+                            <button
+                              type="button"
+                              onClick={() => startEdit(item)}
+                            >
+                              Editar
+                            </button>
+                          )}
+
+                          {canDelete && (
+                            <button
+                              type="button"
+                              onClick={() => handleDelete(item)}
+                            >
+                              Excluir
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </article>
+                );
+              })}
             </div>
           )}
         </section>

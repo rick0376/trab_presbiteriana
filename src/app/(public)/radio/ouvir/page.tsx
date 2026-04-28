@@ -36,8 +36,6 @@ const ACCOUNT_NAME = "Rádio Renovada - MC";
 const BG_IMAGE = "/logo.png";
 const FALLBACK_COVER = "/pastor.png";
 
-const RADIO_LOGO = "/images/radio-renovada-logo.png";
-
 function cleanHistoryItem(text: string) {
   return text
     .replace(/<br\s*\/?>/gi, "")
@@ -60,10 +58,10 @@ function BannerBox({
           <strong>Seu anúncio aqui</strong>
           <small>
             {variant === "top"
-              ? "728x90"
+              ? "Banner superior"
               : variant === "side"
-                ? "300x250"
-                : "468x60"}
+                ? "Banner lateral"
+                : "Banner inferior"}
           </small>
         </div>
       </div>
@@ -160,7 +158,8 @@ export default function OuvirPage() {
     [banners],
   );
 
-  const bannerLateral = useMemo(
+  // Banner cadastrado como LATERAL, mas exibido em cima no formato largo igual ao antigo banner inferior
+  const bannerDestaqueSuperior = useMemo(
     () => banners.find((b) => b.posicao === "LATERAL"),
     [banners],
   );
@@ -192,13 +191,6 @@ export default function OuvirPage() {
   return (
     <main className={styles.container}>
       <div className={styles.card}>
-        <div className={styles.logoTopArea}>
-          <img
-            src={RADIO_LOGO}
-            alt="Logo Rádio Renovada"
-            className={styles.logoTop}
-          />
-        </div>
         <button
           className={styles.back}
           type="button"
@@ -206,6 +198,7 @@ export default function OuvirPage() {
         >
           ← Voltar
         </button>
+
         <h1 className={styles.pageTitle}>{title ?? "Ouvir Rádio"}</h1>
 
         <div className={styles.statusRow}>
@@ -220,11 +213,16 @@ export default function OuvirPage() {
           <span className={publicIsLive ? styles.dotLive : styles.dotOff} />
         </div>
 
+        <div className={styles.logoTopArea}>
+          <BannerBox banner={bannerDestaqueSuperior} variant="bottom" />
+        </div>
+
         {listeners && (
           <div className={styles.listenersPublic}>
             <div>
               👥 Ouvindo agora: <strong>{listeners.current ?? 0}</strong>
             </div>
+
             <div>
               📈 Pico: <strong>{listeners.peak ?? 0}</strong>
             </div>
@@ -291,6 +289,11 @@ export default function OuvirPage() {
                       <span className={styles.bar} />
                       <span className={styles.bar} />
                       <span className={styles.bar} />
+                      <span className={styles.bar} />
+                      <span className={styles.bar} />
+                      <span className={styles.bar} />
+                      <span className={styles.bar} />
+                      <span className={styles.bar} />
                     </div>
                   </div>
 
@@ -325,10 +328,6 @@ export default function OuvirPage() {
                   </div>
                 )}
               </div>
-
-              <aside className={styles.sideColumn}>
-                <BannerBox banner={bannerLateral} variant="side" />
-              </aside>
             </div>
 
             <BannerBox banner={bannerInferior} variant="bottom" />
