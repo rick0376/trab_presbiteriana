@@ -264,6 +264,12 @@ export default function Sidebar({
               recurso: "radio_live",
             },
             {
+              label: "Banners da Rádio",
+              href: "/radio/banners",
+              icon: Radio,
+              recurso: "radio_banners",
+            },
+            {
               label: "Configuração",
               icon: Radio,
               onClick: () => setShowModal(true),

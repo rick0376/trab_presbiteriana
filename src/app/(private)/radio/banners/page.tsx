@@ -17,6 +17,29 @@ type Banner = {
   ordem: number;
 };
 
+type Permissao = {
+  recurso: string;
+  ler: boolean;
+  criar: boolean;
+  editar: boolean;
+  deletar: boolean;
+  compartilhar: boolean;
+};
+
+type MeResponse = {
+  id: string;
+  role: string;
+};
+
+const PERM_DEFAULT: Permissao = {
+  recurso: "radio_banners",
+  ler: false,
+  criar: false,
+  editar: false,
+  deletar: false,
+  compartilhar: false,
+};
+
 const POSICOES = [
   { value: "TOPO", label: "Topo da rádio" },
   { value: "LATERAL", label: "Lateral da rádio" },
@@ -30,6 +53,9 @@ export default function RadioBannersPage() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  const [perm, setPerm] = useState<Permissao | null>(null);
+  const [loadingPerm, setLoadingPerm] = useState(true);
+
   const [editId, setEditId] = useState<string | null>(null);
   const [titulo, setTitulo] = useState("");
   const [posicao, setPosicao] = useState("TOPO");
@@ -39,12 +65,71 @@ export default function RadioBannersPage() {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState("");
 
+  const canView = !!perm?.ler;
+  const canCreate = !!perm?.criar;
+  const canEdit = !!perm?.editar;
+  const canDelete = !!perm?.deletar;
+
+  const isEditing = !!editId;
+  const canSaveCurrent = isEditing ? canEdit : canCreate;
+
+  async function loadPermissao() {
+    try {
+      const meRes = await fetch("/api/me", { cache: "no-store" });
+
+      if (!meRes.ok) {
+        setPerm(PERM_DEFAULT);
+        return;
+      }
+
+      const me: MeResponse = await meRes.json();
+
+      if (me.role === "SUPERADMIN") {
+        setPerm({
+          recurso: "radio_banners",
+          ler: true,
+          criar: true,
+          editar: true,
+          deletar: true,
+          compartilhar: true,
+        });
+        return;
+      }
+
+      const permRes = await fetch(`/api/permissoes?userId=${me.id}`, {
+        cache: "no-store",
+      });
+
+      if (!permRes.ok) {
+        setPerm(PERM_DEFAULT);
+        return;
+      }
+
+      const list: Permissao[] = await permRes.json();
+
+      setPerm(list.find((p) => p.recurso === "radio_banners") ?? PERM_DEFAULT);
+    } catch {
+      setPerm(PERM_DEFAULT);
+    } finally {
+      setLoadingPerm(false);
+    }
+  }
+
   async function load() {
     setLoading(true);
 
     try {
-      const r = await fetch("/api/radio/banners", { cache: "no-store" });
-      const j = await r.json();
+      const r = await fetch("/api/radio/banners?admin=1", {
+        cache: "no-store",
+      });
+
+      const j = await r.json().catch(() => ({}));
+
+      if (!r.ok) {
+        setItems([]);
+        return;
+      }
+
       setItems(Array.isArray(j?.banners) ? j.banners : []);
     } catch {
       setItems([]);
@@ -54,8 +139,14 @@ export default function RadioBannersPage() {
   }
 
   useEffect(() => {
-    load();
+    loadPermissao();
   }, []);
+
+  useEffect(() => {
+    if (perm?.ler) {
+      load();
+    }
+  }, [perm]);
 
   function resetForm() {
     setEditId(null);
@@ -69,6 +160,8 @@ export default function RadioBannersPage() {
   }
 
   function handleFile(selected: File | null) {
+    if (!canSaveCurrent) return;
+
     setFile(selected);
 
     if (!selected) {
@@ -80,6 +173,8 @@ export default function RadioBannersPage() {
   }
 
   function startEdit(item: Banner) {
+    if (!canEdit) return;
+
     setEditId(item.id);
     setTitulo(item.titulo);
     setPosicao(item.posicao);
@@ -94,6 +189,11 @@ export default function RadioBannersPage() {
     e.preventDefault();
 
     if (saving) return;
+
+    if (!canSaveCurrent) {
+      alert("Você não tem permissão para salvar banners.");
+      return;
+    }
 
     if (!titulo.trim()) {
       alert("Informe o título.");
@@ -123,6 +223,7 @@ export default function RadioBannersPage() {
       const url = editId
         ? `/api/radio/banners/${editId}`
         : "/api/radio/banners";
+
       const method = editId ? "PUT" : "POST";
 
       const r = await fetch(url, {
@@ -147,6 +248,11 @@ export default function RadioBannersPage() {
   }
 
   async function handleDelete(item: Banner) {
+    if (!canDelete) {
+      alert("Você não tem permissão para excluir banners.");
+      return;
+    }
+
     const ok = confirm(`Excluir o banner "${item.titulo}"?`);
 
     if (!ok) return;
@@ -171,6 +277,35 @@ export default function RadioBannersPage() {
     } catch {
       alert("Erro de conexão.");
     }
+  }
+
+  if (loadingPerm) {
+    return (
+      <main className={styles.container}>
+        <div className={styles.card}>Carregando permissões...</div>
+      </main>
+    );
+  }
+
+  if (!canView) {
+    return (
+      <main className={styles.container}>
+        <div className={styles.card}>
+          <button
+            type="button"
+            className={styles.back}
+            onClick={() => router.back()}
+          >
+            ← Voltar
+          </button>
+
+          <h1 className={styles.title}>Acesso negado</h1>
+          <p className={styles.subtitle}>
+            Você não tem permissão para visualizar os banners da rádio.
+          </p>
+        </div>
+      </main>
+    );
   }
 
   return (
@@ -198,6 +333,7 @@ export default function RadioBannersPage() {
                 value={titulo}
                 onChange={(e) => setTitulo(e.target.value)}
                 placeholder="Ex: Oferta especial"
+                disabled={!canSaveCurrent || saving}
               />
             </div>
 
@@ -207,6 +343,7 @@ export default function RadioBannersPage() {
                 className={styles.input}
                 value={posicao}
                 onChange={(e) => setPosicao(e.target.value)}
+                disabled={!canSaveCurrent || saving}
               >
                 {POSICOES.map((item) => (
                   <option key={item.value} value={item.value}>
@@ -223,6 +360,7 @@ export default function RadioBannersPage() {
                 value={linkUrl}
                 onChange={(e) => setLinkUrl(e.target.value)}
                 placeholder="https://..."
+                disabled={!canSaveCurrent || saving}
               />
             </div>
 
@@ -233,6 +371,7 @@ export default function RadioBannersPage() {
                 type="number"
                 value={ordem}
                 onChange={(e) => setOrdem(e.target.value)}
+                disabled={!canSaveCurrent || saving}
               />
             </div>
           </div>
@@ -242,17 +381,20 @@ export default function RadioBannersPage() {
               type="checkbox"
               checked={ativo}
               onChange={(e) => setAtivo(e.target.checked)}
+              disabled={!canSaveCurrent || saving}
             />
             <span>Banner ativo</span>
           </label>
 
           <div>
             <label className={styles.label}>Imagem / Banner</label>
+
             <input
               id="radioBannerFile"
               className={styles.fileInput}
               type="file"
               accept="image/*"
+              disabled={!canSaveCurrent || saving}
               onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
             />
 
@@ -277,7 +419,11 @@ export default function RadioBannersPage() {
           ) : null}
 
           <div className={styles.actions}>
-            <button className={styles.save} type="submit" disabled={saving}>
+            <button
+              className={styles.save}
+              type="submit"
+              disabled={!canSaveCurrent || saving}
+            >
               {saving
                 ? "Salvando..."
                 : editId
@@ -317,20 +463,31 @@ export default function RadioBannersPage() {
 
                   <div className={styles.bannerBody}>
                     <strong>{item.titulo}</strong>
+
                     <span>
                       {item.posicao} · ordem {item.ordem}
                     </span>
+
                     <span>{item.ativo ? "Ativo" : "Inativo"}</span>
 
-                    <div className={styles.bannerActions}>
-                      <button type="button" onClick={() => startEdit(item)}>
-                        Editar
-                      </button>
+                    {(canEdit || canDelete) && (
+                      <div className={styles.bannerActions}>
+                        {canEdit && (
+                          <button type="button" onClick={() => startEdit(item)}>
+                            Editar
+                          </button>
+                        )}
 
-                      <button type="button" onClick={() => handleDelete(item)}>
-                        Excluir
-                      </button>
-                    </div>
+                        {canDelete && (
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(item)}
+                          >
+                            Excluir
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </article>
               ))}

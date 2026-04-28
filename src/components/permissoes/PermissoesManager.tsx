@@ -240,6 +240,18 @@ const RECURSOS: RecursoConfig[] = [
     },
   },
   {
+    value: "radio_banners",
+    label: "📢 Rádio - Banners",
+    description: "Cadastrar, editar e excluir banners da página da rádio",
+    tipos: ["ler", "criar", "editar", "deletar"],
+    labels: {
+      ler: "Visualizar",
+      criar: "Cadastrar",
+      editar: "Editar",
+      deletar: "Excluir",
+    },
+  },
+  {
     value: "backup",
     label: "💾 Backup do Banco",
     description: "Gerenciar backups do banco de dados",

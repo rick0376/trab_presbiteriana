@@ -21,9 +21,16 @@ function getNumber(formData: FormData, key: string, fallback = 0) {
   return Number.isFinite(value) ? value : fallback;
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const admin = searchParams.get("admin") === "1";
+
+  if (admin) {
+    await requirePermission("radio_banners", "ler");
+  }
+
   const banners = await prisma.radioBanner.findMany({
-    where: { ativo: true },
+    where: admin ? {} : { ativo: true },
     orderBy: [{ posicao: "asc" }, { ordem: "asc" }, { createdAt: "desc" }],
   });
 
@@ -31,7 +38,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  await requirePermission("publico", "editar");
+  await requirePermission("radio_banners", "criar");
 
   const formData = await req.formData();
 

@@ -28,7 +28,7 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  await requirePermission("publico", "editar");
+  await requirePermission("radio_banners", "editar");
 
   const { id } = await params;
   const formData = await req.formData();
@@ -98,7 +98,7 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  await requirePermission("publico", "editar");
+  await requirePermission("radio_banners", "deletar");
 
   const { id } = await params;
 
