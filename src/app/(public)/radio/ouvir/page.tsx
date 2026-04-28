@@ -202,6 +202,10 @@ export default function OuvirPage() {
             ← Voltar
           </button>
 
+          <div className={styles.logoTopArea}>
+            <BannerBox banner={bannerDestaqueSuperior} variant="bottom" />
+          </div>
+
           <h1 className={styles.pageTitle}>{title ?? "Ouvir Rádio"}</h1>
 
           <div className={styles.statusRow}>
@@ -214,10 +218,6 @@ export default function OuvirPage() {
             </span>
 
             <span className={publicIsLive ? styles.dotLive : styles.dotOff} />
-          </div>
-
-          <div className={styles.logoTopArea}>
-            <BannerBox banner={bannerDestaqueSuperior} variant="bottom" />
           </div>
 
           {listeners && (
@@ -240,7 +240,7 @@ export default function OuvirPage() {
             <div className={styles.overlay} aria-hidden="true" />
 
             <div className={styles.inner}>
-              <BannerBox banner={bannerTopo} variant="top" />
+              {/*<BannerBox banner={bannerTopo} variant="top" />*/}
 
               <div className={styles.stationRow}>
                 <div className={styles.stationMeta}>
