@@ -36,6 +36,8 @@ const ACCOUNT_NAME = "Rádio Renovada - MC";
 const BG_IMAGE = "/logo.png";
 const FALLBACK_COVER = "/pastor.png";
 
+const RADIO_LOGO = "/images/radio-renovada-logo.png";
+
 function cleanHistoryItem(text: string) {
   return text
     .replace(/<br\s*\/?>/gi, "")
@@ -190,6 +192,13 @@ export default function OuvirPage() {
   return (
     <main className={styles.container}>
       <div className={styles.card}>
+        <div className={styles.logoTopArea}>
+          <img
+            src={RADIO_LOGO}
+            alt="Logo Rádio Renovada"
+            className={styles.logoTop}
+          />
+        </div>
         <button
           className={styles.back}
           type="button"
@@ -197,7 +206,6 @@ export default function OuvirPage() {
         >
           ← Voltar
         </button>
-
         <h1 className={styles.pageTitle}>{title ?? "Ouvir Rádio"}</h1>
 
         <div className={styles.statusRow}>
@@ -234,8 +242,6 @@ export default function OuvirPage() {
             <BannerBox banner={bannerTopo} variant="top" />
 
             <div className={styles.stationRow}>
-              <div className={styles.logo} aria-hidden="true" />
-
               <div className={styles.stationMeta}>
                 <div className={styles.accountName}>{ACCOUNT_NAME}</div>
 
