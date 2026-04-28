@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import styles from "./styles.module.scss";
 import { useRouter } from "next/navigation";
 import { useRadioPlayer } from "@/components/radio/radioplayer/RadioPlayerProvider";
@@ -22,7 +22,16 @@ type NowPlaying = {
   history: string[];
 };
 
-const STATION_NAME = "Rádio Renovada";
+type Banner = {
+  id: string;
+  titulo: string;
+  posicao: "TOPO" | "LATERAL" | "INFERIOR" | string;
+  imageUrl: string;
+  linkUrl?: string | null;
+  ativo: boolean;
+  ordem: number;
+};
+
 const ACCOUNT_NAME = "Rádio Renovada - MC";
 const BG_IMAGE = "/logo.png";
 const FALLBACK_COVER = "/pastor.png";
@@ -34,8 +43,56 @@ function cleanHistoryItem(text: string) {
     .trim();
 }
 
+function BannerBox({
+  banner,
+  variant,
+}: {
+  banner?: Banner;
+  variant: "top" | "side" | "bottom";
+}) {
+  if (!banner) {
+    return (
+      <div className={`${styles.adBox} ${styles[`adBox_${variant}`]}`}>
+        <div className={styles.adPlaceholder}>
+          <span>📣</span>
+          <strong>Seu anúncio aqui</strong>
+          <small>
+            {variant === "top"
+              ? "728x90"
+              : variant === "side"
+                ? "300x250"
+                : "468x60"}
+          </small>
+        </div>
+      </div>
+    );
+  }
+
+  const image = (
+    <img src={banner.imageUrl} alt={banner.titulo} className={styles.adImage} />
+  );
+
+  return (
+    <div className={`${styles.adBox} ${styles[`adBox_${variant}`]}`}>
+      {banner.linkUrl ? (
+        <a
+          href={banner.linkUrl}
+          target="_blank"
+          rel="noreferrer"
+          className={styles.adLinkBox}
+        >
+          {image}
+        </a>
+      ) : (
+        image
+      )}
+    </div>
+  );
+}
+
 export default function OuvirPage() {
   const router = useRouter();
+
   const {
     isLive,
     isPlaying,
@@ -48,6 +105,7 @@ export default function OuvirPage() {
 
   const [listeners, setListeners] = useState<Listeners | null>(null);
   const [nowPlaying, setNowPlaying] = useState<NowPlaying | null>(null);
+  const [banners, setBanners] = useState<Banner[]>([]);
 
   async function loadListeners() {
     try {
@@ -69,9 +127,22 @@ export default function OuvirPage() {
     } catch {}
   }
 
+  async function loadBanners() {
+    try {
+      const r = await fetch("/api/radio/banners", { cache: "no-store" });
+      if (!r.ok) return;
+
+      const j = await r.json();
+      setBanners(Array.isArray(j?.banners) ? j.banners : []);
+    } catch {
+      setBanners([]);
+    }
+  }
+
   useEffect(() => {
     loadListeners();
     loadNowPlaying();
+    loadBanners();
 
     const t1 = setInterval(loadListeners, 10000);
     const t2 = setInterval(loadNowPlaying, 10000);
@@ -82,21 +153,22 @@ export default function OuvirPage() {
     };
   }, []);
 
-  useEffect(() => {
-    const prevHtml = document.documentElement.style.overflow;
-    const prevBody = document.body.style.overflow;
+  const bannerTopo = useMemo(
+    () => banners.find((b) => b.posicao === "TOPO"),
+    [banners],
+  );
 
-    document.documentElement.style.overflow = "hidden";
-    document.body.style.overflow = "hidden";
+  const bannerLateral = useMemo(
+    () => banners.find((b) => b.posicao === "LATERAL"),
+    [banners],
+  );
 
-    return () => {
-      document.documentElement.style.overflow = prevHtml;
-      document.body.style.overflow = prevBody;
-    };
-  }, []);
+  const bannerInferior = useMemo(
+    () => banners.find((b) => b.posicao === "INFERIOR"),
+    [banners],
+  );
 
   const hasUrl = !!streamUrl;
-
   const publicIsLive = isLive && canPlay;
   const publicCanPlay = publicIsLive && hasUrl;
 
@@ -105,6 +177,7 @@ export default function OuvirPage() {
     : "Rádio Offline";
 
   const currentArt = nowPlaying?.art?.trim() || FALLBACK_COVER;
+
   const currentDj =
     nowPlaying?.djusername?.trim() === "No DJ"
       ? "AutoDJ"
@@ -117,17 +190,15 @@ export default function OuvirPage() {
   return (
     <main className={styles.container}>
       <div className={styles.card}>
-        <div className={styles.top}>
-          <button
-            className={styles.back}
-            type="button"
-            onClick={() => router.back()}
-          >
-            ← Voltar
-          </button>
-        </div>
+        <button
+          className={styles.back}
+          type="button"
+          onClick={() => router.back()}
+        >
+          ← Voltar
+        </button>
 
-        <h1 className={styles.pageTitle}>{title ?? "Rádio LHP"}</h1>
+        <h1 className={styles.pageTitle}>{title ?? "Ouvir Rádio"}</h1>
 
         <div className={styles.statusRow}>
           <span
@@ -160,8 +231,11 @@ export default function OuvirPage() {
           <div className={styles.overlay} aria-hidden="true" />
 
           <div className={styles.inner}>
+            <BannerBox banner={bannerTopo} variant="top" />
+
             <div className={styles.stationRow}>
               <div className={styles.logo} aria-hidden="true" />
+
               <div className={styles.stationMeta}>
                 <div className={styles.accountName}>{ACCOUNT_NAME}</div>
 
@@ -182,62 +256,76 @@ export default function OuvirPage() {
               </div>
             </div>
 
-            <div className={styles.nowCard}>
-              <div
-                className={styles.cover}
-                style={{ ["--cover" as any]: `url(${currentArt})` }}
-                aria-hidden="true"
-              />
+            <div className={styles.mainGrid}>
+              <div className={styles.leftColumn}>
+                <div className={styles.nowCard}>
+                  <div
+                    className={styles.cover}
+                    style={{ ["--cover" as any]: `url(${currentArt})` }}
+                    aria-hidden="true"
+                  />
 
-              <div className={styles.nowMeta}>
-                <div className={styles.nowLabel}>
-                  {isLive ? "TOCANDO AGORA" : "OFFLINE"}
+                  <div className={styles.nowMeta}>
+                    <div className={styles.nowLabel}>
+                      {publicIsLive ? "TOCANDO AGORA" : "OFFLINE"}
+                    </div>
+
+                    <div className={styles.nowTitle}>{currentTrack}</div>
+
+                    <div
+                      className={`${styles.wave} ${
+                        !publicIsLive || !isPlaying ? styles.wavePaused : ""
+                      }`}
+                      aria-hidden="true"
+                    >
+                      <span className={styles.bar} />
+                      <span className={styles.bar} />
+                      <span className={styles.bar} />
+                      <span className={styles.bar} />
+                      <span className={styles.bar} />
+                      <span className={styles.bar} />
+                      <span className={styles.bar} />
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    className={`${styles.playBtn} ${
+                      !publicCanPlay ? styles.playDisabled : ""
+                    }`}
+                    onClick={togglePlay}
+                    disabled={!publicCanPlay}
+                    aria-label={isPlaying ? "Pausar" : "Ouvir"}
+                    title={isPlaying ? "Pausar" : "Ouvir"}
+                  >
+                    {isPlaying ? "❚❚" : "▶"}
+                  </button>
                 </div>
 
-                <div className={styles.nowTitle}>{currentTrack}</div>
+                {history.length > 0 && (
+                  <div className={styles.historyBox}>
+                    <div className={styles.historyTitle}>Últimas músicas</div>
 
-                <div
-                  className={`${styles.wave} ${
-                    !publicIsLive || !isPlaying ? styles.wavePaused : ""
-                  }`}
-                  aria-hidden="true"
-                >
-                  <span className={styles.bar} />
-                  <span className={styles.bar} />
-                  <span className={styles.bar} />
-                  <span className={styles.bar} />
-                  <span className={styles.bar} />
-                  <span className={styles.bar} />
-                  <span className={styles.bar} />
-                </div>
+                    <ul className={styles.historyList}>
+                      {history.map((item, index) => (
+                        <li
+                          key={`${item}-${index}`}
+                          className={styles.historyItem}
+                        >
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
 
-              <button
-                type="button"
-                className={`${styles.playBtn} ${
-                  !publicCanPlay ? styles.playDisabled : ""
-                }`}
-                onClick={togglePlay}
-                disabled={!isLive || !hasUrl}
-                aria-label={isPlaying ? "Pausar" : "Ouvir"}
-                title={isPlaying ? "Pausar" : "Ouvir"}
-              >
-                {isPlaying ? "❚❚" : "▶"}
-              </button>
+              <aside className={styles.sideColumn}>
+                <BannerBox banner={bannerLateral} variant="side" />
+              </aside>
             </div>
 
-            {history.length > 0 && (
-              <div className={styles.historyBox}>
-                <div className={styles.historyTitle}>Últimas músicas</div>
-                <ul className={styles.historyList}>
-                  {history.map((item, index) => (
-                    <li key={`${item}-${index}`} className={styles.historyItem}>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            <BannerBox banner={bannerInferior} variant="bottom" />
 
             {!publicIsLive && (
               <p className={styles.muted}>

@@ -354,6 +354,20 @@ model RadioProgramacao {
   @@map("radio_programacao")
 }
 
+model RadioBanner {
+  id        String   @id @default(cuid())
+  titulo    String
+  posicao   String
+  imageUrl  String
+  publicId  String
+  linkUrl   String?
+  ativo     Boolean  @default(true)
+  ordem     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("radio_banners")
+}
 model EscolaDominicalTurma {
   id           String   @id @default(cuid())
   igrejaId     String

@@ -1,0 +1,286 @@
+//src/app/(private)/radio/banners/styles.module.scss
+
+.container {
+  min-height: calc(100vh - 72px);
+  padding: 72px 18px 40px;
+  background: #f3f6fb;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.card {
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 24px;
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+}
+
+.back {
+  border: 0;
+  background: transparent;
+  color: #123a66;
+  font-weight: 800;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+
+.title {
+  margin: 0;
+  color: #0f172a;
+  font-size: 32px;
+  font-weight: 900;
+}
+
+.subtitle {
+  margin: 8px 0 22px;
+  color: #64748b;
+  font-size: 15px;
+}
+
+.form,
+.list {
+  padding: 18px;
+  border-radius: 18px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 6px;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.input {
+  width: 100%;
+  min-height: 44px;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  padding: 0 12px;
+  color: #0f172a;
+  font-size: 14px;
+  outline: none;
+}
+
+.input:focus,
+.file:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.file {
+  padding: 10px 12px;
+  margin-top: 4px;
+}
+
+.fileInput {
+  display: none;
+}
+
+.fileButton {
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(22, 163, 74, 0.35);
+  background: rgba(22, 163, 74, 0.1);
+  color: #15803d;
+  font-weight: 900;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease;
+}
+
+.fileButton:hover {
+  transform: translateY(-1px);
+  background: rgba(22, 163, 74, 0.16);
+}
+
+.fileName {
+  margin-left: 10px;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.fileHelp {
+  margin: 8px 0 0;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.check {
+  margin: 14px 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #334155;
+  font-weight: 700;
+}
+
+.previewBox {
+  margin-top: 14px;
+  width: 100%;
+  max-width: 520px;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.preview {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+}
+
+.actions {
+  margin-top: 16px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.save,
+.cancel {
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 12px;
+  border: 0;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.save {
+  background: #16a34a;
+  color: #ffffff;
+}
+
+.cancel {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.save:disabled,
+.cancel:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.list {
+  margin-top: 22px;
+}
+
+.sectionTitle {
+  margin: 0 0 14px;
+  color: #0f172a;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.empty {
+  padding: 18px;
+  border-radius: 14px;
+  background: #ffffff;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.bannerGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.bannerCard {
+  overflow: hidden;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+}
+
+.bannerImg {
+  width: 100%;
+  height: 130px;
+  object-fit: cover;
+  display: block;
+}
+
+.bannerBody {
+  padding: 12px;
+  display: grid;
+  gap: 4px;
+  color: #334155;
+  font-size: 13px;
+}
+
+.bannerBody strong {
+  color: #0f172a;
+  font-size: 15px;
+}
+
+.bannerActions {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+}
+
+.bannerActions button {
+  flex: 1;
+  min-height: 36px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #0f172a;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.bannerActions button:last-child {
+  background: #fee2e2;
+  color: #991b1b;
+  border-color: #fecaca;
+}
+
+@media (max-width: 900px) {
+  .bannerGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 18px 12px;
+  }
+
+  .card {
+    padding: 18px;
+  }
+
+  .grid,
+  .bannerGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .title {
+    font-size: 26px;
+  }
+}
