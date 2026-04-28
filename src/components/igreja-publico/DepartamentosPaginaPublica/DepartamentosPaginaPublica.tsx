@@ -30,7 +30,11 @@ export default function DepartamentosPaginaPublica({
 
       <div className={styles.grid}>
         {items.map((item) => {
-          const lider = item.responsaveis?.[0];
+          const responsaveisOrdenados = [...(item.responsaveis ?? [])].sort(
+            (a, b) => (a.ordem ?? 0) - (b.ordem ?? 0),
+          );
+
+          const lider = responsaveisOrdenados[0];
 
           return (
             <article key={item.id} className={styles.card}>

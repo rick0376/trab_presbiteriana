@@ -300,19 +300,21 @@ export default function EditorDepartamentos({ igrejaId, canEdit }: Props) {
 
     setResponsaveis(
       Array.isArray(item.responsaveis)
-        ? item.responsaveis.map((resp: any, index: number) => ({
-            id: resp.id,
-            membroId: resp.membroId,
-            cargoTitulo: resp.cargoTitulo ?? "Responsável",
-            bio: resp.bio ?? "",
-            ordem: resp.ordem ?? index + 1,
-            ativo: resp.ativo !== false,
-            fotoUrl: resp.fotoUrl ?? null,
-            fotoPublicId: resp.fotoPublicId ?? null,
-            fotoFile: null,
-            previewUrl: resp.fotoUrl ?? null,
-            removeFoto: false,
-          }))
+        ? [...item.responsaveis]
+            .sort((a: any, b: any) => (a.ordem ?? 0) - (b.ordem ?? 0))
+            .map((resp: any, index: number) => ({
+              id: resp.id,
+              membroId: resp.membroId,
+              cargoTitulo: resp.cargoTitulo ?? "Responsável",
+              bio: resp.bio ?? "",
+              ordem: resp.ordem ?? index + 1,
+              ativo: resp.ativo !== false,
+              fotoUrl: resp.fotoUrl ?? null,
+              fotoPublicId: resp.fotoPublicId ?? null,
+              fotoFile: null,
+              previewUrl: resp.fotoUrl ?? null,
+              removeFoto: false,
+            }))
         : [],
     );
 
@@ -368,7 +370,7 @@ export default function EditorDepartamentos({ igrejaId, canEdit }: Props) {
         membroId: r.membroId,
         cargoTitulo: r.cargoTitulo.trim(),
         bio: r.bio.trim(),
-        ordem: index + 1,
+        ordem: Number(r.ordem || index + 1),
         ativo: r.ativo,
         removeFoto: !!r.removeFoto,
       }));
