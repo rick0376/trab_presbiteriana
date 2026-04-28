@@ -511,6 +511,34 @@
 }
 
 /* MENSAGENS */
+.radioActions {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.radioSecondaryBtn {
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(217, 176, 113, 0.45);
+  background: rgba(217, 176, 113, 0.18);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    filter 0.18s ease;
+}
+
+.radioSecondaryBtn:hover {
+  transform: translateY(-1px);
+  background: rgba(217, 176, 113, 0.28);
+  filter: brightness(1.04);
+}
+
 .muted {
   margin-top: 12px;
   opacity: 0.75;
@@ -576,6 +604,14 @@
 
   .pageTitle {
     font-size: 28px;
+  }
+
+  .radioActions {
+    justify-content: center;
+  }
+
+  .radioSecondaryBtn {
+    width: 100%;
   }
 
   .statusLiveText,

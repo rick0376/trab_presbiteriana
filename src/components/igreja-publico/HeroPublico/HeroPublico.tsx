@@ -166,7 +166,7 @@ export default function HeroPublico({
               ) : null}
 
               <div className={styles.radioActions}>
-                <Link href="/radio/ouvir" className={styles.radioFullBtn}>
+                <Link href="/radio/ouvir" className={styles.radioPrimaryBtn}>
                   Rádio completa
                 </Link>
 

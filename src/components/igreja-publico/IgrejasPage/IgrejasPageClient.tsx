@@ -139,7 +139,7 @@ export default function IgrejasPageClient({ igrejas, initialPublico }: Props) {
   const mainRadioText =
     visualStatus === "AO_VIVO"
       ? isPlaying
-        ? "Pausar Rádio"
+        ? "Tocando agora"
         : radioConfig?.title || "Ouvir Rádio"
       : radioConfig?.title || "Rádio Offline";
 

@@ -21,20 +21,23 @@
 }
 
 .copy {
-  padding-bottom: 24px;
   max-width: 640px;
+  padding-bottom: 24px;
 }
 
-/* RADIO */
+/* =========================
+   RÁDIO
+========================= */
+
 .radioCard {
   width: 100%;
   max-width: 470px;
   margin-bottom: 20px;
   padding: 14px;
+  border-radius: 22px;
+  color: #ffffff;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 22px;
-  color: #fff;
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.32);
   backdrop-filter: blur(10px);
 }
@@ -61,10 +64,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   font-size: 20px;
   background: rgba(255, 255, 255, 0.12);
   border: 1px solid rgba(255, 255, 255, 0.14);
-  flex-shrink: 0;
 }
 
 .radioTopMeta {
@@ -73,24 +76,26 @@
 
 .radioTitle {
   margin: 0;
-  font-size: 18px;
-  font-weight: 800;
   color: #ffffff;
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1.1;
 }
 
 .radioStationName {
   margin-top: 2px;
-  font-size: 13px;
   color: rgba(255, 255, 255, 0.72);
+  font-size: 13px;
   font-weight: 600;
+  line-height: 1.2;
 }
 
 .radioTopBadges {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 8px;
   flex-wrap: wrap;
-  justify-content: flex-end;
 }
 
 .radioLiveBadge,
@@ -99,31 +104,31 @@
   padding: 6px 12px;
   border-radius: 999px;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 900;
   white-space: nowrap;
 }
 
 .radioLiveBadge {
   background: #22c55e;
-  color: #fff;
+  color: #ffffff;
 }
 
 .radioOfflineBadge {
   background: #64748b;
-  color: #fff;
+  color: #ffffff;
 }
 
 .radioBadgeSoft {
   background: rgba(255, 255, 255, 0.14);
-  color: #fff;
+  color: #ffffff;
 }
 
 .radioNowCard,
 .radioNowCardDisabled {
+  width: 100%;
   display: flex;
   align-items: center;
   gap: 12px;
-  width: 100%;
   padding: 12px;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.12);
@@ -138,13 +143,13 @@
   width: 56px;
   height: 56px;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.14);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 24px;
-  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.14);
 }
 
 .radioNowMeta {
@@ -153,37 +158,46 @@
 }
 
 .radioNowLabel {
-  font-size: 12px;
-  font-weight: 800;
   color: rgba(255, 255, 255, 0.72);
+  font-size: 12px;
+  font-weight: 900;
   letter-spacing: 0.04em;
 }
 
 .radioNowTitle {
   margin-top: 4px;
+  color: #ffffff;
   font-size: 19px;
   line-height: 1.1;
   font-weight: 900;
-  color: #ffffff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+.radioSubText {
+  margin: 6px 0 0;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* ONDA DA RÁDIO */
 .radioWave {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   margin-top: 8px;
-  height: 16px;
-  opacity: 0.7;
+  height: 18px;
+  min-width: 108px;
+  opacity: 0.72;
 }
 
 .radioWave span {
-  width: 4px;
-  height: 13px;
+  width: 5px;
+  height: 14px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.92);
   animation: radioWaveAnim 900ms ease-in-out infinite;
 }
 
@@ -211,6 +225,26 @@
   animation-delay: 480ms;
 }
 
+.radioWave span:nth-child(8) {
+  animation-delay: 560ms;
+}
+
+.radioWave span:nth-child(9) {
+  animation-delay: 640ms;
+}
+
+.radioWave span:nth-child(10) {
+  animation-delay: 720ms;
+}
+
+.radioWave span:nth-child(11) {
+  animation-delay: 800ms;
+}
+
+.radioWave span:nth-child(12) {
+  animation-delay: 880ms;
+}
+
 .radioWavePaused span {
   animation: none !important;
   opacity: 0.35;
@@ -233,12 +267,14 @@
   height: 56px;
   border-radius: 999px;
   border: none;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
   background: #ffffff;
   color: #1f2f49;
   font-size: 21px;
-  font-weight: 800;
+  font-weight: 900;
   cursor: pointer;
-  flex-shrink: 0;
   transition:
     transform 0.16s ease,
     filter 0.16s ease,
@@ -250,18 +286,11 @@
   filter: brightness(1.03);
 }
 
-.radioSubText {
-  margin: 6px 0 0;
-  font-size: 13px;
-  line-height: 1.4;
-  color: rgba(255, 255, 255, 0.78);
-}
-
 .radioError {
   margin-top: 10px;
-  font-size: 13px;
   color: #fecaca;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .radioActions {
@@ -273,50 +302,56 @@
 }
 
 .radioSecondaryBtn,
-.radioFullBtn {
-  min-height: 38px;
-  padding: 0 12px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 800;
-  cursor: pointer;
+.radioFullBtn,
+.radioPrimaryBtn {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 12px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 900;
   text-decoration: none;
+  cursor: pointer;
   transition:
     transform 0.18s ease,
     background 0.18s ease,
     filter 0.18s ease;
 }
 
+.radioFullBtn,
+.radioPrimaryBtn {
+  border: 1px solid rgba(217, 176, 113, 0.55);
+  background: rgba(217, 176, 113, 0.22);
+}
+
 .radioSecondaryBtn {
   border: 1px solid rgba(255, 255, 255, 0.16);
   background: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
 }
 
-.radioFullBtn {
-  border: 1px solid rgba(217, 176, 113, 0.55);
-  background: rgba(217, 176, 113, 0.2);
-  color: #ffffff;
-}
-
-.radioSecondaryBtn:hover,
-.radioFullBtn:hover {
+.radioFullBtn:hover,
+.radioPrimaryBtn:hover,
+.radioSecondaryBtn:hover {
   transform: translateY(-1px);
-  filter: brightness(1.03);
+  filter: brightness(1.04);
+}
+
+.radioFullBtn:hover,
+.radioPrimaryBtn:hover {
+  background: rgba(217, 176, 113, 0.34);
 }
 
 .radioSecondaryBtn:hover {
   background: rgba(255, 255, 255, 0.14);
 }
 
-.radioFullBtn:hover {
-  background: rgba(217, 176, 113, 0.3);
-}
+/* =========================
+   MARCA / TEXTO PRINCIPAL
+========================= */
 
-/* BRAND */
 .brand {
   display: inline-flex;
   align-items: center;
@@ -324,7 +359,7 @@
   margin-bottom: 26px;
   color: #ffffff;
   font-size: 22px;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .logo {
@@ -355,14 +390,17 @@
 }
 
 .subtitle {
+  max-width: 580px;
   margin: 0 0 22px;
   color: rgba(255, 255, 255, 0.82);
   font-size: 15px;
   line-height: 1.6;
-  max-width: 580px;
 }
 
-/* ACTIONS */
+/* =========================
+   BOTÕES PRINCIPAIS
+========================= */
+
 .actions {
   display: flex;
   flex-wrap: wrap;
@@ -380,13 +418,13 @@
   align-items: center;
   gap: 10px;
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 800;
   cursor: pointer;
+  text-decoration: none;
   transition:
     transform 0.18s ease,
     box-shadow 0.18s ease,
     filter 0.18s ease;
-  text-decoration: none;
 }
 
 .lightButton:hover,
@@ -419,35 +457,41 @@
   cursor: not-allowed;
 }
 
-/* ADDRESS */
+/* =========================
+   ENDEREÇO
+========================= */
+
 .addressBar {
-  margin-top: 18px;
-  min-height: 46px;
   width: fit-content;
   max-width: 100%;
+  min-height: 46px;
+  margin-top: 18px;
   padding: 10px 14px;
   border-radius: 14px;
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  background: rgba(255, 255, 255, 0.1);
   color: #eef2f7;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
+  word-break: break-word;
+  background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(8px);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
-  word-break: break-word;
 }
 
-/* MEDIA */
+/* =========================
+   IMAGEM / SOCIAL
+========================= */
+
 .media {
+  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: end;
   align-items: center;
   gap: 18px;
-  height: 100%;
 }
 
 .heroImage {
@@ -457,12 +501,11 @@
   filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.28));
 }
 
-/* SOCIAL */
 .socialRow {
   display: flex;
+  justify-content: center;
   gap: 12px;
   flex-wrap: wrap;
-  justify-content: center;
 }
 
 .socialInstagram,
@@ -475,10 +518,10 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  text-decoration: none;
   color: #ffffff;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 800;
+  text-decoration: none;
   transition:
     transform 0.18s ease,
     filter 0.18s ease;
@@ -502,13 +545,16 @@
   font-size: 16px;
 }
 
-/* RESPONSIVO */
+/* =========================
+   RESPONSIVO
+========================= */
+
 @media (max-width: 980px) {
   .content {
     grid-template-columns: 1fr;
     align-items: center;
-    padding: 32px 24px 24px;
     min-height: auto;
+    padding: 32px 24px 24px;
   }
 
   .copy {
@@ -534,49 +580,6 @@
     padding: 24px 18px 18px;
   }
 
-  .brand {
-    font-size: 16px;
-    margin-bottom: 18px;
-  }
-
-  .logo {
-    width: 54px;
-    height: 54px;
-  }
-
-  .actions {
-    gap: 10px;
-  }
-
-  .lightButton,
-  .darkButton,
-  .accessButton {
-    width: 100%;
-    justify-content: center;
-    font-size: 15px;
-    height: 52px;
-  }
-
-  .heroImage {
-    max-width: 300px;
-  }
-
-  .addressBar {
-    width: 100%;
-    font-size: 14px;
-    justify-content: flex-start;
-  }
-
-  .socialRow {
-    width: 100%;
-  }
-
-  .socialInstagram,
-  .socialFacebook {
-    flex: 1;
-    min-width: 140px;
-  }
-
   .radioCard {
     max-width: 100%;
     padding: 14px;
@@ -600,11 +603,22 @@
   .radioCover {
     width: 52px;
     height: 52px;
+    border-radius: 15px;
     font-size: 20px;
   }
 
   .radioNowTitle {
     font-size: 18px;
+  }
+
+  .radioWave {
+    min-width: 92px;
+    gap: 4px;
+  }
+
+  .radioWave span {
+    width: 4px;
+    height: 13px;
   }
 
   .radioPlayBtn {
@@ -615,5 +629,68 @@
 
   .radioActions {
     justify-content: flex-start;
+  }
+
+  .radioSecondaryBtn,
+  .radioFullBtn,
+  .radioPrimaryBtn {
+    min-height: 38px;
+    padding: 0 12px;
+    font-size: 12px;
+  }
+
+  .brand {
+    margin-bottom: 18px;
+    font-size: 16px;
+  }
+
+  .logo {
+    width: 54px;
+    height: 54px;
+  }
+
+  .title {
+    font-size: clamp(38px, 12vw, 52px);
+  }
+
+  .slogan {
+    font-size: clamp(22px, 7vw, 30px);
+  }
+
+  .subtitle {
+    font-size: 14px;
+  }
+
+  .actions {
+    gap: 10px;
+  }
+
+  .lightButton,
+  .darkButton,
+  .accessButton {
+    width: 100%;
+    height: 52px;
+    justify-content: center;
+    font-size: 15px;
+  }
+
+  .addressBar {
+    width: 100%;
+    justify-content: flex-start;
+    font-size: 14px;
+  }
+
+  .heroImage {
+    max-width: 300px;
+  }
+
+  .socialRow {
+    width: 100%;
+  }
+
+  .socialInstagram,
+  .socialFacebook {
+    flex: 1;
+    min-width: 140px;
   }
 }

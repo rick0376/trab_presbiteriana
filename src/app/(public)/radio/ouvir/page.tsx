@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import styles from "./styles.module.scss";
 import { useRouter } from "next/navigation";
 import { useRadioPlayer } from "@/components/radio/radioplayer/RadioPlayerProvider";
+import ProgramacaoRadioModal from "@/components/radio/programacao/ProgramacaoRadioModal/ProgramacaoRadioModal";
 
 type Listeners = {
   current: number;
@@ -106,6 +107,7 @@ export default function OuvirPage() {
   const [listeners, setListeners] = useState<Listeners | null>(null);
   const [nowPlaying, setNowPlaying] = useState<NowPlaying | null>(null);
   const [banners, setBanners] = useState<Banner[]>([]);
+  const [openProgramacao, setOpenProgramacao] = useState(false);
 
   async function loadListeners() {
     try {
@@ -189,177 +191,194 @@ export default function OuvirPage() {
   ).slice(0, 5);
 
   return (
-    <main className={styles.container}>
-      <div className={styles.card}>
-        <button
-          className={styles.back}
-          type="button"
-          onClick={() => router.back()}
-        >
-          ← Voltar
-        </button>
-
-        <h1 className={styles.pageTitle}>{title ?? "Ouvir Rádio"}</h1>
-
-        <div className={styles.statusRow}>
-          <span
-            className={
-              publicIsLive ? styles.statusLiveText : styles.statusOffText
-            }
+    <>
+      <main className={styles.container}>
+        <div className={styles.card}>
+          <button
+            className={styles.back}
+            type="button"
+            onClick={() => router.back()}
           >
-            {publicIsLive ? "AO VIVO" : "OFFLINE"}
-          </span>
+            ← Voltar
+          </button>
 
-          <span className={publicIsLive ? styles.dotLive : styles.dotOff} />
-        </div>
+          <h1 className={styles.pageTitle}>{title ?? "Ouvir Rádio"}</h1>
 
-        <div className={styles.logoTopArea}>
-          <BannerBox banner={bannerDestaqueSuperior} variant="bottom" />
-        </div>
+          <div className={styles.statusRow}>
+            <span
+              className={
+                publicIsLive ? styles.statusLiveText : styles.statusOffText
+              }
+            >
+              {publicIsLive ? "AO VIVO" : "OFFLINE"}
+            </span>
 
-        {listeners && (
-          <div className={styles.listenersPublic}>
-            <div>
-              👥 Ouvindo agora: <strong>{listeners.current ?? 0}</strong>
-            </div>
-
-            <div>
-              📈 Pico: <strong>{listeners.peak ?? 0}</strong>
-            </div>
+            <span className={publicIsLive ? styles.dotLive : styles.dotOff} />
           </div>
-        )}
 
-        <section
-          className={styles.radioShell}
-          style={{ ["--bg" as any]: `url(${BG_IMAGE})` }}
-        >
-          <div className={styles.bg} aria-hidden="true" />
-          <div className={styles.overlay} aria-hidden="true" />
+          <div className={styles.logoTopArea}>
+            <BannerBox banner={bannerDestaqueSuperior} variant="bottom" />
+          </div>
 
-          <div className={styles.inner}>
-            <BannerBox banner={bannerTopo} variant="top" />
+          {listeners && (
+            <div className={styles.listenersPublic}>
+              <div>
+                👥 Ouvindo agora: <strong>{listeners.current ?? 0}</strong>
+              </div>
 
-            <div className={styles.stationRow}>
-              <div className={styles.stationMeta}>
-                <div className={styles.accountName}>{ACCOUNT_NAME}</div>
-
-                <div className={styles.badges}>
-                  <span
-                    className={
-                      publicIsLive ? styles.badgeLive : styles.badgeOffline
-                    }
-                  >
-                    <span className={styles.badgeDot} />
-                    {publicIsLive ? "AO VIVO" : "OFFLINE"}
-                  </span>
-
-                  {publicIsLive ? (
-                    <span className={styles.badgeEvent}>{currentDj}</span>
-                  ) : null}
-                </div>
+              <div>
+                📈 Pico: <strong>{listeners.peak ?? 0}</strong>
               </div>
             </div>
+          )}
 
-            <div className={styles.mainGrid}>
-              <div className={styles.leftColumn}>
-                <div className={styles.nowCard}>
-                  <div
-                    className={styles.cover}
-                    style={{ ["--cover" as any]: `url(${currentArt})` }}
-                    aria-hidden="true"
-                  />
+          <section
+            className={styles.radioShell}
+            style={{ ["--bg" as any]: `url(${BG_IMAGE})` }}
+          >
+            <div className={styles.bg} aria-hidden="true" />
+            <div className={styles.overlay} aria-hidden="true" />
 
-                  <div className={styles.nowMeta}>
-                    <div className={styles.nowLabel}>
-                      {publicIsLive ? "TOCANDO AGORA" : "OFFLINE"}
-                    </div>
+            <div className={styles.inner}>
+              <BannerBox banner={bannerTopo} variant="top" />
 
-                    <div className={styles.nowTitle}>{currentTrack}</div>
+              <div className={styles.stationRow}>
+                <div className={styles.stationMeta}>
+                  <div className={styles.accountName}>{ACCOUNT_NAME}</div>
 
-                    <div
-                      className={`${styles.wave} ${
-                        !publicIsLive || !isPlaying ? styles.wavePaused : ""
-                      }`}
-                      aria-hidden="true"
+                  <div className={styles.badges}>
+                    <span
+                      className={
+                        publicIsLive ? styles.badgeLive : styles.badgeOffline
+                      }
                     >
-                      <span className={styles.bar} />
-                      <span className={styles.bar} />
-                      <span className={styles.bar} />
-                      <span className={styles.bar} />
-                      <span className={styles.bar} />
-                      <span className={styles.bar} />
-                      <span className={styles.bar} />
-                      <span className={styles.bar} />
-                      <span className={styles.bar} />
-                      <span className={styles.bar} />
-                      <span className={styles.bar} />
-                      <span className={styles.bar} />
-                    </div>
-                  </div>
+                      <span className={styles.badgeDot} />
+                      {publicIsLive ? "AO VIVO" : "OFFLINE"}
+                    </span>
 
-                  <button
-                    type="button"
-                    className={`${styles.playBtn} ${
-                      !publicCanPlay ? styles.playDisabled : ""
-                    }`}
-                    onClick={togglePlay}
-                    disabled={!publicCanPlay}
-                    aria-label={isPlaying ? "Pausar" : "Ouvir"}
-                    title={isPlaying ? "Pausar" : "Ouvir"}
-                  >
-                    {isPlaying ? "❚❚" : "▶"}
-                  </button>
+                    {publicIsLive ? (
+                      <span className={styles.badgeEvent}>{currentDj}</span>
+                    ) : null}
+                  </div>
                 </div>
+              </div>
 
-                {history.length > 0 && (
-                  <div className={styles.historyBox}>
-                    <div className={styles.historyTitle}>Últimas músicas</div>
+              <div className={styles.mainGrid}>
+                <div className={styles.leftColumn}>
+                  <div className={styles.nowCard}>
+                    <div
+                      className={styles.cover}
+                      style={{ ["--cover" as any]: `url(${currentArt})` }}
+                      aria-hidden="true"
+                    />
 
-                    <ul className={styles.historyList}>
-                      {history.map((item, index) => (
-                        <li
-                          key={`${item}-${index}`}
-                          className={styles.historyItem}
-                        >
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
+                    <div className={styles.nowMeta}>
+                      <div className={styles.nowLabel}>
+                        {publicIsLive ? "TOCANDO AGORA" : "OFFLINE"}
+                      </div>
+
+                      <div className={styles.nowTitle}>{currentTrack}</div>
+
+                      <div
+                        className={`${styles.wave} ${
+                          !publicIsLive || !isPlaying ? styles.wavePaused : ""
+                        }`}
+                        aria-hidden="true"
+                      >
+                        <span className={styles.bar} />
+                        <span className={styles.bar} />
+                        <span className={styles.bar} />
+                        <span className={styles.bar} />
+                        <span className={styles.bar} />
+                        <span className={styles.bar} />
+                        <span className={styles.bar} />
+                        <span className={styles.bar} />
+                        <span className={styles.bar} />
+                        <span className={styles.bar} />
+                        <span className={styles.bar} />
+                        <span className={styles.bar} />
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      className={`${styles.playBtn} ${
+                        !publicCanPlay ? styles.playDisabled : ""
+                      }`}
+                      onClick={togglePlay}
+                      disabled={!publicCanPlay}
+                      aria-label={isPlaying ? "Pausar" : "Ouvir"}
+                      title={isPlaying ? "Pausar" : "Ouvir"}
+                    >
+                      {isPlaying ? "❚❚" : "▶"}
+                    </button>
                   </div>
-                )}
+
+                  {history.length > 0 && (
+                    <div className={styles.historyBox}>
+                      <div className={styles.historyTitle}>Últimas músicas</div>
+
+                      <ul className={styles.historyList}>
+                        {history.map((item, index) => (
+                          <li
+                            key={`${item}-${index}`}
+                            className={styles.historyItem}
+                          >
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <BannerBox banner={bannerInferior} variant="bottom" />
+
+              <div className={styles.radioActions}>
+                <button
+                  type="button"
+                  className={styles.radioSecondaryBtn}
+                  onClick={() => setOpenProgramacao(true)}
+                >
+                  Ver programação
+                </button>
+              </div>
+
+              {!publicIsLive && (
+                <p className={styles.muted}>
+                  A transmissão ainda não está liberada para o público.
+                </p>
+              )}
+
+              {publicIsLive && !hasUrl && (
+                <p className={styles.muted}>
+                  Rádio ligada, mas nenhuma URL de áudio foi informada.
+                </p>
+              )}
+
+              {playError && <p className={styles.error}>{playError}</p>}
+
+              <div className={styles.adBadge}>
+                Desenvolvedor: <strong>Rick Pereira</strong> :{" "}
+                <a
+                  className={styles.adLink}
+                  href="https://wa.me/5512991890682"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  (12) 99189-0682
+                </a>
               </div>
             </div>
+          </section>
+        </div>
+      </main>
 
-            <BannerBox banner={bannerInferior} variant="bottom" />
-
-            {!publicIsLive && (
-              <p className={styles.muted}>
-                A transmissão ainda não está liberada para o público.
-              </p>
-            )}
-
-            {publicIsLive && !hasUrl && (
-              <p className={styles.muted}>
-                Rádio ligada, mas nenhuma URL de áudio foi informada.
-              </p>
-            )}
-
-            {playError && <p className={styles.error}>{playError}</p>}
-
-            <div className={styles.adBadge}>
-              Desenvolvedor: <strong>Rick Pereira</strong> :{" "}
-              <a
-                className={styles.adLink}
-                href="https://wa.me/5512991890682"
-                target="_blank"
-                rel="noreferrer"
-              >
-                (12) 99189-0682
-              </a>
-            </div>
-          </div>
-        </section>
-      </div>
-    </main>
+      <ProgramacaoRadioModal
+        open={openProgramacao}
+        onClose={() => setOpenProgramacao(false)}
+      />
+    </>
   );
 }
