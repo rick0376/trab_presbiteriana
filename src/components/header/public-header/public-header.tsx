@@ -20,7 +20,7 @@ export default function PublicHeader() {
           />
 
           <div className={styles.brandText}>
-            <span className={styles.brandTop}>IPR - Igreja</span>
+            <span className={styles.brandTop}>IPR -Igreja</span>
             <span className={styles.brandBottom}>
               Presbiteriana Renovada - MC
             </span>

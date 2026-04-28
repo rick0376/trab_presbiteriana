@@ -52,7 +52,7 @@
 
 .brandTop {
   color: rgba(255, 255, 255, 0.78);
-  font-size: 13px;
+  font-size: 18px;
   font-weight: 600;
   line-height: 1.1;
 }
@@ -151,8 +151,10 @@
   }
 
   .brandBottom {
-    font-size: 17px;
-    white-space: normal;
+    font-size: 16px;
+    white-space: nowrap;
+    overflow: visible;
+    text-overflow: unset;
   }
 }
 
@@ -181,11 +183,11 @@
   }
 
   .brandTop {
-    font-size: 10px;
+    font-size: 16px;
   }
 
   .brandBottom {
-    font-size: 14px;
+    font-size: 18px;
     line-height: 1.15;
     max-width: 210px;
   }
