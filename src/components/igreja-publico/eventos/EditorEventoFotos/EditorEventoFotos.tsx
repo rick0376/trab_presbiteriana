@@ -168,10 +168,14 @@ export default function EditorEventoFotos({
   }
 
   async function handleDelete(item: Item) {
+    if (!canEdit || saving) return;
+
     askConfirm(
       "Excluir foto?",
       "Deseja realmente excluir esta foto do evento?",
       async () => {
+        setSaving(true);
+
         try {
           const res = await fetch(
             `/api/eventos/imagens/${item.id}?igrejaId=${igrejaId}`,
@@ -192,6 +196,8 @@ export default function EditorEventoFotos({
           await load();
         } catch {
           toast.error("Erro de conexão.");
+        } finally {
+          setSaving(false);
         }
       },
     );

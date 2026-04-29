@@ -152,11 +152,10 @@ export default function ListaEventos({
 
       if (imagem) fd.append("imagem", imagem);
 
-      const res = await fetch(`/api/eventos/${id}`, {
+      const res = await fetch(`/api/eventos/${id}?igrejaId=${igrejaId}`, {
         method: "PATCH",
         body: fd,
       });
-
       const j = await res.json().catch(() => ({}));
 
       if (!res.ok) {
@@ -185,7 +184,10 @@ export default function ListaEventos({
         setSaving(true);
 
         try {
-          const res = await fetch(`/api/eventos/${id}`, { method: "DELETE" });
+          const res = await fetch(`/api/eventos/${id}?igrejaId=${igrejaId}`, {
+            method: "DELETE",
+          });
+
           const j = await res.json().catch(() => ({}));
 
           if (!res.ok) {
