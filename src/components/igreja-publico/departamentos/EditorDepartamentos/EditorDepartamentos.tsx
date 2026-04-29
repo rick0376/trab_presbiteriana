@@ -1,4 +1,4 @@
-//src/components/igreja-publico/departamentos/EditorDepartamentos.tsx
+//src/components/igreja-publico/departamentos/EditorDepartamentos/EditorDepartamentos.tsx
 
 "use client";
 
@@ -23,6 +23,7 @@ type MembroOption = {
 };
 
 type ResponsavelForm = {
+  localKey: string;
   id?: string;
   membroId: string;
   cargoTitulo: string;
@@ -44,6 +45,10 @@ type ConfirmState =
       message: string;
       onConfirm: () => void;
     };
+
+function makeLocalKey(prefix = "resp") {
+  return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
 
 function revokeIfBlob(url?: string | null) {
   if (url && url.startsWith("blob:")) {
@@ -119,6 +124,7 @@ export default function EditorDepartamentos({ igrejaId, canEdit }: Props) {
 
   async function load() {
     setLoading(true);
+
     try {
       const [rDepartamentos, rMembros] = await Promise.all([
         fetch(`/api/departamentos?igrejaId=${igrejaId}`, {
@@ -183,6 +189,7 @@ export default function EditorDepartamentos({ igrejaId, canEdit }: Props) {
     setResponsaveis((prev) => [
       ...prev,
       {
+        localKey: makeLocalKey(),
         membroId: "",
         cargoTitulo: "Responsável",
         bio: "",
@@ -204,12 +211,7 @@ export default function EditorDepartamentos({ igrejaId, canEdit }: Props) {
           const target = prev[index];
           revokeIfBlob(target?.previewUrl);
 
-          return prev
-            .filter((_, i) => i !== index)
-            .map((item, idx) => ({
-              ...item,
-              ordem: idx + 1,
-            }));
+          return prev.filter((_, i) => i !== index);
         });
 
         setConfirm({ open: false });
@@ -298,24 +300,27 @@ export default function EditorDepartamentos({ igrejaId, canEdit }: Props) {
     setCapaPreview(item.capaUrl ?? null);
     setRemoveCapa(false);
 
+    const responsaveisOrdenados = Array.isArray(item.responsaveis)
+      ? [...item.responsaveis].sort(
+          (a: any, b: any) => (a.ordem ?? 0) - (b.ordem ?? 0),
+        )
+      : [];
+
     setResponsaveis(
-      Array.isArray(item.responsaveis)
-        ? [...item.responsaveis]
-            .sort((a: any, b: any) => (a.ordem ?? 0) - (b.ordem ?? 0))
-            .map((resp: any, index: number) => ({
-              id: resp.id,
-              membroId: resp.membroId,
-              cargoTitulo: resp.cargoTitulo ?? "Responsável",
-              bio: resp.bio ?? "",
-              ordem: resp.ordem ?? index + 1,
-              ativo: resp.ativo !== false,
-              fotoUrl: resp.fotoUrl ?? null,
-              fotoPublicId: resp.fotoPublicId ?? null,
-              fotoFile: null,
-              previewUrl: resp.fotoUrl ?? null,
-              removeFoto: false,
-            }))
-        : [],
+      responsaveisOrdenados.map((resp: any, index: number) => ({
+        localKey: resp.id || makeLocalKey(),
+        id: resp.id,
+        membroId: resp.membroId,
+        cargoTitulo: resp.cargoTitulo ?? "Responsável",
+        bio: resp.bio ?? "",
+        ordem: Number(resp.ordem ?? index + 1),
+        ativo: resp.ativo !== false,
+        fotoUrl: resp.fotoUrl ?? null,
+        fotoPublicId: resp.fotoPublicId ?? null,
+        fotoFile: null,
+        previewUrl: resp.fotoUrl ?? null,
+        removeFoto: false,
+      })),
     );
 
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -339,11 +344,30 @@ export default function EditorDepartamentos({ igrejaId, canEdit }: Props) {
     }
 
     const membroIds = responsaveis.map((r) => r.membroId).filter(Boolean);
-
     const uniqueIds = new Set(membroIds);
 
     if (membroIds.length !== uniqueIds.size) {
       toast.error("Não repita o mesmo membro nos responsáveis.");
+      return;
+    }
+
+    const ordens = responsaveis
+      .filter((r) => r.membroId)
+      .map((r, index) => Number(r.ordem || index + 1));
+
+    const hasOrdemInvalida = ordens.some(
+      (ordemItem) => !Number.isFinite(ordemItem) || ordemItem <= 0,
+    );
+
+    if (hasOrdemInvalida) {
+      toast.error("A ordem dos responsáveis precisa ser maior que zero.");
+      return;
+    }
+
+    const ordensUnicas = new Set(ordens);
+
+    if (ordens.length !== ordensUnicas.size) {
+      toast.error("Não repita a mesma ordem nos responsáveis.");
       return;
     }
 
@@ -404,6 +428,7 @@ export default function EditorDepartamentos({ igrejaId, canEdit }: Props) {
       toast.success(
         editingId ? "Departamento atualizado ✅" : "Departamento criado ✅",
       );
+
       resetForm();
       await load();
     } catch {
@@ -559,6 +584,7 @@ export default function EditorDepartamentos({ igrejaId, canEdit }: Props) {
                     alt="Preview capa"
                     className={styles.previewHeroImage}
                   />
+
                   {canEdit && (
                     <button
                       type="button"
@@ -585,7 +611,9 @@ export default function EditorDepartamentos({ igrejaId, canEdit }: Props) {
 
                 <label
                   htmlFor="departamentoCapa"
-                  className={`${styles.fileBtn} ${capaFile ? styles.fileBtnSelected : ""}`}
+                  className={`${styles.fileBtn} ${
+                    capaFile ? styles.fileBtnSelected : ""
+                  }`}
                 >
                   <ImagePlus size={16} />
                   <span>
@@ -602,10 +630,11 @@ export default function EditorDepartamentos({ igrejaId, canEdit }: Props) {
             </div>
 
             {responsaveis.map((resp, index) => (
-              <div key={index} className={styles.responsavelCard}>
+              <div key={resp.localKey} className={styles.responsavelCard}>
                 <div className={styles.row}>
                   <div className={styles.flexGrow}>
                     <label className={styles.label}>Membro</label>
+
                     <select
                       className={styles.input}
                       value={resp.membroId}
@@ -615,6 +644,7 @@ export default function EditorDepartamentos({ igrejaId, canEdit }: Props) {
                       disabled={!canEdit || saving}
                     >
                       <option value="">Selecione um membro</option>
+
                       {membrosDisponiveis.map((m) => (
                         <option key={m.id} value={m.id}>
                           {m.nome} — {m.codigo}
@@ -638,6 +668,7 @@ export default function EditorDepartamentos({ igrejaId, canEdit }: Props) {
                     <label className={styles.label}>
                       Cargo no departamento
                     </label>
+
                     <input
                       className={styles.input}
                       value={resp.cargoTitulo}
@@ -651,9 +682,11 @@ export default function EditorDepartamentos({ igrejaId, canEdit }: Props) {
 
                   <div>
                     <label className={styles.label}>Ordem</label>
+
                     <input
                       className={styles.input}
                       type="number"
+                      min={1}
                       value={resp.ordem}
                       onChange={(e) =>
                         updateResponsavel(
@@ -668,6 +701,7 @@ export default function EditorDepartamentos({ igrejaId, canEdit }: Props) {
                 </div>
 
                 <label className={styles.label}>Bio / descrição</label>
+
                 <textarea
                   className={styles.textarea}
                   value={resp.bio}
@@ -702,6 +736,7 @@ export default function EditorDepartamentos({ igrejaId, canEdit }: Props) {
                         alt="Preview responsável"
                         className={styles.previewImage}
                       />
+
                       {canEdit && (
                         <button
                           type="button"
@@ -718,7 +753,7 @@ export default function EditorDepartamentos({ igrejaId, canEdit }: Props) {
 
                   <div className={styles.fileRow}>
                     <input
-                      id={`responsavelFoto_${index}`}
+                      id={`responsavelFoto_${resp.localKey}`}
                       className={styles.fileInput}
                       type="file"
                       accept="image/*"
@@ -732,8 +767,10 @@ export default function EditorDepartamentos({ igrejaId, canEdit }: Props) {
                     />
 
                     <label
-                      htmlFor={`responsavelFoto_${index}`}
-                      className={`${styles.fileBtn} ${resp.fotoFile ? styles.fileBtnSelected : ""}`}
+                      htmlFor={`responsavelFoto_${resp.localKey}`}
+                      className={`${styles.fileBtn} ${
+                        resp.fotoFile ? styles.fileBtnSelected : ""
+                      }`}
                     >
                       <ImagePlus size={16} />
                       <span>

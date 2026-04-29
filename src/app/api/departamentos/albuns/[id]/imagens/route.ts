@@ -1,4 +1,4 @@
-//src/app/api/departamentos/albuns/[Id]/imagens/route.ts
+//src/app/api/departamentos/albuns/[id]/imagens/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";

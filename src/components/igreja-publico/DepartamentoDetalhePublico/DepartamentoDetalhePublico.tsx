@@ -23,6 +23,19 @@ function getResumo(texto?: string | null) {
   return `${clean.slice(0, 317)}...`;
 }
 
+function ordenarResponsaveis(responsaveis: any[]) {
+  return [...(responsaveis ?? [])].sort((a, b) => {
+    const ordemA = Number(a?.ordem ?? 9999);
+    const ordemB = Number(b?.ordem ?? 9999);
+
+    if (ordemA !== ordemB) return ordemA - ordemB;
+
+    return String(a?.membro?.nome ?? "").localeCompare(
+      String(b?.membro?.nome ?? ""),
+    );
+  });
+}
+
 export default function DepartamentoDetalhePublico({
   churchName,
   whatsappUrl,
@@ -30,6 +43,7 @@ export default function DepartamentoDetalhePublico({
 }: Props) {
   const resumo = getResumo(item.descricao);
   const whatsappContato = item.whatsappUrl || whatsappUrl || null;
+  const responsaveisOrdenados = ordenarResponsaveis(item.responsaveis ?? []);
 
   return (
     <section className={styles.page}>
@@ -70,11 +84,12 @@ export default function DepartamentoDetalhePublico({
             </a>
           </div>
 
-          {item.responsaveis?.length ? (
+          {responsaveisOrdenados.length ? (
             <div className={styles.previewGrid}>
-              {item.responsaveis.slice(0, 2).map((resp: any) => (
+              {responsaveisOrdenados.slice(0, 2).map((resp: any) => (
                 <div key={resp.id} className={styles.previewCard}>
                   <div className={styles.previewRole}>{resp.cargoTitulo}</div>
+
                   <div className={styles.previewContent}>
                     <strong>{resp.membro?.nome || "Responsável"}</strong>
                     {resp.bio ? <span>{resp.bio}</span> : null}
@@ -102,6 +117,7 @@ export default function DepartamentoDetalhePublico({
 
       <div className={styles.contentCard}>
         <h2 className={styles.sectionTitle}>Sobre o departamento</h2>
+
         <div className={styles.textBlock}>
           <p>
             {item.descricao ||
@@ -116,8 +132,8 @@ export default function DepartamentoDetalhePublico({
         <h2 className={styles.sectionTitle}>Responsáveis</h2>
 
         <div className={styles.grid}>
-          {item.responsaveis?.length ? (
-            item.responsaveis.map((resp: any) => (
+          {responsaveisOrdenados.length ? (
+            responsaveisOrdenados.map((resp: any) => (
               <article key={resp.id} className={styles.card}>
                 <div className={styles.photoWrap}>
                   {resp.fotoUrl ? (
@@ -135,7 +151,9 @@ export default function DepartamentoDetalhePublico({
                   <h3 className={styles.cardTitle}>
                     {resp.membro?.nome || "Responsável"}
                   </h3>
+
                   <div className={styles.role}>{resp.cargoTitulo}</div>
+
                   <p className={styles.bio}>
                     {resp.bio || "Sem descrição cadastrada."}
                   </p>
