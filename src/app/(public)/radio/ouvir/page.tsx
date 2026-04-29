@@ -220,6 +220,7 @@ export default function OuvirPage() {
             <span className={publicIsLive ? styles.dotLive : styles.dotOff} />
           </div>
 
+          {/*}
           {listeners && (
             <div className={styles.listenersPublic}>
               <div>
@@ -231,7 +232,7 @@ export default function OuvirPage() {
               </div>
             </div>
           )}
-
+            */}
           <section
             className={styles.radioShell}
             style={{ ["--bg" as any]: `url(${BG_IMAGE})` }}
