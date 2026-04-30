@@ -239,7 +239,14 @@ export default function DepartamentosDestaque({ igrejaSlug }: Props) {
 
             return (
               <article key={item.id} className={styles.card}>
-                <div className={styles.imageWrap}>
+                <div
+                  className={styles.imageWrap}
+                  style={
+                    item.capaUrl
+                      ? { ["--dept-bg" as any]: `url(${cloud(item.capaUrl)})` }
+                      : undefined
+                  }
+                >
                   {item.capaUrl ? (
                     <img
                       src={cloud(item.capaUrl) ?? ""}

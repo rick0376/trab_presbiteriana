@@ -61,24 +61,25 @@
 
 .imageWrap {
   position: relative;
+  width: 100%;
   aspect-ratio: 4 / 5;
-  background: linear-gradient(180deg, #eef2f7 0%, #dbe7f3 100%);
+  height: auto;
+  background: #dbe7f3;
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px;
+  padding: 0;
+}
+
+.imageWrap::before {
+  display: none;
 }
 
 .image {
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  object-position: center;
+  object-fit: cover;
+  object-position: center bottom;
   display: block;
-  border-radius: 14px;
 }
-
 .imageFallback {
   width: 100%;
   height: 100%;
@@ -91,8 +92,14 @@
 }
 
 .overlay {
+  display: none;
+}
+
+/*
+.overlay {
   position: absolute;
   inset: 0;
+  z-index: 0;
   background: linear-gradient(
     180deg,
     rgba(9, 22, 38, 0.02) 0%,
@@ -100,7 +107,7 @@
   );
   pointer-events: none;
 }
-
+*/
 .body {
   padding: 16px;
   color: #ffffff;
@@ -362,9 +369,11 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
+  /*
   .imageWrap {
     height: 210px;
   }
+    */
 }
 
 @media (max-width: 540px) {
@@ -376,8 +385,9 @@
     width: 100%;
     justify-content: center;
   }
-
+  /*
   .imageWrap {
     height: 240px;
   }
+    */
 }

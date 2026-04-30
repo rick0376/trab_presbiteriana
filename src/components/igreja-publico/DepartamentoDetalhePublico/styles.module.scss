@@ -185,27 +185,21 @@
 .imageFrame {
   width: 100%;
   max-width: 340px;
-  min-height: 520px;
-  padding: 12px;
+  aspect-ratio: 4 / 5;
+  padding: 0;
   border-radius: 24px;
   background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
   border: 1px solid rgba(21, 44, 76, 0.08);
   box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  overflow: hidden;
 }
 
 .heroImage {
   width: 100%;
-  max-width: 100%;
-  max-height: 500px;
-  height: auto;
-  object-fit: contain;
+  height: 100%;
+  object-fit: cover;
   object-position: center;
-  border-radius: 18px;
   display: block;
-  background: #f6efe6;
 }
 
 .coverEmpty {
@@ -266,22 +260,20 @@
   flex-direction: column;
 }
 
-.photoWrap {
-  height: 250px;
-  background: linear-gradient(180deg, #eef2f7 0%, #dbe7f3 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px;
-  overflow: hidden;
-}
-
 .photo {
   width: 100%;
   height: 100%;
   object-fit: contain;
   object-position: center;
-  border-radius: 14px;
+  display: block;
+  background: linear-gradient(180deg, #eef2f7 0%, #dbe7f3 100%);
+}
+
+.photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
   display: block;
 }
 
@@ -359,8 +351,8 @@
   }
 
   .imageFrame {
-    max-width: 420px;
-    min-height: 420px;
+    max-width: 620px;
+    min-height: 620px;
   }
 }
 
@@ -402,10 +394,24 @@
   }
 
   .imageFrame {
-    min-height: 340px;
+    max-width: 100%;
+    aspect-ratio: auto;
+    min-height: auto;
+    padding: 0;
+    overflow: hidden;
   }
 
   .heroImage {
-    max-height: 340px;
+    width: 100%;
+    height: auto;
+    max-height: none;
+    object-fit: contain;
+    object-position: center;
+    display: block;
   }
+  /*
+  .photoWrap {
+    height: 610px;
+  }
+    */
 }
