@@ -26,6 +26,7 @@ type MusicaPublica = {
   id: string;
   titulo: string;
   letra: string;
+  playbackUrl?: string | null;
   ordem: number;
 };
 
@@ -217,6 +218,63 @@ export default function DepartamentosDestaque({ igrejaSlug }: Props) {
 
   if (!items.length) return null;
 
+  function showToastMessage(message: string) {
+    const el = document.createElement("div");
+
+    el.textContent = message;
+    el.style.position = "fixed";
+    el.style.right = "20px";
+    el.style.bottom = "20px";
+    el.style.zIndex = "99999";
+    el.style.padding = "14px 18px";
+    el.style.borderRadius = "14px";
+    el.style.background = "#123a66";
+    el.style.color = "#fff";
+    el.style.fontWeight = "800";
+    el.style.boxShadow = "0 18px 40px rgba(0,0,0,0.25)";
+    el.style.transition = "opacity .25s ease, transform .25s ease";
+
+    document.body.appendChild(el);
+
+    setTimeout(() => {
+      el.style.opacity = "0";
+      el.style.transform = "translateY(8px)";
+    }, 1800);
+
+    setTimeout(() => {
+      el.remove();
+    }, 2200);
+  }
+
+  async function copiarPlayback(url?: string | null) {
+    if (!url) return;
+
+    try {
+      await navigator.clipboard.writeText(url);
+      showToastMessage("Link do playback copiado!");
+    } catch {
+      showToastMessage("Não foi possível copiar o link.");
+    }
+  }
+
+  async function compartilharPlayback(url?: string | null, titulo?: string) {
+    if (!url) return;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: titulo || "Playback",
+          url,
+        });
+        return;
+      } catch {
+        return;
+      }
+    }
+
+    await copiarPlayback(url);
+  }
+
   return (
     <>
       <section id="departamentos" className={styles.section}>
@@ -267,6 +325,12 @@ export default function DepartamentosDestaque({ igrejaSlug }: Props) {
                     {primeiroResponsavel?.membro?.nome ||
                       "Responsável não informado"}
                   </div>
+
+                  {primeiroResponsavel?.cargoTitulo ? (
+                    <div className={styles.role}>
+                      {primeiroResponsavel.cargoTitulo}
+                    </div>
+                  ) : null}
 
                   <div className={styles.meta}>
                     {item.diasFuncionamento || "Dias não informados"}
@@ -373,6 +437,40 @@ export default function DepartamentosDestaque({ igrejaSlug }: Props) {
                       >
                         Próxima
                         <ChevronRight size={18} />
+                      </button>
+                    </div>
+                  ) : null}
+
+                  {selected.playbackUrl ? (
+                    <div className={styles.playbackBox}>
+                      <a
+                        href={selected.playbackUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className={styles.playbackBtn}
+                      >
+                        ▶ Abrir playback
+                      </a>
+
+                      <button
+                        type="button"
+                        className={styles.playbackBtnGhost}
+                        onClick={() => copiarPlayback(selected.playbackUrl)}
+                      >
+                        Copiar link
+                      </button>
+
+                      <button
+                        type="button"
+                        className={styles.playbackBtnGhost}
+                        onClick={() =>
+                          compartilharPlayback(
+                            selected.playbackUrl,
+                            selected.titulo,
+                          )
+                        }
+                      >
+                        Compartilhar
                       </button>
                     </div>
                   ) : null}

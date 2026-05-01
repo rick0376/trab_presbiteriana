@@ -125,6 +125,13 @@
 .leader {
   font-size: 13px;
   color: rgba(255, 255, 255, 0.88);
+  margin-bottom: 4px;
+}
+
+.role {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.72);
+  font-weight: 700;
   margin-bottom: 8px;
 }
 
@@ -245,6 +252,68 @@
     rgba(255, 255, 255, 0.24) 0%,
     rgba(255, 255, 255, 0.16) 100%
   );
+}
+
+/********************************************************************************************/
+
+.playbackBox {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 16px;
+  padding: 12px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #eef6ff 0%, #f8fafc 100%);
+  border: 1px solid rgba(27, 77, 132, 0.14);
+}
+
+.playbackBtn,
+.playbackBtnGhost {
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.16s ease,
+    background 0.16s ease;
+}
+
+.playbackBtn {
+  border: none;
+  background: linear-gradient(180deg, #2563eb 0%, #123a66 100%);
+  color: #ffffff;
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.22);
+}
+
+.playbackBtn:hover,
+.playbackBtnGhost:hover {
+  transform: translateY(-1px);
+}
+
+.playbackBtnGhost {
+  border: 1px solid rgba(27, 77, 132, 0.16);
+  background: #ffffff;
+  color: #17375b;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+}
+
+@media (max-width: 540px) {
+  .playbackBox {
+    padding: 10px;
+  }
+
+  .playbackBtn,
+  .playbackBtnGhost {
+    width: 100%;
+  }
 }
 
 /********************************************************************************************/

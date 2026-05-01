@@ -41,6 +41,7 @@ export async function GET(
           id: true,
           titulo: true,
           letra: true,
+          playbackUrl: true,
           ordem: true,
         },
         orderBy: [{ ordem: "asc" }, { titulo: "asc" }],

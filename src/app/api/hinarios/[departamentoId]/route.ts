@@ -50,6 +50,7 @@ export async function POST(req: NextRequest) {
 
   const titulo = String(body?.titulo ?? "").trim();
   const letra = String(body?.letra ?? "").trim();
+  const playbackUrl = String(body?.playbackUrl ?? "").trim();
   const ordem = Number(body?.ordem ?? 0);
   const ativo = body?.ativo !== false;
 
@@ -70,6 +71,7 @@ export async function POST(req: NextRequest) {
       departamentoId,
       titulo,
       letra,
+      playbackUrl: playbackUrl || null,
       ordem: Number.isFinite(ordem) ? ordem : 0,
       ativo,
     },

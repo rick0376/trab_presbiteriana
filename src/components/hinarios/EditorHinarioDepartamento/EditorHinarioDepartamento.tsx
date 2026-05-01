@@ -23,6 +23,7 @@ type Musica = {
   id: string;
   titulo: string;
   letra: string;
+  playbackUrl?: string | null;
   ordem: number;
   ativo: boolean;
 };
@@ -55,6 +56,7 @@ export default function EditorHinarioDepartamento({
 
   const [titulo, setTitulo] = useState("");
   const [letra, setLetra] = useState("");
+  const [playbackUrl, setPlaybackUrl] = useState("");
   const [ordem, setOrdem] = useState("0");
   const [ativo, setAtivo] = useState(true);
 
@@ -86,6 +88,7 @@ export default function EditorHinarioDepartamento({
     setEditingId(null);
     setTitulo("");
     setLetra("");
+    setPlaybackUrl("");
     setOrdem("0");
     setAtivo(true);
   }
@@ -94,6 +97,7 @@ export default function EditorHinarioDepartamento({
     setEditingId(item.id);
     setTitulo(item.titulo ?? "");
     setLetra(item.letra ?? "");
+    setPlaybackUrl(item.playbackUrl ?? "");
     setOrdem(String(item.ordem ?? 0));
     setAtivo(item.ativo !== false);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -123,6 +127,7 @@ export default function EditorHinarioDepartamento({
       const body = {
         titulo: titulo.trim(),
         letra: letra.trim(),
+        playbackUrl: playbackUrl.trim(),
         ordem: Number(ordem || 0),
         ativo,
       };
@@ -583,6 +588,15 @@ export default function EditorHinarioDepartamento({
                 />
               </div>
             </div>
+
+            <label className={styles.label}>Link do playback</label>
+            <input
+              className={styles.input}
+              value={playbackUrl}
+              onChange={(e) => setPlaybackUrl(e.target.value)}
+              placeholder="Cole aqui o link do playback. Ex: YouTube, Drive, Dropbox..."
+              disabled={saving}
+            />
 
             <label className={styles.label}>Letra</label>
             <textarea

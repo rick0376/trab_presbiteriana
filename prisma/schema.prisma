@@ -591,6 +591,7 @@ model DepartamentoMusica {
   departamentoId String
   titulo         String
   letra          String
+  playbackUrl    String?
   ordem          Int      @default(0)
   ativo          Boolean  @default(true)
   createdAt      DateTime @default(now())
