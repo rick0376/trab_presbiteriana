@@ -3,7 +3,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./styles.module.scss";
 import { Images, X } from "lucide-react";
 
@@ -22,6 +22,20 @@ export default function EventosPublicos({ slug }: { slug: string }) {
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Evento | null>(null);
+
+  const carouselRef = useRef<HTMLDivElement | null>(null);
+
+  function scrollCarousel(direction: "left" | "right") {
+    const el = carouselRef.current;
+    if (!el) return;
+
+    const amount = Math.min(380, el.clientWidth * 0.85);
+
+    el.scrollBy({
+      left: direction === "left" ? -amount : amount,
+      behavior: "smooth",
+    });
+  }
 
   async function load() {
     if (!slug) {
@@ -117,53 +131,73 @@ export default function EventosPublicos({ slug }: { slug: string }) {
           <div className={styles.skeleton} />
         </div>
       ) : eventos.length ? (
-        <div className={styles.grid}>
-          {eventos.map((e) => (
-            <article
-              key={e.id}
-              className={styles.card}
-              role="button"
-              tabIndex={0}
-              onClick={() => setSelected(e)}
-              onKeyDown={(ev) => {
-                if (ev.key === "Enter" || ev.key === " ") setSelected(e);
-              }}
-            >
-              <div className={styles.thumb}>
-                {e.imagemUrl ? (
-                  <img
-                    className={styles.thumbImg}
-                    src={cloudCard(e.imagemUrl) ?? ""}
-                    alt=""
-                  />
-                ) : (
-                  <img
-                    className={styles.thumbImg}
-                    src={
-                      e.imagemUrl
-                        ? cloudCard(e.imagemUrl)!
-                        : "/images/pastor.png"
-                    }
-                    alt=""
-                  />
-                )}
+        <div className={styles.carouselWrap}>
+          <button
+            type="button"
+            className={`${styles.carouselBtn} ${styles.carouselBtnLeft}`}
+            onClick={() => scrollCarousel("left")}
+            aria-label="Voltar eventos"
+          >
+            ‹
+          </button>
 
-                <div className={styles.badges}>
-                  {e.tipo ? (
-                    <span className={styles.badge}>{e.tipo}</span>
-                  ) : null}
-                  <span className={styles.badge}>{formatBR(e.data)}</span>
-                </div>
-              </div>
+          <div className={styles.grid} ref={carouselRef}>
+            {eventos.map((e) => (
+              <article
+                key={e.id}
+                className={styles.card}
+                role="button"
+                tabIndex={0}
+                onClick={() => setSelected(e)}
+                onKeyDown={(ev) => {
+                  if (ev.key === "Enter" || ev.key === " ") setSelected(e);
+                }}
+              >
+                <div className={styles.thumb}>
+                  {e.imagemUrl ? (
+                    <img
+                      className={styles.thumbImg}
+                      src={cloudCard(e.imagemUrl) ?? ""}
+                      alt=""
+                    />
+                  ) : (
+                    <img
+                      className={styles.thumbImg}
+                      src={
+                        e.imagemUrl
+                          ? cloudCard(e.imagemUrl)!
+                          : "/images/pastor.png"
+                      }
+                      alt=""
+                    />
+                  )}
 
-              <div className={styles.body}>
-                <h3 className={styles.cardTitle}>{e.titulo}</h3>
-                <div className={styles.meta}>
-                  {e.local ? e.local : e.responsavel ? e.responsavel : "—"}
+                  <div className={styles.badges}>
+                    {e.tipo ? (
+                      <span className={styles.badge}>{e.tipo}</span>
+                    ) : null}
+                    <span className={styles.badge}>{formatBR(e.data)}</span>
+                  </div>
                 </div>
-              </div>
-            </article>
-          ))}
+
+                <div className={styles.body}>
+                  <h3 className={styles.cardTitle}>{e.titulo}</h3>
+                  <div className={styles.meta}>
+                    {e.local ? e.local : e.responsavel ? e.responsavel : "—"}
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            className={`${styles.carouselBtn} ${styles.carouselBtnRight}`}
+            onClick={() => scrollCarousel("right")}
+            aria-label="Avançar eventos"
+          >
+            ›
+          </button>
         </div>
       ) : (
         <div className={styles.empty}>Nenhum evento programado no momento.</div>

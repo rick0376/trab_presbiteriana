@@ -32,27 +32,37 @@
   font-size: 16px;
 }
 
+.carouselWrap {
+  position: relative;
+}
+
 .grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
   gap: 18px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 4px 4px 18px;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+}
+
+.grid::-webkit-scrollbar {
+  height: 8px;
+}
+
+.grid::-webkit-scrollbar-thumb {
+  background: rgba(20, 53, 92, 0.3);
+  border-radius: 999px;
+}
+
+.grid::-webkit-scrollbar-track {
+  background: rgba(20, 53, 92, 0.08);
+  border-radius: 999px;
 }
 
 .card {
-  width: 100%;
-  background: #ffffff;
-  border-radius: 22px;
-  overflow: hidden;
-  cursor: pointer;
-  padding: 0;
-  text-align: left;
-  border: 1px solid rgba(21, 44, 76, 0.08);
-  box-shadow: 0 16px 34px rgba(13, 28, 48, 0.1);
-  transition:
-    transform 0.18s ease,
-    box-shadow 0.18s ease;
-  outline: none;
-  user-select: none;
+  flex: 0 0 330px;
+  scroll-snap-align: start;
 }
 
 .card:hover {
@@ -64,6 +74,37 @@
   box-shadow:
     0 0 0 4px rgba(59, 130, 246, 0.18),
     0 22px 42px rgba(13, 28, 48, 0.16);
+}
+
+.carouselBtn {
+  position: absolute;
+  top: 42%;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 46px;
+  height: 70px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.72);
+  color: #ffffff;
+  font-size: 42px;
+  font-weight: 900;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.22);
+}
+
+.carouselBtnLeft {
+  left: -12px;
+}
+
+.carouselBtnRight {
+  right: -12px;
+}
+
+.carouselBtn:hover {
+  background: rgba(20, 53, 92, 0.94);
 }
 
 .thumb {
@@ -329,9 +370,8 @@
 }
 
 @media (max-width: 1100px) {
-  .grid,
-  .skeletonGrid {
-    grid-template-columns: repeat(2, 1fr);
+  .card {
+    flex-basis: 320px;
   }
 
   .modalGrid {
@@ -345,9 +385,8 @@
     border-radius: 22px;
   }
 
-  .grid,
-  .skeletonGrid {
-    grid-template-columns: 1fr;
+  .card {
+    flex-basis: 82vw;
   }
 
   .title {
@@ -359,11 +398,25 @@
   }
 
   .thumb {
-    height: 220px;
+    height: 240px;
   }
 
   .cardTitle {
     font-size: 18px;
+  }
+
+  .carouselBtn {
+    width: 40px;
+    height: 60px;
+    font-size: 36px;
+  }
+
+  .carouselBtnLeft {
+    left: -6px;
+  }
+
+  .carouselBtnRight {
+    right: -6px;
   }
 
   .modalHeader {
