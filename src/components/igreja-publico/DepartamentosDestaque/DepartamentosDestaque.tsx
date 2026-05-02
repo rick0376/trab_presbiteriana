@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import styles from "./styles.module.scss";
@@ -69,6 +69,20 @@ export default function DepartamentosDestaque({ igrejaSlug }: Props) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [modalLoading, setModalLoading] = useState(false);
   const [modalError, setModalError] = useState("");
+
+  const carouselRef = useRef<HTMLDivElement | null>(null);
+
+  function scrollCarousel(direction: "left" | "right") {
+    const el = carouselRef.current;
+    if (!el) return;
+
+    const amount = Math.min(360, el.clientWidth * 0.8);
+
+    el.scrollBy({
+      left: direction === "left" ? -amount : amount,
+      behavior: "smooth",
+    });
+  }
 
   async function load() {
     if (!igrejaSlug) {
@@ -291,97 +305,119 @@ export default function DepartamentosDestaque({ igrejaSlug }: Props) {
           </Link>
         </div>
 
-        <div className={styles.grid}>
-          {items.slice(0, 6).map((item) => {
-            const primeiroResponsavel = item.responsaveis?.[0];
+        <div className={styles.carouselWrap}>
+          <button
+            type="button"
+            className={`${styles.carouselBtn} ${styles.carouselBtnLeft}`}
+            onClick={() => scrollCarousel("left")}
+            aria-label="Voltar departamentos"
+          >
+            ‹
+          </button>
 
-            return (
-              <article key={item.id} className={styles.card}>
-                <div
-                  className={styles.imageWrap}
-                  style={
-                    item.capaUrl
-                      ? { ["--dept-bg" as any]: `url(${cloud(item.capaUrl)})` }
-                      : undefined
-                  }
-                >
-                  {item.capaUrl ? (
-                    <img
-                      src={cloud(item.capaUrl) ?? ""}
-                      alt={item.nome}
-                      className={styles.image}
-                    />
-                  ) : (
-                    <div className={styles.imageFallback}>Sem imagem</div>
-                  )}
+          <div className={styles.grid} ref={carouselRef}>
+            {items.slice(0, 6).map((item) => {
+              const primeiroResponsavel = item.responsaveis?.[0];
 
-                  <div className={styles.overlay} />
-                </div>
-
-                <div className={styles.body}>
-                  <h3 className={styles.cardTitle}>{item.nome}</h3>
-
-                  <div className={styles.leader}>
-                    {primeiroResponsavel?.membro?.nome ||
-                      "Responsável não informado"}
-                  </div>
-
-                  {primeiroResponsavel?.cargoTitulo ? (
-                    <div className={styles.role}>
-                      {primeiroResponsavel.cargoTitulo}
-                    </div>
-                  ) : null}
-
-                  <div className={styles.meta}>
-                    {item.diasFuncionamento || "Dias não informados"}
-                  </div>
-
-                  {item.musicas?.length ? (
-                    <div className={styles.hinarioWrap}>
-                      <button
-                        type="button"
-                        className={styles.hinarioTrigger}
-                        onClick={() => toggleHinario(item.slug)}
-                      >
-                        {openHinarioSlug === item.slug
-                          ? `Ocultar músicas (${item.musicas.length})`
-                          : `Hinos / Louvores (${item.musicas.length})`}
-                      </button>
-
-                      {openHinarioSlug === item.slug ? (
-                        <div className={styles.hinarioBox}>
-                          <div className={styles.hinarioTitle}>
-                            Selecione uma música
-                          </div>
-
-                          <div className={styles.musicasList}>
-                            {item.musicas.map((musica) => (
-                              <button
-                                key={musica.id}
-                                type="button"
-                                className={styles.musicaBtn}
-                                onClick={() => openMusic(item, musica.id)}
-                                title={musica.titulo}
-                              >
-                                {musica.titulo}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      ) : null}
-                    </div>
-                  ) : null}
-
-                  <Link
-                    href={`/departamentos/${item.slug}`}
-                    className={styles.button}
+              return (
+                <article key={item.id} className={styles.card}>
+                  <div
+                    className={styles.imageWrap}
+                    style={
+                      item.capaUrl
+                        ? {
+                            ["--dept-bg" as any]: `url(${cloud(item.capaUrl)})`,
+                          }
+                        : undefined
+                    }
                   >
-                    Saiba mais
-                  </Link>
-                </div>
-              </article>
-            );
-          })}
+                    {item.capaUrl ? (
+                      <img
+                        src={cloud(item.capaUrl) ?? ""}
+                        alt={item.nome}
+                        className={styles.image}
+                      />
+                    ) : (
+                      <div className={styles.imageFallback}>Sem imagem</div>
+                    )}
+
+                    <div className={styles.overlay} />
+                  </div>
+
+                  <div className={styles.body}>
+                    <h3 className={styles.cardTitle}>{item.nome}</h3>
+
+                    <div className={styles.leader}>
+                      {primeiroResponsavel?.membro?.nome ||
+                        "Responsável não informado"}
+                    </div>
+
+                    {primeiroResponsavel?.cargoTitulo ? (
+                      <div className={styles.role}>
+                        {primeiroResponsavel.cargoTitulo}
+                      </div>
+                    ) : null}
+
+                    <div className={styles.meta}>
+                      {item.diasFuncionamento || "Dias não informados"}
+                    </div>
+
+                    {item.musicas?.length ? (
+                      <div className={styles.hinarioWrap}>
+                        <button
+                          type="button"
+                          className={styles.hinarioTrigger}
+                          onClick={() => toggleHinario(item.slug)}
+                        >
+                          {openHinarioSlug === item.slug
+                            ? `Ocultar músicas (${item.musicas.length})`
+                            : `Hinos / Louvores (${item.musicas.length})`}
+                        </button>
+
+                        {openHinarioSlug === item.slug ? (
+                          <div className={styles.hinarioBox}>
+                            <div className={styles.hinarioTitle}>
+                              Selecione uma música
+                            </div>
+
+                            <div className={styles.musicasList}>
+                              {item.musicas.map((musica) => (
+                                <button
+                                  key={musica.id}
+                                  type="button"
+                                  className={styles.musicaBtn}
+                                  onClick={() => openMusic(item, musica.id)}
+                                  title={musica.titulo}
+                                >
+                                  {musica.titulo}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        ) : null}
+                      </div>
+                    ) : null}
+
+                    <Link
+                      href={`/departamentos/${item.slug}`}
+                      className={styles.button}
+                    >
+                      Saiba mais
+                    </Link>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+
+          <button
+            type="button"
+            className={`${styles.carouselBtn} ${styles.carouselBtnRight}`}
+            onClick={() => scrollCarousel("right")}
+            aria-label="Avançar departamentos"
+          >
+            ›
+          </button>
         </div>
       </section>
 
